@@ -29,6 +29,8 @@ A 3D spherical minesweeper game built with Three.js, featuring a geodesic Goldbe
 
 Visit the [live demo](https://ozlphrt.github.io/GlobeSweeper/) to play the game.
 
+**Note**: GitHub Pages may take a few minutes to deploy after the first push.
+
 ## License
 
 MIT License
