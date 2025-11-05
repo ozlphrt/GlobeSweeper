@@ -1,0 +1,2714 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Spherical Minesweeper – Goldberg Tiling</title>
+
+  <style>
+
+    html, body { height: 100%; margin: 0; background: #f5f7fa; color: #1a1a1a; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+
+    #app { position: fixed; inset: 0; }
+
+    .ui { position: absolute; top: 12px; left: 12px; padding: 16px 12px 16px 16px; border-radius: 16px; backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.2) 100%); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6), inset 0 -1px 0 rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.3); width: fit-content; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+
+    .progress-section { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 16px; transition: margin-bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+
+    .progress-circle-wrapper { display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; }
+
+    .progress-circle-wrapper::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 80px; height: 80px; border-radius: 50%; background: rgba(0,0,0,0.05); z-index: 0; }
+
+    .progress-circle { width: 80px; height: 80px; border-radius: 50%; position: relative; display: flex; align-items: center; justify-content: center; z-index: 1; }
+
+    .progress-circle .percent { position: relative; z-index: 4; font-size: 16px; font-weight: 700; color: #1a1a1a; text-shadow: 0 0 4px rgba(255,255,255,0.8); transition: font-size 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+
+    .progress-circle.mine-hunt { --progress: 0%; position: relative; }
+
+    .progress-circle.mine-hunt::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 0deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.15) 100%); mask: radial-gradient(circle at center, transparent 20px, black 20px); -webkit-mask: radial-gradient(circle at center, transparent 20px, black 20px); z-index: 0; pointer-events: none; }
+
+    .progress-circle.mine-hunt::before { content: ''; position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 0deg, rgba(255,68,68,0.8) 0%, rgba(255,68,68,0.8) var(--progress, 0%), transparent var(--progress, 0%), transparent 100%); mask: radial-gradient(circle at center, black 0px, black 40px); -webkit-mask: radial-gradient(circle at center, black 0px, black 40px); filter: drop-shadow(0 0 10px rgba(255,68,68,1)) drop-shadow(0 0 16px rgba(255,68,68,0.8)); z-index: 1; pointer-events: none; }
+
+    .progress-circle.mine-hunt .progress-dot { position: absolute; top: 50%; left: 50%; width: 8px; height: 8px; background: #ff4444; border-radius: 50%; box-shadow: 0 0 12px #ff4444, 0 0 20px rgba(255,68,68,0.8); transform-origin: 50% 50%; transform: translate(-50%, -50%) rotate(0deg) translateY(-38px); z-index: 3; pointer-events: none; opacity: 0; transition: opacity 0.2s; }
+
+    .progress-circle.mine-hunt .progress-dot.visible { opacity: 1; }
+
+    .progress-circle.mine-hunt .white-center { position: absolute; inset: 4px; border-radius: 50%; background: rgba(255, 255, 255, 0.95); z-index: 2; pointer-events: none; }
+
+    .progress-circle.mine-hunt .red-dot { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 6px; height: 6px; background: #ff4444; border-radius: 50%; box-shadow: 0 0 8px #ff4444; z-index: 3; pointer-events: none; }
+
+    .progress-circle.exploration { --progress: 0%; position: relative; }
+
+    .progress-circle.exploration::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 0deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.15) 100%); mask: radial-gradient(circle at center, transparent 20px, black 20px); -webkit-mask: radial-gradient(circle at center, transparent 20px, black 20px); z-index: 0; pointer-events: none; }
+
+    .progress-circle.exploration::before { content: ''; position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 0deg, rgba(0,217,255,0.8) 0%, rgba(0,217,255,0.8) var(--progress, 0%), transparent var(--progress, 0%), transparent 100%); mask: radial-gradient(circle at center, black 0px, black 40px); -webkit-mask: radial-gradient(circle at center, black 0px, black 40px); filter: drop-shadow(0 0 10px rgba(0,217,255,1)) drop-shadow(0 0 16px rgba(0,217,255,0.8)); z-index: 1; pointer-events: none; }
+
+    .progress-circle.exploration .progress-dot { position: absolute; top: 50%; left: 50%; width: 8px; height: 8px; background: #00d9ff; border-radius: 50%; box-shadow: 0 0 12px #00d9ff, 0 0 20px rgba(0,217,255,0.8); transform-origin: 50% 50%; transform: translate(-50%, -50%) rotate(0deg) translateY(-38px); z-index: 3; pointer-events: none; opacity: 0; transition: opacity 0.2s; }
+
+    .progress-circle.exploration .progress-dot.visible { opacity: 1; }
+
+    .progress-circle.exploration .white-center { position: absolute; inset: 4px; border-radius: 50%; background: rgba(255, 255, 255, 0.95); z-index: 2; pointer-events: none; }
+
+    .progress-label { font-size: 12px; color: #1a1a1a; opacity: 0.9; font-weight: 600; transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+
+    .progress-value { font-size: 11px; color: #1a1a1a; opacity: 0.8; font-variant-numeric: tabular-nums; transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+
+    .hearts-container { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
+
+    .heart { width: 20px; height: 20px; color: #ff4444; filter: drop-shadow(0 0 4px rgba(255,68,68,0.6)); font-size: 18px; line-height: 1; transition: font-size 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+
+    .timer-section { display: none; align-items: center; gap: 10px; padding: 10px 12px; background: rgba(0,0,0,0.05); border-radius: 10px; margin-bottom: 12px; border: 1px solid rgba(0,0,0,0.1); box-sizing: border-box; transition: margin-bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+
+    .timer-section.aligned { display: flex; }
+
+    .timer-icon { font-size: 16px; opacity: 0.9; transition: font-size 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+
+    .timer-value { font-size: 14px; font-weight: 600; color: #1a1a1a; font-variant-numeric: tabular-nums; letter-spacing: 1px; transition: font-size 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+
+    .ui.compact { padding: 8px 6px 8px 8px; min-width: auto; transform: scale(0.7); transform-origin: top left; }
+
+    .ui.compact .progress-label { opacity: 0; visibility: hidden; max-height: 0; overflow: hidden; }
+
+    .ui.compact .progress-value { opacity: 0; visibility: hidden; max-height: 0; overflow: hidden; }
+
+    .ui.compact .controls-section { opacity: 0; visibility: hidden; max-height: 0; overflow: hidden; pointer-events: none; }
+
+    .ui.compact .progress-section { margin-bottom: 10px; }
+
+    .ui.compact .timer-section { margin-bottom: 10px; }
+
+    .ui.compact .progress-circle .percent { font-size: 24px; }
+
+    .ui.compact .timer-value { font-size: 22px; }
+
+    .ui.compact .timer-icon { font-size: 24px; }
+
+    .ui.compact .heart { font-size: 26px; }
+
+    .controls-section { display: flex; gap: 8px; width: fit-content; box-sizing: border-box; transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+
+    .control-btn { width: 40px; height: 40px; border-radius: 10px; background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; font-size: 18px; color: #1a1a1a; }
+
+    .control-btn:hover { background: rgba(0,0,0,0.1); transform: translateY(-1px); }
+
+    .control-btn:active { transform: translateY(0); }
+
+    .control-btn.reset { width: auto; padding: 0 14px; font-size: 12px; font-weight: 600; }
+
+    .row { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; }
+
+    .row label { font-size: 12px; opacity: 0.9; }
+
+    .row output { font-variant-numeric: tabular-nums; font-size: 12px; opacity: 0.9; }
+
+    input[type=range] { width: 180px; }
+
+    #debugPanel input[type=range] { width: auto; }
+
+    .pill { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); }
+
+    .btn { font-size: 12px; padding: 6px 10px; border-radius: 10px; color: #0b0d12; background: #9ad1ff; border: 0; cursor: pointer; font-weight: 600; }
+
+    .btn:active { transform: translateY(1px); }
+
+    .ok { color: #b1ffb0; }
+
+    .bad { color: #ff8080; }
+
+    #debugPanel { position: fixed; top: 12px; right: 12px; width: 300px; max-height: 90vh; overflow-y: auto; overflow-x: hidden; background: #ffffff; display: none; z-index: 1000; font-family: 'Lucida Grande', sans-serif; font-size: 11px; font-weight: 600; color: #1a1a1a; box-shadow: 0 2px 10px rgba(0,0,0,0.2); border: 1px solid rgba(0,0,0,0.1); box-sizing: border-box; }
+
+    #debugPanel.visible { display: block; }
+
+    .debug-section { border-bottom: 1px solid #e0e0e0; }
+
+    .debug-section-header { display: flex; align-items: center; padding: 4px 8px; cursor: pointer; user-select: none; background: #f5f5f5; color: #1a1a1a; font-weight: 600; margin: 0; }
+
+    .debug-section-header:hover { background: #eeeeee; }
+
+    .debug-section-header .triangle { display: inline-block; width: 0; height: 0; border-left: 4px solid #666; border-top: 3px solid transparent; border-bottom: 3px solid transparent; margin-right: 6px; transition: transform 0.1s; }
+
+    .debug-section-header.collapsed .triangle { transform: rotate(-90deg); }
+
+    .debug-section-content { display: block; }
+
+    .debug-section.collapsed .debug-section-content { display: none; }
+
+    .debug-control { display: flex; align-items: center; height: 24px; padding: 0 8px; box-sizing: border-box; min-width: 0; }
+
+    .debug-control:hover { background: #f9f9f9; }
+
+    .debug-control label { flex: 0 0 auto; min-width: 90px; max-width: 90px; font-size: 11px; font-weight: 600; color: #1a1a1a; margin-right: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .debug-control .control-wrapper { flex: 1; display: flex; align-items: center; height: 20px; position: relative; margin-right: 8px; min-width: 0; }
+
+    .debug-control input[type=range] { flex: 1; height: 20px; min-width: 0; max-width: 100%; width: 100%; -webkit-appearance: none; appearance: none; background: transparent; margin: 0; }
+
+    .debug-control input[type=range]::-webkit-slider-track { height: 2px; background: #ddd; }
+
+    .debug-control input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 12px; height: 12px; background: #0066ff; border: none; border-radius: 0; cursor: pointer; margin-top: -5px; }
+
+    .debug-control input[type=range]::-moz-range-track { height: 2px; background: #ddd; border: none; }
+
+    .debug-control input[type=range]::-moz-range-thumb { width: 12px; height: 12px; background: #0066ff; border: none; border-radius: 0; cursor: pointer; }
+
+    .debug-control input[type=range]::-webkit-slider-runnable-track { height: 2px; background: linear-gradient(to right, #0066ff 0%, #0066ff var(--fill, 0%), #ddd var(--fill, 0%), #ddd 100%); }
+
+    .debug-control input[type=number] { width: 60px; height: 18px; padding: 0 4px; background: #ffffff; border: 1px solid #ddd; color: #0066aa; font-size: 11px; font-family: monospace; text-align: right; }
+
+    .debug-control input[type=number]:focus { outline: 1px solid #0066ff; border-color: #0066ff; }
+
+    .debug-control input[type=color] { width: 40px; height: 18px; border: 1px solid #ddd; cursor: pointer; padding: 0; }
+
+    .debug-control .color-display { width: 40px; height: 18px; border: 1px solid #ddd; margin-right: 8px; cursor: pointer; position: relative; }
+
+    .debug-control .color-hex { font-size: 10px; color: #0066aa; font-family: monospace; min-width: 50px; }
+
+    .debug-control input[type=checkbox] { width: 14px; height: 14px; margin: 0; cursor: pointer; -webkit-appearance: none; appearance: none; background: #ffffff; border: 1px solid #999; position: relative; }
+
+    .debug-control input[type=checkbox]:checked { background: #0066ff; border-color: #0066ff; }
+
+    .debug-control input[type=checkbox]:checked::after { content: '✓'; position: absolute; top: -2px; left: 2px; color: #fff; font-size: 12px; }
+
+    .debug-control button { padding: 4px 12px; background: #f5f5f5; border: 1px solid #ddd; color: #1a1a1a; cursor: pointer; font-size: 11px; font-family: inherit; }
+
+    #debugSaveClipboard { padding: 8px 12px; background: #0066ff; border: 1px solid #0055dd; color: #ffffff; cursor: pointer; font-size: 11px; font-family: inherit; font-weight: 600; border-radius: 4px; transition: background 0.2s; }
+
+    #debugSaveClipboard:hover { background: #0055dd; }
+
+    #debugLoadClipboard { padding: 8px 12px; background: #28a745; border: 1px solid #218838; color: #ffffff; cursor: pointer; font-size: 11px; font-family: inherit; font-weight: 600; border-radius: 4px; transition: background 0.2s; }
+
+    #debugLoadClipboard:hover { background: #218838; }
+
+    .debug-control button:hover { background: #eeeeee; }
+
+    .debug-control select { flex: 1; height: 18px; background: #ffffff; border: 1px solid #ddd; color: #1a1a1a; font-size: 11px; padding: 0 4px; margin-right: 8px; }
+
+    #debugCloseBtn { width: 100%; padding: 8px; background: #f5f5f5; border: none; border-top: 1px solid #e0e0e0; color: #1a1a1a; cursor: pointer; font-size: 11px; font-family: inherit; }
+
+    #debugCloseBtn:hover { background: #eeeeee; }
+
+  </style>
+
+</head>
+
+<body>
+
+  <div id="app"></div>
+
+  <div class="ui">
+
+    <div class="progress-section">
+
+      <div class="progress-circle-wrapper">
+
+        <div class="progress-circle mine-hunt" id="mineHuntCircle">
+
+          <div class="white-center"></div>
+
+          <div class="red-dot"></div>
+
+          <div class="progress-dot"></div>
+
+          <div class="percent" id="mineHuntPercent">0%</div>
+
+        </div>
+
+        <div class="progress-label" style="font-weight: 600;">Mine Hunt</div>
+
+        <div class="progress-value" id="mineHuntValue">0/0</div>
+
+      </div>
+
+      <div class="progress-circle-wrapper">
+
+        <div class="progress-circle exploration" id="explorationCircle">
+
+          <div class="white-center"></div>
+
+          <div class="progress-dot"></div>
+
+          <div class="percent" id="explorationPercent">0%</div>
+
+        </div>
+
+        <div class="progress-label" style="font-weight: 600;">Exploration</div>
+
+        <div class="progress-value" id="explorationValue">0/0</div>
+
+      </div>
+
+      <div class="hearts-container" id="heartsContainer">
+
+        <div class="heart">♥</div>
+
+        <div class="heart">♥</div>
+
+        <div class="heart">♥</div>
+
+      </div>
+
+    </div>
+
+    <div class="timer-section">
+
+      <span class="timer-icon">🕐</span>
+
+      <span class="timer-value" id="timerValue">00:00</span>
+
+    </div>
+
+    <div class="controls-section">
+
+      <button class="control-btn reset" id="newGame">Reset</button>
+
+      <button class="control-btn" id="soundToggle" title="Toggle Sound">🔊</button>
+
+      <button class="control-btn" id="debugToggle" title="Toggle Debug Panel (Ctrl+Shift+Alt+D)">⚙️</button>
+
+      <button class="control-btn" id="globeBtn" title="Globe">🌐</button>
+
+    </div>
+
+  </div>
+
+
+
+  <div id="debugPanel">
+
+    <div class="debug-section">
+
+      <div class="debug-section-header"><span class="triangle"></span>Game Settings</div>
+
+      <div class="debug-section-content">
+
+        <div class="debug-control"><label>Tile Density</label><div class="control-wrapper"><input type="range" id="debugFreq" min="1" max="20" step="1" value="15" /></div><input type="number" id="debugFreqValue" value="15" readonly /></div>
+
+        <div class="debug-control"><label>Mine %</label><div class="control-wrapper"><input type="range" id="debugMineRatio" min="5" max="30" step="1" value="7" /></div><input type="number" id="debugMineRatioValue" value="7" readonly /></div>
+
+        <div class="debug-control"><label>Empty Tile %</label><div class="control-wrapper"><input type="range" id="debugEmptyRatio" min="0" max="100" step="1" value="30" /></div><input type="number" id="debugEmptyRatioValue" value="30" readonly /></div>
+
+        <div class="debug-control"><label>Initial Reveal %</label><div class="control-wrapper"><input type="range" id="debugInitialReveal" min="0" max="100" step="1" value="12" /></div><input type="number" id="debugInitialRevealValue" value="12" readonly /></div>
+
+        <div class="debug-control"><label>Glass</label><div class="control-wrapper"><input type="range" id="debugGlass" min="0" max="1" step="0.01" value="0" /></div><input type="number" id="debugGlassValue" value="0" step="0.01" readonly /></div>
+
+        <div class="debug-control"><label>Glass Tint</label><div class="color-display" id="debugGlassTintDisplay" style="background: #5a7aff;"></div><span class="color-hex" id="debugGlassTintHex">#5a7aff</span><input type="color" id="debugGlassTint" value="#5a7aff" style="display:none;" /></div>
+
+        <div class="debug-control"><label>Immortal Mode</label><div class="control-wrapper"></div><input type="checkbox" id="debugImmortal" /></div>
+
+      </div>
+
+    </div>
+
+    <div class="debug-section collapsed">
+
+      <div class="debug-section-header collapsed"><span class="triangle"></span>Wireframe Colors</div>
+
+      <div class="debug-section-content">
+
+        <div class="debug-control"><label>Hex Color</label><div class="color-display" id="debugWireHexDisplay" style="background: #2a5aff;"></div><span class="color-hex" id="debugWireHexHex">#2a5aff</span><input type="color" id="debugWireHex" value="#2a5aff" style="display:none;" /></div>
+
+        <div class="debug-control"><label>Pent Color</label><div class="color-display" id="debugWirePentDisplay" style="background: #ffb86b;"></div><span class="color-hex" id="debugWirePentHex">#ffb86b</span><input type="color" id="debugWirePent" value="#ffb86b" style="display:none;" /></div>
+
+      </div>
+
+    </div>
+
+    <div class="debug-section collapsed">
+
+      <div class="debug-section-header collapsed"><span class="triangle"></span>Tile Colors</div>
+
+      <div class="debug-section-content">
+
+        <div class="debug-control"><label>Hidden</label><div class="color-display" id="debugTileHiddenDisplay" style="background: #d0d5dc;"></div><span class="color-hex" id="debugTileHiddenHex">#d0d5dc</span><input type="color" id="debugTileHidden" value="#d0d5dc" style="display:none;" /></div>
+
+        <div class="debug-control"><label>Revealed</label><div class="color-display" id="debugTileRevealedDisplay" style="background: #a0c4ff;"></div><span class="color-hex" id="debugTileRevealedHex">#a0c4ff</span><input type="color" id="debugTileRevealed" value="#a0c4ff" style="display:none;" /></div>
+
+        <div class="debug-control"><label>Flag</label><div class="color-display" id="debugTileFlagDisplay" style="background: #ff6b6b;"></div><span class="color-hex" id="debugTileFlagHex">#ff6b6b</span><input type="color" id="debugTileFlag" value="#ff6b6b" style="display:none;" /></div>
+
+        <div class="debug-control"><label>Mine</label><div class="color-display" id="debugTileMineDisplay" style="background: #ff4444;"></div><span class="color-hex" id="debugTileMineHex">#ff4444</span><input type="color" id="debugTileMine" value="#ff4444" style="display:none;" /></div>
+
+      </div>
+
+    </div>
+
+    <div class="debug-section">
+
+      <div class="debug-section-header"><span class="triangle"></span>Number Labels</div>
+
+      <div class="debug-section-content">
+
+        <div class="debug-control"><label>Offset</label><div class="control-wrapper"><input type="range" id="debugLabelOffset" min="1" max="1.1" step="0.001" value="1.015" /></div><input type="number" id="debugLabelOffsetValue" value="1.015" step="0.001" readonly /></div>
+
+        <div class="debug-control"><label>Rotation (deg)</label><div class="control-wrapper"><input type="range" id="debugLabelRot" min="0" max="360" step="1" value="0" /></div><input type="number" id="debugLabelRotValue" value="0" readonly /></div>
+
+        <div class="debug-control"><label>Rotation X (deg)</label><div class="control-wrapper"><input type="range" id="debugLabelRotX" min="0" max="360" step="1" value="0" /></div><input type="number" id="debugLabelRotXValue" value="0" readonly /></div>
+
+        <div class="debug-control"><label>Rotation Y (deg)</label><div class="control-wrapper"><input type="range" id="debugLabelRotY" min="0" max="360" step="1" value="0" /></div><input type="number" id="debugLabelRotYValue" value="0" readonly /></div>
+
+        <div class="debug-control"><label>Rotation Z (deg)</label><div class="control-wrapper"><input type="range" id="debugLabelRotZ" min="0" max="360" step="1" value="0" /></div><input type="number" id="debugLabelRotZValue" value="0" readonly /></div>
+
+        <div class="debug-control"><label>Scale</label><div class="control-wrapper"><input type="range" id="debugLabelScale" min="0.01" max="0.2" step="0.01" value="0.12" /></div><input type="number" id="debugLabelScaleValue" value="0.12" step="0.01" readonly /></div>
+
+        <div class="debug-control"><label>Color</label><div class="color-display" id="debugLabelColorDisplay" style="background: #8aaadd;"></div><span class="color-hex" id="debugLabelColorHex">#8aaadd</span><input type="color" id="debugLabelColor" value="#8aaadd" style="display:none;" /></div>
+
+      </div>
+
+    </div>
+
+    <div class="debug-section">
+
+      <div class="debug-section-header"><span class="triangle"></span>Camera</div>
+
+      <div class="debug-section-content">
+
+        <div class="debug-control"><label>Background</label><div class="color-display" id="debugCamBgDisplay" style="background: #f5f7fa;"></div><span class="color-hex" id="debugCamBgHex">#f5f7fa</span><input type="color" id="debugCamBg" value="#f5f7fa" style="display:none;" /></div>
+
+        <div class="debug-control"><label>FOV</label><div class="control-wrapper"><input type="range" id="debugCamFOV" min="10" max="120" step="1" value="32" /></div><input type="number" id="debugCamFOVValue" value="32" readonly /></div>
+
+        <div class="debug-control"><label>Position X</label><div class="control-wrapper"><input type="range" id="debugCamX" min="-10" max="10" step="0.1" value="3.1" /></div><input type="number" id="debugCamXValue" value="3.1" step="0.1" readonly /></div>
+
+        <div class="debug-control"><label>Position Y</label><div class="control-wrapper"><input type="range" id="debugCamY" min="-10" max="10" step="0.1" value="0.6" /></div><input type="number" id="debugCamYValue" value="0.6" step="0.1" readonly /></div>
+
+        <div class="debug-control"><label>Position Z</label><div class="control-wrapper"><input type="range" id="debugCamZ" min="-10" max="10" step="0.1" value="1.4" /></div><input type="number" id="debugCamZValue" value="1.4" step="0.1" readonly /></div>
+
+        <div class="debug-control"><label>Near</label><div class="control-wrapper"><input type="range" id="debugCamNear" min="0.01" max="1" step="0.001" value="0.01" /></div><input type="number" id="debugCamNearValue" value="0.01" step="0.001" readonly /></div>
+
+        <div class="debug-control"><label>Far</label><div class="control-wrapper"><input type="range" id="debugCamFar" min="10" max="1000" step="1" value="100" /></div><input type="number" id="debugCamFarValue" value="100" readonly /></div>
+
+        <div class="debug-control"><label>Fog Enabled</label><div class="control-wrapper"></div><input type="checkbox" id="debugCamFog" /></div>
+
+      </div>
+
+    </div>
+
+    <button id="debugSaveClipboard" style="width: 100%; margin-bottom: 8px;">📋 Save to Clipboard</button>
+
+    <button id="debugLoadClipboard" style="width: 100%; margin-bottom: 8px;">📥 Load from Clipboard</button>
+
+    <button id="debugCloseBtn">Close Controls</button>
+
+  </div>
+
+  <div id="fpsCounter" style="position: fixed; bottom: 12px; right: 12px; font-family: monospace; font-size: 12px; color: #1a1a1a; background: rgba(255, 255, 255, 0.8); padding: 4px 8px; border-radius: 4px; backdrop-filter: blur(8px); z-index: 100;">FPS: --</div>
+
+  <!-- Three.js (UMD) pinned to r146 so OrbitControls works without modules -->
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/build/three.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/controls/OrbitControls.js"></script>
+
+
+
+  <script>
+
+    // ===== Geometry core =====
+
+    function icosahedron(radius = 1) {
+
+      const t = (1 + Math.sqrt(5)) / 2;
+
+      const verts = [
+
+        new THREE.Vector3(-1,  t,  0), new THREE.Vector3( 1,  t,  0), new THREE.Vector3(-1, -t,  0), new THREE.Vector3( 1, -t,  0),
+
+        new THREE.Vector3( 0, -1,  t), new THREE.Vector3( 0,  1,  t), new THREE.Vector3( 0, -1, -t), new THREE.Vector3( 0,  1, -t),
+
+        new THREE.Vector3( t,  0, -1), new THREE.Vector3( t,  0,  1), new THREE.Vector3(-t,  0, -1), new THREE.Vector3(-t,  0,  1),
+
+      ];
+
+      for (const v of verts) v.normalize().multiplyScalar(radius);
+
+      const faces = [
+
+        [0,11,5],[0,5,1],[0,1,7],[0,7,10],[0,10,11],
+
+        [1,5,9],[5,11,4],[11,10,2],[10,7,6],[7,1,8],
+
+        [3,9,4],[3,4,2],[3,2,6],[3,6,8],[3,8,9],
+
+        [4,9,5],[2,4,11],[6,2,10],[8,6,7],[9,8,1]
+
+      ];
+
+      return { verts, faces };
+
+    }
+
+
+
+    function geodesicSubdivide(base, frequency, radius) {
+
+      const vertMap = new Map();
+
+      const getVertId = (v) => {
+
+        const s = 1e6;
+
+        const key = `${Math.round(v.x * s)}_${Math.round(v.y * s)}_${Math.round(v.z * s)}`;
+
+        if (!vertMap.has(key)) {
+
+          const id = vertMap.size;
+
+          const normalized = v.clone().normalize().multiplyScalar(radius);
+
+          vertMap.set(key, { id, v: normalized });
+
+        }
+
+        return vertMap.get(key).id;
+
+      };
+
+
+
+      const newVerts = [];
+
+      const newFaces = [];
+
+
+
+      for (const face of base.faces) {
+
+        const v0 = base.verts[face[0]];
+
+        const v1 = base.verts[face[1]];
+
+        const v2 = base.verts[face[2]];
+
+
+
+        const subdivs = [];
+
+        for (let i = 0; i <= frequency; i++) {
+
+          const row = [];
+
+          for (let j = 0; j <= i; j++) {
+
+            const a = (frequency - i) / frequency;
+
+            const b = (i - j) / frequency;
+
+            const c = j / frequency;
+
+            const v = new THREE.Vector3()
+
+              .addScaledVector(v0, a)
+
+              .addScaledVector(v1, b)
+
+              .addScaledVector(v2, c);
+
+            row.push(v);
+
+          }
+
+          subdivs.push(row);
+
+        }
+
+
+
+        for (let i = 0; i < frequency; i++) {
+
+          for (let j = 0; j <= i; j++) {
+
+            const a = subdivs[i][j];
+
+            const b = subdivs[i + 1][j];
+
+            const c = subdivs[i + 1][j + 1];
+
+            newFaces.push([getVertId(a), getVertId(b), getVertId(c)]);
+
+            if (j < i) {
+
+              const d = subdivs[i][j + 1];
+
+              newFaces.push([getVertId(a), getVertId(c), getVertId(d)]);
+
+            }
+
+          }
+
+        }
+
+      }
+
+
+
+      const vertArray = Array.from({ length: vertMap.size });
+
+      for (const entry of vertMap.values()) {
+
+        vertArray[entry.id] = entry.v;
+
+      }
+
+
+
+      return { verts: vertArray, faces: newFaces };
+
+    }
+
+
+
+    function buildDualPolygons(verts, faces) {
+
+      const incident = Array.from({length: verts.length}, () => []);
+
+      const faceCentroids = faces.map(f => {
+
+        const c = new THREE.Vector3();
+
+        c.add(verts[f[0]]).add(verts[f[1]]).add(verts[f[2]]).multiplyScalar(1/3).normalize();
+
+        return c;
+
+      });
+
+      faces.forEach((f, fi) => { f.forEach(v => incident[v].push(fi)); });
+
+
+
+      const polys = [];
+
+      const tmpU = new THREE.Vector3();
+
+      const tmpV = new THREE.Vector3();
+
+      for (let vi=0; vi<verts.length; vi++) {
+
+        const v = verts[vi].clone().normalize();
+
+        const ref = Math.abs(v.x) < 0.9 ? new THREE.Vector3(1,0,0) : new THREE.Vector3(0,1,0);
+
+        const u = tmpU.copy(ref).cross(v).normalize();
+
+        const w = tmpV.copy(v).cross(u).normalize();
+
+        const list = incident[vi].map(fi => {
+
+          const c = faceCentroids[fi];
+
+          const ang = Math.atan2(c.dot(w), c.dot(u));
+
+          return { fi, ang, c };
+
+        }).sort((a,b)=>a.ang-b.ang);
+
+        polys.push(list.map(o => o.c.clone()));
+
+      }
+
+      return polys; // Array<Array<Vector3>>
+
+    }
+
+
+
+    function buildAdjacency(polys) {
+
+      const vertId = new Map();
+
+      const idOf = (v)=>{
+
+        const s=1e5; const key = `${Math.round(v.x*s)}_${Math.round(v.y*s)}_${Math.round(v.z*s)}`;
+
+        let id = vertId.get(key); if (id===undefined){ id = vertId.size; vertId.set(key,id);} return id;
+
+      };
+
+      const edgeMap = new Map();
+
+      const neigh = polys.map(()=> new Set());
+
+      polys.forEach((poly, pi)=>{
+
+        const ids = poly.map(idOf);
+
+        const n = ids.length;
+
+        for (let i=0;i<n;i++){
+
+          const a = ids[i], b = ids[(i+1)%n];
+
+          const k = a<b ? `${a}_${b}` : `${b}_${a}`;
+
+          const prev = edgeMap.get(k);
+
+          if (prev===undefined) edgeMap.set(k, pi); else { neigh[pi].add(prev); neigh[prev].add(pi); }
+
+        }
+
+      });
+
+      return neigh.map(set=>Array.from(set));
+
+    }
+
+
+
+    function polygonToMesh(poly, mat) {
+
+      const center = new THREE.Vector3(); poly.forEach(p=>center.add(p)); center.multiplyScalar(1/poly.length).normalize();
+
+      const n = poly.length;
+
+      const positions = [];
+
+      for (let i=0;i<n;i++){
+
+        const a = poly[i];
+
+        const b = poly[(i+1)%n];
+
+        positions.push(center.x,center.y,center.z, a.x,a.y,a.z, b.x,b.y,b.z);
+
+      }
+
+      const g = new THREE.BufferGeometry();
+
+      g.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(positions),3));
+
+      return new THREE.Mesh(g, mat);
+
+    }
+
+
+
+    function makeNumberSprite(n, scale, colorOverride = null) {
+
+      const size = 128; const canvas = document.createElement('canvas'); canvas.width = size; canvas.height = size;
+
+      const ctx = canvas.getContext('2d');
+
+      ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,size,size);
+
+      ctx.font = '700 72px system-ui, Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+
+      const colors = {1:'#9ad1ff',2:'#8de7a1',3:'#ffd27a',4:'#ff9aa2',5:'#d39aff',6:'#c0e5ff'};
+
+      ctx.fillStyle = colorOverride || colors[n] || '#333333';
+
+      ctx.shadowColor = 'rgba(0,0,0,0.5)'; ctx.shadowBlur = 8;
+
+      ctx.fillText(String(n), size/2, size/2);
+
+      const tex = new THREE.CanvasTexture(canvas); tex.anisotropy = 4; tex.needsUpdate = true;
+
+      const m = new THREE.SpriteMaterial({ map: tex, transparent: true });
+
+      const s = new THREE.Sprite(m);
+
+      const k = scale != null ? scale : 0.12; s.scale.set(k,k,k);
+
+      return s;
+
+    }
+
+
+
+    // ===== Utilities =====
+
+    function labelScale(f){
+
+      const k = 0.34 / Math.max(1, f);
+
+      return Math.max(0.06, Math.min(0.16, k));
+
+    }
+
+
+
+    function buildEdgeLines(polys, colorHex, colorPent) {
+
+      const pts = [], pentPts = [];
+
+      for (const poly of polys) {
+
+        const n = poly.length;
+
+        for (let i=0; i<n; i++) {
+
+          const a = poly[i]; const b = poly[(i+1)%n];
+
+          pts.push(a.x, a.y, a.z, b.x, b.y, b.z);
+
+        }
+
+        if (n === 5) {
+
+          for (let i=0; i<5; i++) { const a = poly[i]; const b = poly[(i+1)%5]; pentPts.push(a.x, a.y, a.z, b.x, b.y, b.z); }
+
+        }
+
+      }
+
+      const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(pts), 3));
+
+      const lines = new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color: colorHex }));
+
+      let pentLines = null; if (pentPts.length) { const gp = new THREE.BufferGeometry(); gp.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(pentPts), 3)); pentLines = new THREE.LineSegments(gp, new THREE.LineBasicMaterial({ color: colorPent })); }
+
+      return { lines, pentLines };
+
+    }
+
+
+
+    // ===== Scene setup =====
+
+    const app = document.getElementById('app');
+
+    const scene = new THREE.Scene(); scene.background = new THREE.Color(0xf5f7fa);
+
+    const camera = new THREE.PerspectiveCamera(32, innerWidth/innerHeight, 0.01, 100); camera.position.set(3.1, 0.6, 1.4);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true }); renderer.setSize(innerWidth, innerHeight); renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); app.appendChild(renderer.domElement);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement); controls.enableDamping = true;
+
+
+
+    const hemi = new THREE.HemisphereLight(0xffffff, 0xcccccc, 1.2); scene.add(hemi);
+
+    const dir = new THREE.DirectionalLight(0xffffff, 1.0); dir.position.set(3,2,1); scene.add(dir);
+
+
+
+    let wireGroup = new THREE.Group(); scene.add(wireGroup);
+
+    let tileGroup = new THREE.Group(); scene.add(tileGroup);
+
+    let wireHexMaterial = null; let wirePentMaterial = null;
+
+
+
+    // ===== Minesweeper state & materials =====
+
+    const matHidden = new THREE.MeshBasicMaterial({ color: 0xd0d5dc });
+
+    const matRevealed = new THREE.MeshBasicMaterial({ color: 0xa0c4ff }); // light blue
+
+    const matFlag = new THREE.MeshBasicMaterial({ color: 0xff6b6b }); // bright red
+
+    const matMine = new THREE.MeshBasicMaterial({ color: 0xff4444 });
+
+    const matEmpty = new THREE.MeshBasicMaterial({ color: 0xa0c4ff, transparent: true, opacity: 0.3 }); // transparent glass for empty tiles
+
+
+
+    const state = { f: 15, polys: [], neighbors: [], tiles: [], firstClick: true, gameOver: false, safeRevealed: 0, totalMines: 0, flags: 0, lives: 3, won: false };
+
+    let revealQueue = [];
+    let isRevealing = false;
+    let isInitialReveal = false;
+    let lifeLostInCurrentReveal = false;
+    let rightClickHandled = false;
+    let contextMenuHandled = false;
+    let touchFlagHandled = false;
+
+
+
+    function buildTiles() {
+
+      scene.remove(wireGroup); wireGroup.clear(); wireGroup = new THREE.Group(); scene.add(wireGroup);
+
+      scene.remove(tileGroup); tileGroup.clear(); tileGroup = new THREE.Group(); scene.add(tileGroup);
+
+      const hexColor = wireHexMaterial ? wireHexMaterial.color.getHex() : 0x4a7aff;
+
+      const pentColor = wirePentMaterial ? wirePentMaterial.color.getHex() : 0xff9a56;
+
+      const { lines, pentLines } = buildEdgeLines(state.polys, hexColor, pentColor);
+
+      wireHexMaterial = lines.material;
+
+      if (pentLines) wirePentMaterial = pentLines.material;
+
+      wireGroup.add(lines); if (pentLines) wireGroup.add(pentLines);
+
+      state.tiles = state.polys.map((poly, i)=>{
+
+        const mesh = polygonToMesh(poly, matHidden.clone());
+
+        const center = new THREE.Vector3(); poly.forEach(p=>center.add(p)); center.multiplyScalar(1/poly.length).normalize();
+
+        tileGroup.add(mesh);
+
+        return { index:i, mesh, center, mine:false, count:0, flagged:false, revealed:false, label:null, isEmpty:false };
+
+      });
+
+    }
+
+
+
+    const debugSettings = { initialRevealPercent: 12, emptyTilePercent: 30, mineRatio: 7 };
+
+    function findSafeTile(){
+      const revealed = new Set(state.tiles.map((t, i) => t.revealed ? i : -1).filter(i => i >= 0));
+      const flagged = new Set(state.tiles.map((t, i) => t.flagged ? i : -1).filter(i => i >= 0));
+      
+      let foundNewSafe = true;
+      let iterations = 0;
+      const maxIterations = 200;
+      
+      while (foundNewSafe && iterations < maxIterations) {
+        iterations++;
+        foundNewSafe = false;
+        
+        // Cascade reveal all tiles with count 0
+        let cascadeFound = true;
+        while (cascadeFound) {
+          cascadeFound = false;
+          for (const tileIdx of revealed) {
+            const t = state.tiles[tileIdx];
+            if (t.count === 0) {
+              const neighbors = state.neighbors[tileIdx];
+              for (const nb of neighbors) {
+                if (!revealed.has(nb) && !flagged.has(nb) && !state.tiles[nb].isEmpty && !state.tiles[nb].mine) {
+                  revealed.add(nb);
+                  cascadeFound = true;
+                  foundNewSafe = true;
+                }
+              }
+            }
+          }
+        }
+        
+        // Check each revealed tile for deductions
+        for (const tileIdx of revealed) {
+          const t = state.tiles[tileIdx];
+          if (t.count === 0) continue;
+          
+          const neighbors = state.neighbors[tileIdx];
+          const hiddenNeighbors = neighbors.filter(nb => !revealed.has(nb) && !flagged.has(nb) && !state.tiles[nb].isEmpty);
+          const flaggedNeighbors = neighbors.filter(nb => flagged.has(nb));
+          
+          const remainingMines = t.count - flaggedNeighbors.length;
+          
+          // If all mines are flagged, remaining neighbors must be safe
+          if (remainingMines === 0 && hiddenNeighbors.length > 0) {
+            for (const nb of hiddenNeighbors) {
+              if (!state.tiles[nb].mine) {
+                return nb;
+              }
+            }
+          }
+        }
+      }
+      
+      return null;
+    }
+
+    function checkIfStuckAndHelp(){
+      if (state.gameOver || state.won) return;
+      
+      const safeTile = findSafeTile();
+      
+      if (safeTile !== null && !state.tiles[safeTile].revealed) {
+        reveal(safeTile);
+        return true;
+      }
+      
+      return false;
+    }
+
+    function isBoardSolvable(){
+      const revealed = new Set(state.tiles.map((t, i) => t.revealed ? i : -1).filter(i => i >= 0));
+      const flagged = new Set(state.tiles.map((t, i) => t.flagged ? i : -1).filter(i => i >= 0));
+      const totalSafe = state.tiles.filter(t => !t.mine && !t.isEmpty).length;
+      
+      let foundNewSafe = true;
+      let iterations = 0;
+      const maxIterations = 1000;
+      
+      while (foundNewSafe && revealed.size < totalSafe && iterations < maxIterations) {
+        iterations++;
+        foundNewSafe = false;
+        
+        // Cascade reveal all tiles with count 0
+        let cascadeFound = true;
+        let cascadeIterations = 0;
+        while (cascadeFound && cascadeIterations < 100) {
+          cascadeIterations++;
+          cascadeFound = false;
+          for (const tileIdx of revealed) {
+            const t = state.tiles[tileIdx];
+            if (t.count === 0) {
+              const neighbors = state.neighbors[tileIdx];
+              for (const nb of neighbors) {
+                if (!revealed.has(nb) && !flagged.has(nb) && !state.tiles[nb].isEmpty && !state.tiles[nb].mine) {
+                  revealed.add(nb);
+                  cascadeFound = true;
+                  foundNewSafe = true;
+                }
+              }
+            }
+          }
+        }
+        
+        // Check each revealed tile for basic deductions
+        for (const tileIdx of revealed) {
+          const t = state.tiles[tileIdx];
+          if (t.count === 0) continue;
+          
+          const neighbors = state.neighbors[tileIdx];
+          const hiddenNeighbors = neighbors.filter(nb => !revealed.has(nb) && !flagged.has(nb) && !state.tiles[nb].isEmpty);
+          const flaggedNeighbors = neighbors.filter(nb => flagged.has(nb));
+          
+          const remainingMines = t.count - flaggedNeighbors.length;
+          const remainingHidden = hiddenNeighbors.length;
+          
+          // If all mines are flagged, remaining neighbors must be safe
+          if (remainingMines === 0 && remainingHidden > 0) {
+            foundNewSafe = true;
+            for (const nb of hiddenNeighbors) {
+              if (!state.tiles[nb].mine) {
+                revealed.add(nb);
+              }
+            }
+          }
+          
+          // If remaining hidden neighbors == remaining mines needed, all must be mines
+          if (remainingMines === remainingHidden && remainingHidden > 0) {
+            for (const nb of hiddenNeighbors) {
+              if (state.tiles[nb].mine && !flagged.has(nb)) {
+                flagged.add(nb);
+                foundNewSafe = true;
+              }
+            }
+          }
+        }
+      }
+      
+      return revealed.size === totalSafe;
+    }
+
+    function placeMines(excludeIndex, ratioPercent, initialRevealPercent = 0, emptyTilePercent = 0){
+      const total = state.tiles.length; const mineTarget = Math.max(1, Math.floor(total * ratioPercent/100));
+
+      // Use setTimeout to allow UI to update
+      setTimeout(() => {
+        // Try to generate a solvable board (max 10 attempts for better solvability)
+        let attempts = 0;
+        const maxAttempts = 10;
+        let boardIsSolvable = false;
+
+        const tryGenerateBoard = () => {
+          if (boardIsSolvable || attempts >= maxAttempts) {
+            continueBoardSetup();
+            return;
+          }
+
+          attempts++;
+
+          setTimeout(() => {
+            state.totalMines = mineTarget; state.flags = 0; state.safeRevealed = 0; state.gameOver=false; state.won = false; state.lives = 3; lifeLostInCurrentReveal = false; updateCounters();
+
+            state.tiles.forEach(t=>{ t.mine=false; t.count=0; t.flagged=false; t.revealed=false; t.isEmpty=false; if (t.label){ tileGroup.remove(t.label); t.label.material.map.dispose(); t.label.material.dispose(); t.label=null; } t.mesh.material = t.isEmpty ? matEmpty : matHidden.clone(); });
+
+            const forbidden = excludeIndex >= 0 ? new Set([excludeIndex, ...state.neighbors[excludeIndex]]) : new Set();
+
+            let placed = 0; const indices = [...state.tiles.keys()].filter(i=>!forbidden.has(i) && !state.tiles[i].isEmpty);
+
+            // Handle empty tiles
+            if (emptyTilePercent > 0) {
+              const emptyCount = Math.floor(indices.length * emptyTilePercent / 100);
+              for (let i = indices.length - 1; i > 0 && emptyCount > 0; i--) {
+                const j = (Math.random() * (i + 1)) | 0;
+                [indices[i], indices[j]] = [indices[j], indices[i]];
+              }
+              for (let i = 0; i < emptyCount; i++) {
+                const idx = indices[i];
+                state.tiles[idx].count = 0;
+                state.tiles[idx].isEmpty = true;
+                state.tiles[idx].mesh.material = matEmpty.clone(); // Make empty tiles transparent
+              }
+              indices.splice(0, emptyCount);
+            }
+
+            // Simple random mine placement
+            for (let i=indices.length-1;i>0;i--){ const j=(Math.random()* (i+1))|0; [indices[i],indices[j]]=[indices[j],indices[i]]; }
+
+            for (let i = 0; i < mineTarget && i < indices.length; i++) {
+              state.tiles[indices[i]].mine = true;
+              placed++;
+            }
+
+            state.tiles.forEach((t,i)=>{ if (t.mine) return; let c=0; for (const nb of state.neighbors[i]) if (state.tiles[nb].mine) c++; t.count=c; });
+
+            // Reveal initial percentage of safe tiles at the start
+            const safeIndices = state.tiles.map((t, i) => i).filter(i => !state.tiles[i].mine && !state.tiles[i].isEmpty);
+            const revealCount = Math.max(1, Math.floor(safeIndices.length * initialRevealPercent / 100));
+
+            // Shuffle safe indices
+            for (let i = safeIndices.length - 1; i > 0; i--) {
+              const j = Math.floor(Math.random() * (i + 1));
+              [safeIndices[i], safeIndices[j]] = [safeIndices[j], safeIndices[i]];
+            }
+
+            // Reveal initial tiles for solvability check
+            const initialRevealed = new Set();
+            for (let i = 0; i < revealCount && i < safeIndices.length; i++) {
+              initialRevealed.add(safeIndices[i]);
+            }
+
+            setTimeout(() => {
+              // Check if board is solvable from this initial state
+              const originalRevealed = state.tiles.map(t => t.revealed);
+              initialRevealed.forEach(idx => { state.tiles[idx].revealed = true; });
+              
+              boardIsSolvable = isBoardSolvable();
+              
+              // Restore original revealed state
+              state.tiles.forEach((t, i) => { t.revealed = originalRevealed[i]; });
+              
+              if (!boardIsSolvable && attempts < maxAttempts) {
+                tryGenerateBoard();
+              } else {
+                continueBoardSetup();
+              }
+            }, 10);
+          }, 10);
+        };
+
+        const continueBoardSetup = () => {
+          // Add initial tiles to reveal queue for one-by-one processing
+          const safeIndices = state.tiles.map((t, i) => i).filter(i => !state.tiles[i].mine && !state.tiles[i].isEmpty);
+          const revealCount = Math.max(1, Math.floor(safeIndices.length * initialRevealPercent / 100));
+          
+          // Shuffle safe indices for random initial reveal
+          for (let i = safeIndices.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [safeIndices[i], safeIndices[j]] = [safeIndices[j], safeIndices[i]];
+          }
+
+          // Add to reveal queue
+          revealQueue = [];
+          for (let i = 0; i < revealCount && i < safeIndices.length; i++) {
+            revealQueue.push(safeIndices[i]);
+          }
+
+          // Start revealing tiles one by one
+          isInitialReveal = true;
+          processRevealQueue();
+          
+          // Start timer when game begins
+          startTimer();
+        };
+
+        tryGenerateBoard();
+      }, 50);
+    }
+
+
+
+    function revealSingle(i){
+      const t = state.tiles[i]; 
+      
+      if (rightClickHandled || contextMenuHandled) {
+        return false;
+      }
+      
+      if (t.revealed || t.flagged || state.gameOver || t.isEmpty) return false;
+
+      t.revealed = true;
+      
+      // Apply appropriate material: mine, empty (glass), or revealed
+      if (t.mine) {
+        t.mesh.material = matMine;
+      } else if (t.isEmpty) {
+        t.mesh.material = matEmpty.clone();
+      } else {
+        t.mesh.material = matRevealed;
+      }
+
+      if (t.mine){ 
+        if (!document.getElementById('debugImmortal')?.checked) {
+          gameLost(i); 
+          if (state.lives > 0) {
+            return true;
+          }
+          return false; 
+        }
+        return false;
+      }
+
+      state.safeRevealed++;
+
+      if (t.count>0 && !t.isEmpty){ addLabel(i, t.count); }
+
+      if (!isInitialReveal) {
+        // playSound('reveal'); // Uncomment if you have sound
+      }
+
+      checkWin(); updateCounters();
+      
+      // If this tile has count 0, add adjacent safe tiles to reveal queue
+      if (t.count === 0) {
+        for (const nb of state.neighbors[i]) {
+          const neighbor = state.tiles[nb];
+          if (!neighbor.revealed && !neighbor.flagged && !neighbor.isEmpty && !neighbor.mine) {
+            if (!revealQueue.includes(nb)) {
+              revealQueue.push(nb);
+            }
+          }
+        }
+      }
+
+      return true;
+    }
+
+    function processRevealQueue(){
+      if (revealQueue.length === 0 || isRevealing) return;
+
+      isRevealing = true;
+
+      function revealNext(){
+        if (revealQueue.length === 0 || state.gameOver){
+          isRevealing = false;
+          isInitialReveal = false;
+          return;
+        }
+
+        const idx = revealQueue.shift();
+
+        if (idx === undefined){
+          isRevealing = false;
+          isInitialReveal = false;
+          setTimeout(() => {
+            checkIfStuckAndHelp();
+          }, 150);
+          return;
+        }
+
+        const t = state.tiles[idx];
+
+        if (!t.revealed && !t.flagged){
+          const success = revealSingle(idx);
+
+          if (success && t.count === 0){
+            for (const nb of state.neighbors[idx]){
+              if (!state.tiles[nb].revealed && !state.tiles[nb].flagged && !revealQueue.includes(nb)){
+                revealQueue.push(nb);
+              }
+            }
+          }
+        }
+
+        // Initial reveal should happen all at once (no delay)
+        if (isInitialReveal) {
+          revealNext();
+        } else {
+          setTimeout(revealNext, 8);
+        }
+      }
+
+      revealNext();
+    }
+
+    function reveal(i){
+      if (state.gameOver) return;
+      
+      if (rightClickHandled || contextMenuHandled || touchFlagHandled) {
+        return;
+      }
+
+      const t = state.tiles[i]; if (t.revealed || t.flagged) return;
+
+      if (!isRevealing && revealQueue.length === 0){
+        lifeLostInCurrentReveal = false;
+        revealQueue.push(i);
+        processRevealQueue();
+      } else {
+        if (!revealQueue.includes(i)) revealQueue.push(i);
+      }
+    }
+
+
+
+    function addLabel(i, n){
+
+      const t = state.tiles[i]; if (t.label) return;
+
+      const s = makeNumberSprite(n, labelScale(state.f)); s.position.copy(t.center).multiplyScalar(1.015);
+
+      tileGroup.add(s); t.label = s;
+
+    }
+
+
+
+    function toggleFlag(i){ const t = state.tiles[i]; if (t.revealed || state.gameOver) return; t.flagged = !t.flagged; t.mesh.material = t.flagged ? matFlag : matHidden; state.flags += t.flagged ? 1 : -1; updateCounters(); }
+
+
+
+    function chord(i){ const t = state.tiles[i]; if (!t.revealed || state.gameOver) return; const flagsAround = state.neighbors[i].reduce((acc,nb)=> acc + (state.tiles[nb].flagged?1:0),0); if (flagsAround === t.count){ for (const nb of state.neighbors[i]) if (!state.tiles[nb].flagged && !state.tiles[nb].revealed) reveal(nb); } }
+
+
+
+    function gameLost(mineIndex){
+      if (document.getElementById('debugImmortal')?.checked) return;
+      
+      // Only lose one life per reveal sequence (click)
+      if (lifeLostInCurrentReveal) return;
+      
+      lifeLostInCurrentReveal = true;
+      state.lives--;
+      
+      // Update hearts display
+      const hearts = document.querySelectorAll('.heart');
+      if (hearts.length > 0 && state.lives >= 0 && state.lives < hearts.length) {
+        hearts[state.lives].style.opacity = '0.3';
+      }
+      
+      if (state.lives <= 0) {
+        state.gameOver = true;
+        stopTimer();
+        state.tiles.forEach((t)=>{ if (t.mine){ t.mesh.material = matMine; if (!t.revealed) { t.revealed = true; } } });
+      }
+    }
+
+
+
+    function checkWin(){ 
+      const totalSafe = state.tiles.filter(t => !t.mine && !t.isEmpty).length;
+      if (state.safeRevealed >= totalSafe){ 
+        state.gameOver = true; 
+        state.won = true; 
+        stopTimer(); 
+      } 
+    }
+
+
+
+    function updateCounters(){
+
+      const mineHuntPercent = state.totalMines > 0 ? Math.round((state.flags / state.totalMines) * 100) : 0;
+
+      const mineHuntCircle = document.getElementById('mineHuntCircle');
+
+      mineHuntCircle.style.setProperty('--progress', `${mineHuntPercent}%`);
+
+      const mineHuntDot = mineHuntCircle.querySelector('.progress-dot');
+
+      if (mineHuntDot) {
+
+        mineHuntDot.style.transform = `translate(-50%, -50%) rotate(${mineHuntPercent * 3.6}deg) translateY(-38px)`;
+
+        if (mineHuntPercent > 0) {
+
+          mineHuntDot.classList.add('visible');
+
+        } else {
+
+          mineHuntDot.classList.remove('visible');
+
+        }
+
+      }
+
+      document.getElementById('mineHuntPercent').textContent = `${mineHuntPercent}%`;
+
+      document.getElementById('mineHuntValue').textContent = `${state.flags}/${state.totalMines}`;
+
+      // Calculate total safe tiles excluding empty tiles (empty tiles are not part of the game)
+      const emptyTileCount = state.tiles.filter(t => t.isEmpty).length;
+      const totalSafe = state.tiles.length - state.totalMines - emptyTileCount;
+      
+      // Count only non-empty safe tiles revealed (empty tiles don't count toward exploration)
+      const nonEmptySafeRevealed = state.tiles.filter(t => t.revealed && !t.mine && !t.isEmpty).length;
+      
+      const explorationPercent = totalSafe > 0 ? Math.round((nonEmptySafeRevealed / totalSafe) * 100) : 0;
+
+      const explorationCircle = document.getElementById('explorationCircle');
+
+      explorationCircle.style.setProperty('--progress', `${explorationPercent}%`);
+
+      const explorationDot = explorationCircle.querySelector('.progress-dot');
+
+      if (explorationDot) {
+
+        explorationDot.style.transform = `translate(-50%, -50%) rotate(${explorationPercent * 3.6}deg) translateY(-38px)`;
+
+        if (explorationPercent > 0) {
+
+          explorationDot.classList.add('visible');
+
+        } else {
+
+          explorationDot.classList.remove('visible');
+
+        }
+
+      }
+
+      document.getElementById('explorationPercent').textContent = `${explorationPercent}%`;
+
+      document.getElementById('explorationValue').textContent = `${nonEmptySafeRevealed}/${totalSafe}`;
+
+    }
+
+
+
+    let gameStartTime = null; let timerInterval = null;
+
+    let compactTimeout = null;
+
+    function scheduleCompactMode(){
+
+      const ui = document.querySelector('.ui');
+
+      if (compactTimeout) clearTimeout(compactTimeout);
+
+      if (ui) ui.classList.remove('compact');
+
+      compactTimeout = setTimeout(() => { if (ui) ui.classList.add('compact'); }, 5000);
+
+    }
+
+    function startTimer(){
+
+      if (timerInterval) clearInterval(timerInterval);
+
+      gameStartTime = Date.now();
+
+      scheduleCompactMode();
+
+      timerInterval = setInterval(() => {
+
+        if (!gameStartTime || state.gameOver) return;
+
+        const elapsed = Math.floor((Date.now() - gameStartTime) / 1000);
+
+        const mins = Math.floor(elapsed / 60);
+
+        const secs = elapsed % 60;
+
+        document.getElementById('timerValue').textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+
+      }, 100);
+
+    }
+
+    function stopTimer(){
+
+      if (timerInterval) {
+
+        clearInterval(timerInterval);
+
+        timerInterval = null;
+
+      }
+
+    }
+
+    function resetTimer(){
+
+      stopTimer();
+
+      gameStartTime = null;
+
+      document.getElementById('timerValue').textContent = '00:00';
+
+      if (compactTimeout) clearTimeout(compactTimeout);
+
+      compactTimeout = null;
+
+      const ui = document.querySelector('.ui');
+
+      if (ui) ui.classList.remove('compact');
+
+    }
+
+    function rebuildCore(f){
+
+      f = Math.max(1, Math.floor(f)); state.f = f;
+
+      const base = icosahedron(1); const geo  = geodesicSubdivide(base, f, 1);
+
+      state.polys = buildDualPolygons(geo.verts, geo.faces); state.neighbors = buildAdjacency(state.polys);
+
+      buildTiles(); state.firstClick = false; state.gameOver=false; state.safeRevealed=0; state.totalMines=0; state.flags=0; state.lives=3; state.won=false; lifeLostInCurrentReveal=false; resetTimer(); updateCounters();
+
+      // Auto-start: Place mines and do initial reveals
+      const ratio = debugSettings.mineRatio || 15;
+      const initialReveal = debugSettings.initialRevealPercent || 0;
+      const emptyRatio = debugSettings.emptyTilePercent || 0;
+      
+      // Pick a random starting tile (or use tile 0)
+      const startTile = Math.floor(Math.random() * state.tiles.length);
+      
+      // Reset reveal queue and state
+      revealQueue = [];
+      isRevealing = false;
+      isInitialReveal = false;
+      
+      placeMines(startTile, ratio, initialReveal, emptyRatio);
+
+      document.querySelectorAll('.heart').forEach(h => h.style.opacity = '1');
+
+    }
+
+
+
+    // Picking
+
+    const raycaster = new THREE.Raycaster(); const mouse = new THREE.Vector2();
+
+    let dragState = { isDragging: false, startX: 0, startY: 0, startTile: -1, button: -1 };
+
+    let lastClickTime = 0; let lastClickTile = -1; let lastClickTimeout = null;
+
+    function pickTile(event){
+
+      const rect = renderer.domElement.getBoundingClientRect();
+
+      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1; mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera); const hits = raycaster.intersectObjects(tileGroup.children, false);
+
+      if (hits.length===0) return -1; const mesh = hits[0].object; const idx = state.tiles.findIndex(t=>t.mesh===mesh); return idx;
+
+    }
+
+
+
+    renderer.domElement.addEventListener('contextmenu', e=>e.preventDefault());
+
+    renderer.domElement.addEventListener('mousedown', (e)=>{
+
+      const idx = pickTile(e);
+
+      dragState.isDragging = false;
+
+      dragState.startX = e.clientX;
+
+      dragState.startY = e.clientY;
+
+      dragState.startTile = idx;
+
+      dragState.button = e.button;
+
+    });
+
+    renderer.domElement.addEventListener('mousemove', (e)=>{
+
+      if (dragState.startTile >= 0) {
+
+        const dx = Math.abs(e.clientX - dragState.startX);
+
+        const dy = Math.abs(e.clientY - dragState.startY);
+
+        if (dx > 5 || dy > 5) {
+
+          dragState.isDragging = true;
+
+          if (lastClickTimeout) {
+
+            clearTimeout(lastClickTimeout);
+
+            lastClickTimeout = null;
+
+            lastClickTime = 0;
+
+            lastClickTile = -1;
+
+          }
+
+        }
+
+      }
+
+    });
+
+    renderer.domElement.addEventListener('mouseup', (e)=>{
+
+      if (dragState.startTile < 0) return;
+
+      const idx = pickTile(e);
+
+      if (dragState.isDragging || idx !== dragState.startTile) {
+
+        if (lastClickTimeout) {
+
+          clearTimeout(lastClickTimeout);
+
+          lastClickTimeout = null;
+
+        }
+
+        lastClickTime = 0;
+
+        lastClickTile = -1;
+
+        dragState.startTile = -1;
+
+        return;
+
+      }
+
+      if (e.button === 2 && dragState.button === 2) {
+        rightClickHandled = true;
+        toggleFlag(idx);
+        setTimeout(() => { rightClickHandled = false; }, 100);
+      } else if (e.button === 0 && dragState.button === 0) {
+
+        const now = Date.now();
+
+        const isDoubleClick = (now - lastClickTime < 300) && (idx === lastClickTile);
+
+        if (isDoubleClick) {
+
+          clearTimeout(lastClickTimeout);
+
+          lastClickTime = 0;
+
+          lastClickTile = -1;
+
+          chord(idx);
+
+        } else {
+
+          lastClickTime = now;
+
+          lastClickTile = idx;
+
+          lastClickTimeout = setTimeout(() => {
+
+            // Mines are already placed on game start, so just reveal the clicked tile
+            reveal(idx);
+
+            lastClickTime = 0;
+
+            lastClickTile = -1;
+
+          }, 300);
+
+        }
+
+      }
+
+      dragState.startTile = -1;
+
+    });
+
+
+
+    // Self-tests
+
+    function runTests(){
+
+      const statusEl = document.getElementById('testStatus'); const results = [];
+
+      function assert(name, cond){ results.push({name, pass: !!cond}); if(!cond) console.error('Test failed:', name); }
+
+      for (let f=1; f<=6; f++){
+
+        const base = icosahedron(1); const geo  = geodesicSubdivide(base, f, 1); const polys = buildDualPolygons(geo.verts, geo.faces); const neigh = buildAdjacency(polys);
+
+        const counts = polys.reduce((acc,p)=>{ acc.total++; acc['n'+p.length]=(acc['n'+p.length]||0)+1; return acc; }, {total:0});
+
+        assert(`f=${f}: pentagons==12`, counts.n5 === 12);
+
+        assert(`f=${f}: only hex/pent`, (counts.n5||0) + (counts.n6||0) === polys.length);
+
+        assert(`f=${f}: tiles==10 f^2 + 2`, polys.length === 10*f*f + 2);
+
+        const degOK = neigh.every((ns, i)=> (polys[i].length===5 ? ns.length===5 : (ns.length===6)) ); assert(`f=${f}: degrees 5/6`, degOK);
+
+      }
+
+      const failed = results.filter(r=>!r.pass).length;
+
+      const message = failed===0 ? `All ${results.length} tests passed` : `${failed}/${results.length} tests failed`;
+
+      if (statusEl) {
+
+        statusEl.textContent = message;
+
+        statusEl.className = 'pill ' + (failed===0 ? 'ok' : 'bad');
+
+      } else {
+
+        console.log('Tests:', message);
+
+      }
+
+    }
+
+
+
+    // UI
+
+    document.getElementById('newGame').addEventListener('click', ()=>{ rebuildCore(state.f); });
+
+    let soundEnabled = true;
+
+    document.getElementById('soundToggle').addEventListener('click', (e)=>{
+
+      soundEnabled = !soundEnabled;
+
+      e.target.textContent = soundEnabled ? '🔊' : '🔇';
+
+    });
+
+    document.getElementById('globeBtn').addEventListener('click', ()=>{
+
+      camera.position.set(0, 0, 3.4);
+
+      controls.reset();
+
+    });
+
+
+
+    // Debug Panel
+
+    const debugPanel = document.getElementById('debugPanel');
+
+    const debugToggle = document.getElementById('debugToggle');
+
+    let debugPanelVisible = false;
+
+    function toggleDebugPanel() {
+
+      debugPanelVisible = !debugPanelVisible;
+
+      debugPanel.classList.toggle('visible', debugPanelVisible);
+
+    }
+
+    debugToggle.addEventListener('click', toggleDebugPanel);
+
+    addEventListener('keydown', (e) => {
+
+      if (e.ctrlKey && e.shiftKey && e.altKey && e.key === 'd') {
+
+        e.preventDefault();
+
+        toggleDebugPanel();
+
+      }
+
+    });
+
+    function saveDebugValuesToClipboard() {
+
+      const debugValues = {};
+
+      // Collect all range inputs
+      document.querySelectorAll('#debugPanel input[type="range"]').forEach(input => {
+
+        const id = input.id;
+
+        if (id && id.startsWith('debug')) {
+
+          const key = id.replace('debug', '').replace(/^[A-Z]/, (match) => match.toLowerCase());
+
+          const value = parseFloat(input.value);
+
+          debugValues[key] = isNaN(value) ? input.value : value;
+
+        }
+
+      });
+
+      // Collect all color inputs
+      document.querySelectorAll('#debugPanel input[type="color"]').forEach(input => {
+
+        const id = input.id;
+
+        if (id && id.startsWith('debug')) {
+
+          const key = id.replace('debug', '').replace(/^[A-Z]/, (match) => match.toLowerCase());
+
+          debugValues[key] = input.value;
+
+        }
+
+      });
+
+      // Collect all checkboxes
+      document.querySelectorAll('#debugPanel input[type="checkbox"]').forEach(input => {
+
+        const id = input.id;
+
+        if (id && id.startsWith('debug')) {
+
+          const key = id.replace('debug', '').replace(/^[A-Z]/, (match) => match.toLowerCase());
+
+          debugValues[key] = input.checked;
+
+        }
+
+      });
+
+      // Format as JSON with nice indentation
+      const jsonString = JSON.stringify(debugValues, null, 2);
+
+      // Copy to clipboard
+      navigator.clipboard.writeText(jsonString).then(() => {
+
+        const btn = document.getElementById('debugSaveClipboard');
+
+        const originalText = btn.textContent;
+
+        btn.textContent = '✓ Copied!';
+
+        setTimeout(() => {
+
+          btn.textContent = originalText;
+
+        }, 2000);
+
+      }).catch(err => {
+
+        console.error('Failed to copy to clipboard:', err);
+
+        alert('Failed to copy to clipboard. Please check console for details.');
+
+      });
+
+    }
+
+    function loadDebugValuesFromClipboard() {
+
+      navigator.clipboard.readText().then(text => {
+
+        try {
+
+          const values = JSON.parse(text);
+
+          // Map of JSON keys to input IDs (without 'debug' prefix)
+          const keyToInputId = {
+            'freq': 'debugFreq',
+            'mineRatio': 'debugMineRatio',
+            'emptyRatio': 'debugEmptyRatio',
+            'initialReveal': 'debugInitialReveal',
+            'glass': 'debugGlass',
+            'glassTint': 'debugGlassTint',
+            'wireHex': 'debugWireHex',
+            'wirePent': 'debugWirePent',
+            'tileHidden': 'debugTileHidden',
+            'tileRevealed': 'debugTileRevealed',
+            'tileFlag': 'debugTileFlag',
+            'tileMine': 'debugTileMine',
+            'labelOffset': 'debugLabelOffset',
+            'labelRot': 'debugLabelRot',
+            'labelRotX': 'debugLabelRotX',
+            'labelRotY': 'debugLabelRotY',
+            'labelRotZ': 'debugLabelRotZ',
+            'labelScale': 'debugLabelScale',
+            'labelColor': 'debugLabelColor',
+            'camFOV': 'debugCamFOV',
+            'camX': 'debugCamX',
+            'camY': 'debugCamY',
+            'camZ': 'debugCamZ',
+            'camNear': 'debugCamNear',
+            'camFar': 'debugCamFar',
+            'camBg': 'debugCamBg',
+            'immortal': 'debugImmortal',
+            'camFog': 'debugCamFog'
+          };
+
+          // Set range inputs
+          Object.keys(values).forEach(key => {
+
+            const inputId = keyToInputId[key];
+
+            if (!inputId) return;
+
+            const input = document.getElementById(inputId);
+
+            if (input && input.type === 'range') {
+
+              input.value = values[key];
+
+              // Trigger input event to update dependent values
+              input.dispatchEvent(new Event('input', { bubbles: true }));
+
+            } else if (input && input.type === 'color') {
+
+              input.value = values[key];
+
+              // Find and update display and hex span
+              const displayId = inputId + 'Display';
+
+              const hexId = inputId + 'Hex';
+
+              const display = document.getElementById(displayId);
+
+              const hexSpan = document.getElementById(hexId);
+
+              if (display && hexSpan) {
+
+                updateColorDisplay(input, display, hexSpan);
+
+              }
+
+              // Trigger input event
+              input.dispatchEvent(new Event('input', { bubbles: true }));
+
+            } else if (input && input.type === 'checkbox') {
+
+              input.checked = values[key];
+
+              // Trigger change event
+              input.dispatchEvent(new Event('change', { bubbles: true }));
+
+            }
+
+          });
+
+          // Special handling for freq (rebuilds core)
+          if (values.freq !== undefined) {
+
+            const freqSlider = document.getElementById('debugFreq');
+
+            if (freqSlider) {
+
+              freqSlider.value = values.freq;
+
+              syncSliderValue(freqSlider, document.getElementById('debugFreqValue'));
+
+              rebuildCore(parseInt(values.freq, 10));
+
+            }
+
+          }
+
+          // Show success feedback
+          const btn = document.getElementById('debugLoadClipboard');
+
+          const originalText = btn.textContent;
+
+          btn.textContent = '✓ Loaded!';
+
+          setTimeout(() => {
+
+            btn.textContent = originalText;
+
+          }, 2000);
+
+        } catch (err) {
+
+          console.error('Failed to parse JSON:', err);
+
+          alert('Failed to parse JSON from clipboard. Please ensure valid JSON format.');
+
+        }
+
+      }).catch(err => {
+
+        console.error('Failed to read from clipboard:', err);
+
+        alert('Failed to read from clipboard. Please ensure clipboard contains valid JSON.');
+
+      });
+
+    }
+
+    document.getElementById('debugSaveClipboard').addEventListener('click', saveDebugValuesToClipboard);
+
+    document.getElementById('debugLoadClipboard').addEventListener('click', loadDebugValuesFromClipboard);
+
+    document.getElementById('debugCloseBtn').addEventListener('click', toggleDebugPanel);
+
+    document.querySelectorAll('.debug-section-header').forEach(header => {
+
+      header.addEventListener('click', () => {
+
+        const section = header.parentElement;
+
+        section.classList.toggle('collapsed');
+
+        header.classList.toggle('collapsed');
+
+      });
+
+    });
+
+    function updateSliderFill(slider) {
+
+      const val = parseFloat(slider.value);
+
+      const min = parseFloat(slider.min);
+
+      const max = parseFloat(slider.max);
+
+      const percent = ((val - min) / (max - min)) * 100;
+
+      slider.style.setProperty('--fill', `${percent}%`);
+
+    }
+
+    function syncSliderValue(slider, valueInput) {
+
+      updateSliderFill(slider);
+
+      valueInput.value = slider.value;
+
+    }
+
+    function updateColorDisplay(colorInput, display, hexSpan) {
+
+      const color = colorInput.value;
+
+      display.style.background = color;
+
+      hexSpan.textContent = color;
+
+    }
+
+    const freqSlider = document.getElementById('debugFreq');
+
+    const freqValue = document.getElementById('debugFreqValue');
+
+    freqSlider.addEventListener('input', (e) => {
+
+      const val = parseInt(e.target.value, 10);
+
+      syncSliderValue(freqSlider, freqValue);
+
+      rebuildCore(val);
+
+    });
+
+    const mineRatioSlider = document.getElementById('debugMineRatio');
+
+    const mineRatioValue = document.getElementById('debugMineRatioValue');
+
+    mineRatioSlider.addEventListener('input', (e) => {
+
+      const val = parseInt(e.target.value, 10);
+
+      debugSettings.mineRatio = val;
+
+      syncSliderValue(mineRatioSlider, mineRatioValue);
+
+    });
+
+    const initialRevealSlider = document.getElementById('debugInitialReveal');
+
+    const initialRevealValue = document.getElementById('debugInitialRevealValue');
+
+    initialRevealSlider.addEventListener('input', (e) => {
+
+      debugSettings.initialRevealPercent = parseInt(e.target.value, 10);
+
+      syncSliderValue(initialRevealSlider, initialRevealValue);
+
+    });
+
+    const emptyRatioSlider = document.getElementById('debugEmptyRatio');
+
+    const emptyRatioValue = document.getElementById('debugEmptyRatioValue');
+
+    emptyRatioSlider.addEventListener('input', (e) => {
+
+      debugSettings.emptyTilePercent = parseInt(e.target.value, 10);
+
+      syncSliderValue(emptyRatioSlider, emptyRatioValue);
+
+      // Apply empty tiles immediately if mines are already placed
+      if (state.totalMines > 0 && !state.firstClick) {
+
+        const totalTiles = state.tiles.length;
+
+        const emptyCount = Math.floor(totalTiles * debugSettings.emptyTilePercent / 100);
+
+        // Get all non-mine tile indices
+        const nonMineIndices = [...state.tiles.keys()].filter(i => !state.tiles[i].mine);
+
+        // Shuffle array using Fisher-Yates
+        for (let i = nonMineIndices.length - 1; i > 0; i--) {
+
+          const j = Math.floor(Math.random() * (i + 1));
+
+          [nonMineIndices[i], nonMineIndices[j]] = [nonMineIndices[j], nonMineIndices[i]];
+
+        }
+
+        // Create a set of empty tile indices for quick lookup
+        const emptyTileIndices = new Set();
+
+        for (let i = 0; i < emptyCount && i < nonMineIndices.length; i++) {
+
+          const idx = nonMineIndices[i];
+
+          emptyTileIndices.add(idx);
+
+          state.tiles[idx].count = 0;
+
+          state.tiles[idx].isEmpty = true;
+          
+          // Apply transparent material to empty tiles (always visible and transparent)
+          state.tiles[idx].mesh.material = matEmpty.clone();
+
+          // Update label if tile is revealed (remove number label for empty tiles)
+          if (state.tiles[idx].revealed && state.tiles[idx].label) {
+
+            tileGroup.remove(state.tiles[idx].label);
+
+            state.tiles[idx].label.material.map.dispose();
+
+            state.tiles[idx].label.material.dispose();
+
+            state.tiles[idx].label = null;
+
+          }
+
+        }
+
+        // Recalculate counts for non-empty tiles
+        state.tiles.forEach((t, i) => {
+
+          if (t.mine) return;
+
+          // Skip if this tile was set to empty
+          if (emptyTileIndices.has(i)) return;
+
+          // Mark as non-empty if it was previously empty
+          state.tiles[i].isEmpty = false;
+
+          let c = 0;
+
+          for (const nb of state.neighbors[i]) {
+
+            if (state.tiles[nb].mine) c++;
+
+          }
+
+          t.count = c;
+
+          // Update label if tile is revealed
+          if (t.revealed) {
+
+            // Update material to non-empty (since it's no longer empty)
+            t.mesh.material = matRevealed;
+
+            if (t.label) {
+
+              tileGroup.remove(t.label);
+
+              t.label.material.map.dispose();
+
+              t.label.material.dispose();
+
+              t.label = null;
+
+            }
+
+            if (t.count > 0 && !t.isEmpty) {
+
+              const labelColorHex = document.getElementById('debugLabelColor')?.value || '#8aaadd';
+
+              const s = makeNumberSprite(t.count, labelScale(state.f), labelColorHex);
+
+              s.position.copy(t.center).multiplyScalar(debugSettings.labelOffset || 1.015);
+
+              tileGroup.add(s);
+
+              t.label = s;
+
+            }
+
+          }
+
+        });
+
+      }
+
+    });
+
+    const glassSlider = document.getElementById('debugGlass');
+
+    const glassValue = document.getElementById('debugGlassValue');
+
+    glassSlider.addEventListener('input', (e) => {
+
+      syncSliderValue(glassSlider, glassValue);
+
+      const opacity = parseFloat(glassSlider.value);
+
+      const tintColor = glassTintInput.value;
+
+      state.tiles.forEach(t => {
+
+        if (!t.revealed && !t.flagged) {
+
+          t.mesh.material.opacity = 1 - opacity;
+
+          t.mesh.material.transparent = opacity > 0;
+
+          if (opacity > 0) {
+
+            const tint = parseInt(tintColor.substring(1), 16);
+
+            t.mesh.material.color.setHex(tint);
+
+          } else {
+
+            t.mesh.material.color.copy(matHidden.color);
+
+          }
+
+        }
+
+      });
+
+    });
+
+    const glassTintInput = document.getElementById('debugGlassTint');
+
+    const glassTintDisplay = document.getElementById('debugGlassTintDisplay');
+
+    const glassTintHex = document.getElementById('debugGlassTintHex');
+
+    glassTintDisplay.addEventListener('click', () => glassTintInput.click());
+
+    glassTintInput.addEventListener('input', (e) => {
+
+      updateColorDisplay(glassTintInput, glassTintDisplay, glassTintHex);
+
+      const opacity = parseFloat(glassSlider.value);
+
+      if (opacity > 0) {
+
+        const tint = parseInt(glassTintInput.value.substring(1), 16);
+
+        state.tiles.forEach(t => {
+
+          if (!t.revealed && !t.flagged) {
+
+            t.mesh.material.color.setHex(tint);
+
+          }
+
+        });
+
+      }
+
+    });
+
+    const wireHexInput = document.getElementById('debugWireHex');
+
+    const wireHexDisplay = document.getElementById('debugWireHexDisplay');
+
+    const wireHexHex = document.getElementById('debugWireHexHex');
+
+    wireHexDisplay.addEventListener('click', () => wireHexInput.click());
+
+    wireHexInput.addEventListener('input', (e) => {
+
+      updateColorDisplay(wireHexInput, wireHexDisplay, wireHexHex);
+
+      const color = parseInt(wireHexInput.value.substring(1), 16);
+
+      if (wireHexMaterial) wireHexMaterial.color.setHex(color);
+
+    });
+
+    const wirePentInput = document.getElementById('debugWirePent');
+
+    const wirePentDisplay = document.getElementById('debugWirePentDisplay');
+
+    const wirePentHex = document.getElementById('debugWirePentHex');
+
+    wirePentDisplay.addEventListener('click', () => wirePentInput.click());
+
+    wirePentInput.addEventListener('input', (e) => {
+
+      updateColorDisplay(wirePentInput, wirePentDisplay, wirePentHex);
+
+      const color = parseInt(wirePentInput.value.substring(1), 16);
+
+      if (wirePentMaterial) wirePentMaterial.color.setHex(color);
+
+    });
+
+    const tileHiddenInput = document.getElementById('debugTileHidden');
+
+    const tileHiddenDisplay = document.getElementById('debugTileHiddenDisplay');
+
+    const tileHiddenHex = document.getElementById('debugTileHiddenHex');
+
+    tileHiddenDisplay.addEventListener('click', () => tileHiddenInput.click());
+
+    tileHiddenInput.addEventListener('input', (e) => {
+
+      updateColorDisplay(tileHiddenInput, tileHiddenDisplay, tileHiddenHex);
+
+      matHidden.color.setHex(parseInt(tileHiddenInput.value.substring(1), 16));
+
+      state.tiles.forEach(t => { if (!t.revealed && !t.flagged) t.mesh.material.color.copy(matHidden.color); });
+
+    });
+
+    const tileRevealedInput = document.getElementById('debugTileRevealed');
+
+    const tileRevealedDisplay = document.getElementById('debugTileRevealedDisplay');
+
+    const tileRevealedHex = document.getElementById('debugTileRevealedHex');
+
+    tileRevealedDisplay.addEventListener('click', () => tileRevealedInput.click());
+
+    tileRevealedInput.addEventListener('input', (e) => {
+
+      updateColorDisplay(tileRevealedInput, tileRevealedDisplay, tileRevealedHex);
+
+      matRevealed.color.setHex(parseInt(tileRevealedInput.value.substring(1), 16));
+
+      state.tiles.forEach(t => { if (t.revealed && !t.mine) t.mesh.material.color.copy(matRevealed.color); });
+
+    });
+
+    const tileFlagInput = document.getElementById('debugTileFlag');
+
+    const tileFlagDisplay = document.getElementById('debugTileFlagDisplay');
+
+    const tileFlagHex = document.getElementById('debugTileFlagHex');
+
+    tileFlagDisplay.addEventListener('click', () => tileFlagInput.click());
+
+    tileFlagInput.addEventListener('input', (e) => {
+
+      updateColorDisplay(tileFlagInput, tileFlagDisplay, tileFlagHex);
+
+      matFlag.color.setHex(parseInt(tileFlagInput.value.substring(1), 16));
+
+      state.tiles.forEach(t => { if (t.flagged) t.mesh.material.color.copy(matFlag.color); });
+
+    });
+
+    const tileMineInput = document.getElementById('debugTileMine');
+
+    const tileMineDisplay = document.getElementById('debugTileMineDisplay');
+
+    const tileMineHex = document.getElementById('debugTileMineHex');
+
+    tileMineDisplay.addEventListener('click', () => tileMineInput.click());
+
+    tileMineInput.addEventListener('input', (e) => {
+
+      updateColorDisplay(tileMineInput, tileMineDisplay, tileMineHex);
+
+      matMine.color.setHex(parseInt(tileMineInput.value.substring(1), 16));
+
+      state.tiles.forEach(t => { if (t.mine && t.revealed) t.mesh.material.color.copy(matMine.color); });
+
+    });
+
+    const labelOffsetSlider = document.getElementById('debugLabelOffset');
+
+    const labelOffsetValue = document.getElementById('debugLabelOffsetValue');
+
+    function updateAllLabels() {
+
+      const offset = parseFloat(labelOffsetSlider.value);
+
+      const rot = parseFloat(labelRotSlider.value) * Math.PI / 180;
+
+      const rotX = parseFloat(labelRotXSlider.value) * Math.PI / 180;
+
+      const rotY = parseFloat(labelRotYSlider.value) * Math.PI / 180;
+
+      const rotZ = parseFloat(labelRotZSlider.value) * Math.PI / 180;
+
+      const scale = parseFloat(labelScaleSlider.value);
+
+      state.tiles.forEach(t => {
+
+        if (t.label) {
+
+          t.label.position.copy(t.center).multiplyScalar(offset);
+
+          t.label.rotation.set(rotX, rotY, rotZ);
+
+          t.label.rotation.z += rot;
+
+          t.label.scale.set(scale, scale, scale);
+
+        }
+
+      });
+
+    }
+
+    labelOffsetSlider.addEventListener('input', (e) => { syncSliderValue(labelOffsetSlider, labelOffsetValue); updateAllLabels(); });
+
+    const labelRotSlider = document.getElementById('debugLabelRot');
+
+    const labelRotValue = document.getElementById('debugLabelRotValue');
+
+    labelRotSlider.addEventListener('input', (e) => { syncSliderValue(labelRotSlider, labelRotValue); updateAllLabels(); });
+
+    const labelRotXSlider = document.getElementById('debugLabelRotX');
+
+    const labelRotXValue = document.getElementById('debugLabelRotXValue');
+
+    labelRotXSlider.addEventListener('input', (e) => { syncSliderValue(labelRotXSlider, labelRotXValue); updateAllLabels(); });
+
+    const labelRotYSlider = document.getElementById('debugLabelRotY');
+
+    const labelRotYValue = document.getElementById('debugLabelRotYValue');
+
+    labelRotYSlider.addEventListener('input', (e) => { syncSliderValue(labelRotYSlider, labelRotYValue); updateAllLabels(); });
+
+    const labelRotZSlider = document.getElementById('debugLabelRotZ');
+
+    const labelRotZValue = document.getElementById('debugLabelRotZValue');
+
+    labelRotZSlider.addEventListener('input', (e) => { syncSliderValue(labelRotZSlider, labelRotZValue); updateAllLabels(); });
+
+    const labelScaleSlider = document.getElementById('debugLabelScale');
+
+    const labelScaleValue = document.getElementById('debugLabelScaleValue');
+
+    labelScaleSlider.addEventListener('input', (e) => { syncSliderValue(labelScaleSlider, labelScaleValue); updateAllLabels(); });
+
+    const labelColorInput = document.getElementById('debugLabelColor');
+
+    const labelColorDisplay = document.getElementById('debugLabelColorDisplay');
+
+    const labelColorHex = document.getElementById('debugLabelColorHex');
+
+    labelColorDisplay.addEventListener('click', () => labelColorInput.click());
+
+    labelColorInput.addEventListener('input', (e) => {
+
+      updateColorDisplay(labelColorInput, labelColorDisplay, labelColorHex);
+
+      const color = labelColorInput.value;
+
+      state.tiles.forEach(t => {
+
+        if (t.label && t.count > 0 && !t.isEmpty) {
+
+          const canvas = document.createElement('canvas');
+
+          canvas.width = 128; canvas.height = 128;
+
+          const ctx = canvas.getContext('2d');
+
+          ctx.fillStyle = 'rgba(0,0,0,0)';
+
+          ctx.fillRect(0,0,128,128);
+
+          ctx.font = '700 72px system-ui, Arial';
+
+          ctx.textAlign = 'center';
+
+          ctx.textBaseline = 'middle';
+
+          ctx.fillStyle = color;
+
+          ctx.shadowColor = 'rgba(0,0,0,0.5)';
+
+          ctx.shadowBlur = 8;
+
+          ctx.fillText(String(t.count), 64, 64);
+
+          t.label.material.map.dispose();
+
+          t.label.material.map = new THREE.CanvasTexture(canvas);
+
+          t.label.material.map.anisotropy = 4;
+
+          t.label.material.map.needsUpdate = true;
+
+        }
+
+      });
+
+    });
+
+    const camBgInput = document.getElementById('debugCamBg');
+
+    const camBgDisplay = document.getElementById('debugCamBgDisplay');
+
+    const camBgHex = document.getElementById('debugCamBgHex');
+
+    camBgDisplay.addEventListener('click', () => camBgInput.click());
+
+    camBgInput.addEventListener('input', (e) => {
+
+      updateColorDisplay(camBgInput, camBgDisplay, camBgHex);
+
+      scene.background.setHex(parseInt(camBgInput.value.substring(1), 16));
+
+    });
+
+    const camFOVSlider = document.getElementById('debugCamFOV');
+
+    const camFOVValue = document.getElementById('debugCamFOVValue');
+
+    camFOVSlider.addEventListener('input', (e) => {
+
+      camera.fov = parseFloat(camFOVSlider.value);
+
+      camera.updateProjectionMatrix();
+
+      syncSliderValue(camFOVSlider, camFOVValue);
+
+    });
+
+    const camXSlider = document.getElementById('debugCamX');
+
+    const camXValue = document.getElementById('debugCamXValue');
+
+    camXSlider.addEventListener('input', (e) => {
+
+      camera.position.x = parseFloat(camXSlider.value);
+
+      controls.update();
+
+      syncSliderValue(camXSlider, camXValue);
+
+    });
+
+    const camYSlider = document.getElementById('debugCamY');
+
+    const camYValue = document.getElementById('debugCamYValue');
+
+    camYSlider.addEventListener('input', (e) => {
+
+      camera.position.y = parseFloat(camYSlider.value);
+
+      controls.update();
+
+      syncSliderValue(camYSlider, camYValue);
+
+    });
+
+    const camZSlider = document.getElementById('debugCamZ');
+
+    const camZValue = document.getElementById('debugCamZValue');
+
+    camZSlider.addEventListener('input', (e) => {
+
+      camera.position.z = parseFloat(camZSlider.value);
+
+      controls.update();
+
+      syncSliderValue(camZSlider, camZValue);
+
+    });
+
+    const camNearSlider = document.getElementById('debugCamNear');
+
+    const camNearValue = document.getElementById('debugCamNearValue');
+
+    camNearSlider.addEventListener('input', (e) => {
+
+      camera.near = parseFloat(camNearSlider.value);
+
+      camera.updateProjectionMatrix();
+
+      syncSliderValue(camNearSlider, camNearValue);
+
+    });
+
+    const camFarSlider = document.getElementById('debugCamFar');
+
+    const camFarValue = document.getElementById('debugCamFarValue');
+
+    camFarSlider.addEventListener('input', (e) => {
+
+      camera.far = parseFloat(camFarSlider.value);
+
+      camera.updateProjectionMatrix();
+
+      syncSliderValue(camFarSlider, camFarValue);
+
+    });
+
+    document.querySelectorAll('#debugPanel input[type="range"]').forEach(slider => {
+
+      updateSliderFill(slider);
+
+    });
+
+
+    const presets = {
+
+      color: {
+
+        default: { hidden: 0x1a2233, revealed: 0x001f3f, flag: 0x8b0000, mine: 0x842029 },
+
+        dark: { hidden: 0x0a0d15, revealed: 0x000a1a, flag: 0x5a0000, mine: 0x4a1015 },
+
+        bright: { hidden: 0x2a3344, revealed: 0x003f5f, flag: 0xcc0000, mine: 0xaa3040 },
+
+        retro: { hidden: 0x1a1a33, revealed: 0x003333, flag: 0xff6600, mine: 0xff0066 }
+
+      },
+
+      light: {
+
+        default: { hemiSky: 0x96baff, hemiGround: 0x1a1e29, hemiIntensity: 0.8, dirColor: 0xffffff, dirIntensity: 0.6, dirPos: [3,2,1] },
+
+        bright: { hemiSky: 0xffffff, hemiGround: 0x888888, hemiIntensity: 1.2, dirColor: 0xffffff, dirIntensity: 1.0, dirPos: [3,2,1] },
+
+        moody: { hemiSky: 0x4a5aff, hemiGround: 0x0a0a1a, hemiIntensity: 0.5, dirColor: 0xffaa88, dirIntensity: 0.4, dirPos: [2,3,1] },
+
+        flat: { hemiSky: 0xffffff, hemiGround: 0xffffff, hemiIntensity: 1.0, dirColor: 0xffffff, dirIntensity: 0.0, dirPos: [0,0,1] }
+
+      },
+
+      material: {
+
+        default: { type: 'basic' },
+
+        flat: { type: 'basic' },
+
+        shiny: { type: 'standard', roughness: 0.2, metalness: 0.3 }
+
+      }
+
+    };
+
+    function updateDebugValues() {
+
+      if (freqSlider) { freqSlider.value = state.f; updateSliderFill(freqSlider); freqValue.value = state.f; }
+
+      if (mineRatioSlider) { mineRatioSlider.value = debugSettings.mineRatio; updateSliderFill(mineRatioSlider); mineRatioValue.value = debugSettings.mineRatio; }
+
+      if (initialRevealSlider) { initialRevealSlider.value = debugSettings.initialRevealPercent; updateSliderFill(initialRevealSlider); initialRevealValue.value = debugSettings.initialRevealPercent; }
+
+      if (emptyRatioSlider) { emptyRatioSlider.value = debugSettings.emptyTilePercent; updateSliderFill(emptyRatioSlider); emptyRatioValue.value = debugSettings.emptyTilePercent; }
+
+      if (camXSlider) { camXSlider.value = camera.position.x.toFixed(1); updateSliderFill(camXSlider); camXValue.value = camera.position.x.toFixed(1); }
+
+      if (camYSlider) { camYSlider.value = camera.position.y.toFixed(1); updateSliderFill(camYSlider); camYValue.value = camera.position.y.toFixed(1); }
+
+      if (camZSlider) { camZSlider.value = camera.position.z.toFixed(1); updateSliderFill(camZSlider); camZValue.value = camera.position.z.toFixed(1); }
+
+      if (camFOVSlider) { camFOVSlider.value = camera.fov; updateSliderFill(camFOVSlider); camFOVValue.value = camera.fov; }
+
+    }
+
+    document.getElementById('debugImmortal').addEventListener('change', (e) => {
+
+      // Immortal mode - prevents game over on mine hit
+
+    });
+
+    document.getElementById('debugCamFog').addEventListener('change', (e) => {
+
+      if (e.target.checked) {
+
+        scene.fog = new THREE.Fog(scene.background, camera.near, camera.far);
+
+      } else {
+
+        scene.fog = null;
+
+      }
+
+    });
+
+    setInterval(updateDebugValues, 1000);
+
+
+
+    // Start
+
+    function alignTimerWidth() {
+
+      const timerSection = document.querySelector('.timer-section');
+
+      const globeBtn = document.getElementById('globeBtn');
+
+      const uiContainer = document.querySelector('.ui');
+
+      if (timerSection && globeBtn && uiContainer) {
+
+        const uiRect = uiContainer.getBoundingClientRect();
+
+        const globeBtnRect = globeBtn.getBoundingClientRect();
+
+        const timerLeft = uiRect.left + 16;
+
+        const globeRightEdge = globeBtnRect.right;
+
+        const timerWidth = globeRightEdge - timerLeft;
+
+        timerSection.style.width = timerWidth + 'px';
+
+        timerSection.classList.add('aligned');
+
+      }
+
+    }
+
+    rebuildCore(15); runTests();
+
+    alignTimerWidth();
+
+    requestAnimationFrame(() => {
+
+      alignTimerWidth();
+
+    });
+
+    setTimeout(() => {
+
+      alignTimerWidth();
+
+    }, 0);
+
+    addEventListener('resize', ()=>{ camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); requestAnimationFrame(alignTimerWidth); });
+
+    const uiElement = document.querySelector('.ui');
+
+    if (uiElement) {
+
+      uiElement.addEventListener('click', () => {
+
+        scheduleCompactMode();
+
+      });
+
+    }
+
+    // FPS counter
+    let fps = 0;
+    let lastTime = performance.now();
+    let frameCount = 0;
+    const fpsCounter = document.getElementById('fpsCounter');
+
+    renderer.setAnimationLoop(()=>{ 
+      controls.update(); 
+      renderer.render(scene, camera); 
+      
+      // Update FPS counter
+      frameCount++;
+      const currentTime = performance.now();
+      if (currentTime >= lastTime + 1000) {
+        fps = frameCount;
+        frameCount = 0;
+        lastTime = currentTime;
+        if (fpsCounter) {
+          fpsCounter.textContent = `FPS: ${fps}`;
+        }
+      }
+    });
+
+  </script>
+
+</body>
+
+</html>
+
