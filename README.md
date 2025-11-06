@@ -31,6 +31,20 @@ Visit the [live demo](https://ozlphrt.github.io/GlobeSweeper/) to play the game.
 
 **Note**: GitHub Pages may take a few minutes to deploy after the first push.
 
+## Version History
+
+### v2.0.0 (Current Stable)
+- Fixed cascade reveal bug preventing disconnected tiles from being revealed
+- Improved UI with reduced condensed scoreboard size
+- Added iPhone safe area support to prevent status bar overlap
+- Streamlined global presets to 14 carefully selected options
+- Full PWA support with manifest and service worker
+
+**Standalone URLs:**
+- [Tree](https://github.com/ozlphrt/GlobeSweeper/tree/v2.0.0)
+- [Release](https://github.com/ozlphrt/GlobeSweeper/releases/tag/v2.0.0)
+- [Live Demo](https://ozlphrt.github.io/GlobeSweeper/)
+
 ## License
 
 MIT License
