@@ -120,15 +120,15 @@
 
     .bad { color: #ff8080; }
 
-    #debugPanel { position: fixed; top: 12px; right: 12px; width: 340px; max-height: 90vh; overflow-y: auto; overflow-x: hidden; background: #ffffff; display: none; z-index: 1000; font-family: 'Lucida Grande', sans-serif; font-size: 11px; font-weight: 600; color: #1a1a1a; box-shadow: 0 2px 10px rgba(0,0,0,0.2); border: 1px solid rgba(0,0,0,0.1); box-sizing: border-box; }
+    #debugPanel { position: fixed; top: 12px; right: 12px; width: 340px; max-height: 90vh; overflow-y: auto; overflow-x: hidden; background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.2) 100%); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); display: none; z-index: 1000; font-family: 'Lucida Grande', sans-serif; font-size: 11px; font-weight: 600; color: #1a1a1a; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6), inset 0 -1px 0 rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 16px; box-sizing: border-box; }
 
     #debugPanel.visible { display: block; }
 
-    .debug-section { border-bottom: 1px solid #e0e0e0; }
+    .debug-section { border-bottom: 1px solid rgba(255, 255, 255, 0.2); }
 
-    .debug-section-header { display: flex; align-items: center; padding: 4px 8px; cursor: pointer; user-select: none; background: #f5f5f5; color: #1a1a1a; font-weight: 600; margin: 0; }
+    .debug-section-header { display: flex; align-items: center; padding: 4px 8px; cursor: pointer; user-select: none; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: #1a1a1a; font-weight: 600; margin: 0; border-radius: 8px; transition: background 0.2s; }
 
-    .debug-section-header:hover { background: #eeeeee; }
+    .debug-section-header:hover { background: rgba(255, 255, 255, 0.3); }
 
     .debug-section-header .triangle { display: inline-block; width: 0; height: 0; border-left: 4px solid #666; border-top: 3px solid transparent; border-bottom: 3px solid transparent; margin-right: 6px; transition: transform 0.1s; }
 
@@ -137,13 +137,13 @@
     .debug-section-content { display: block; }
 
     .debug-section.collapsed .debug-section-content { display: none; }
-    .debug-subsection { padding: 4px 0; border-bottom: 1px solid #f0f0f0; }
+    .debug-subsection { padding: 4px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.15); }
     .debug-subsection:last-child { border-bottom: none; }
-    .debug-subsection-header { padding: 6px 8px; font-size: 10px; font-weight: 700; color: #666; text-transform: uppercase; letter-spacing: 0.5px; background: #f9f9f9; margin: 0 -8px 4px -8px; }
+    .debug-subsection-header { padding: 6px 8px; font-size: 10px; font-weight: 700; color: rgba(26, 26, 26, 0.7); text-transform: uppercase; letter-spacing: 0.5px; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); margin: 0 -8px 4px -8px; border-radius: 6px; }
 
     .debug-control { display: flex; align-items: center; height: 24px; padding: 0 8px; box-sizing: border-box; min-width: 0; }
 
-    .debug-control:hover { background: #f9f9f9; }
+    .debug-control:hover { background: rgba(255, 255, 255, 0.2); border-radius: 6px; }
 
     .debug-control label { flex: 0 0 auto; min-width: 110px; max-width: 110px; font-size: 11px; font-weight: 600; color: #1a1a1a; margin-right: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
@@ -192,23 +192,23 @@
 
     .debug-control input[type=checkbox]:checked::after { content: '✓'; position: absolute; top: -2px; left: 2px; color: #fff; font-size: 12px; }
 
-    .debug-control button { padding: 4px 12px; background: #f5f5f5; border: 1px solid #ddd; color: #1a1a1a; cursor: pointer; font-size: 11px; font-family: inherit; }
+    .debug-control button { padding: 4px 12px; background: rgba(255, 255, 255, 0.3); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); color: #1a1a1a; cursor: pointer; font-size: 11px; font-family: inherit; border-radius: 6px; transition: background 0.2s; }
 
-    #debugSaveClipboard { padding: 8px 12px; background: #0066ff; border: 1px solid #0055dd; color: #ffffff; cursor: pointer; font-size: 11px; font-family: inherit; font-weight: 600; border-radius: 4px; transition: background 0.2s; }
+    .debug-control button:hover { background: rgba(255, 255, 255, 0.4); }
 
-    #debugSaveClipboard:hover { background: #0055dd; }
+    #debugSaveClipboard { padding: 8px 12px; background: linear-gradient(135deg, rgba(0, 102, 255, 0.8) 0%, rgba(0, 85, 221, 0.8) 100%); backdrop-filter: blur(10px) saturate(180%); -webkit-backdrop-filter: blur(10px) saturate(180%); border: 1px solid rgba(255, 255, 255, 0.3); color: #ffffff; cursor: pointer; font-size: 11px; font-family: inherit; font-weight: 600; border-radius: 8px; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0, 102, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3); }
 
-    #debugLoadClipboard { padding: 8px 12px; background: #28a745; border: 1px solid #218838; color: #ffffff; cursor: pointer; font-size: 11px; font-family: inherit; font-weight: 600; border-radius: 4px; transition: background 0.2s; }
+    #debugSaveClipboard:hover { background: linear-gradient(135deg, rgba(0, 85, 221, 0.9) 0%, rgba(0, 68, 204, 0.9) 100%); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.4); }
 
-    #debugLoadClipboard:hover { background: #218838; }
+    #debugLoadClipboard { padding: 8px 12px; background: linear-gradient(135deg, rgba(40, 167, 69, 0.8) 0%, rgba(33, 136, 56, 0.8) 100%); backdrop-filter: blur(10px) saturate(180%); -webkit-backdrop-filter: blur(10px) saturate(180%); border: 1px solid rgba(255, 255, 255, 0.3); color: #ffffff; cursor: pointer; font-size: 11px; font-family: inherit; font-weight: 600; border-radius: 8px; transition: all 0.2s; box-shadow: 0 2px 8px rgba(40, 167, 69, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3); }
 
-    .debug-control button:hover { background: #eeeeee; }
+    #debugLoadClipboard:hover { background: linear-gradient(135deg, rgba(33, 136, 56, 0.9) 0%, rgba(25, 105, 43, 0.9) 100%); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.4); }
 
     .debug-control select { flex: 1; height: 18px; background: #ffffff; border: 1px solid #ddd; color: #1a1a1a; font-size: 11px; padding: 0 4px; margin-right: 8px; }
 
-    #debugCloseBtn { width: 100%; padding: 8px; background: #f5f5f5; border: none; border-top: 1px solid #e0e0e0; color: #1a1a1a; cursor: pointer; font-size: 11px; font-family: inherit; }
+    #debugCloseBtn { width: 100%; padding: 8px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: none; border-top: 1px solid rgba(255, 255, 255, 0.2); color: #1a1a1a; cursor: pointer; font-size: 11px; font-family: inherit; border-radius: 0 0 16px 16px; transition: background 0.2s; }
 
-    #debugCloseBtn:hover { background: #eeeeee; }
+    #debugCloseBtn:hover { background: rgba(255, 255, 255, 0.3); }
 
     /* Loading and Game Over Overlays */
     .game-overlay {
@@ -222,9 +222,9 @@
       opacity: 0;
       visibility: hidden;
       transition: opacity 0.3s ease, visibility 0.3s ease;
-      background: rgba(0, 0, 0, 0.2);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(12px) saturate(150%);
+      -webkit-backdrop-filter: blur(12px) saturate(150%);
     }
 
     .game-overlay.visible {
@@ -234,15 +234,15 @@
     }
 
     .game-overlay-content {
-      background: rgba(255, 255, 255, 0.95);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.2) 100%);
       backdrop-filter: blur(20px) saturate(180%);
       -webkit-backdrop-filter: blur(20px) saturate(180%);
-      border-radius: 20px;
+      border-radius: 24px;
       padding: 40px 60px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6), inset 0 -1px 0 rgba(255, 255, 255, 0.2);
-      border: 1px solid rgba(255, 255, 255, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.3);
       text-align: center;
-      max-width: 400px;
+      max-width: 500px;
       transform: scale(0.9);
       transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
@@ -254,23 +254,25 @@
     .game-overlay-title {
       font-size: 48px;
       font-weight: 700;
-      color: #dc3545;
+      color: #ff4d4d;
       margin-bottom: 12px;
-      text-shadow: none;
+      text-shadow: 0 0 8px rgba(255, 77, 77, 0.8), 0 0 16px rgba(255, 77, 77, 0.6);
       letter-spacing: -0.5px;
     }
 
     .game-overlay-title.win {
       color: #28a745;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 0 0 20px rgba(40, 167, 69, 0.3);
     }
 
     .game-overlay-title.loss {
-      color: #dc3545;
+      color: #ff4d4d;
+      text-shadow: 0 0 8px rgba(255, 77, 77, 0.8), 0 0 16px rgba(255, 77, 77, 0.6);
     }
 
     .game-overlay-subtitle {
       font-size: 20px;
-      color: #666;
+      color: #cccccc;
       margin-bottom: 32px;
       line-height: 1.4;
       font-weight: 400;
@@ -278,64 +280,74 @@
 
     .game-overlay-message {
       font-size: 18px;
-      color: #666;
+      color: rgba(26, 26, 26, 0.7);
       margin-bottom: 24px;
       line-height: 1.5;
       font-weight: 400;
+      text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
     }
 
     .game-overlay-stats {
       font-size: 16px;
       margin-bottom: 32px;
-      line-height: 2;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px 40px;
       text-align: left;
-      display: inline-block;
-      min-width: 280px;
+      min-width: 400px;
     }
 
     .game-overlay-stats .stat-row {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 4px 0;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    }
-
-    .game-overlay-stats .stat-row:last-child {
-      border-bottom: none;
+      flex-direction: column;
+      gap: 4px;
     }
 
     .game-overlay-stats .stat-label {
-      color: #999;
+      color: #aaaaaa;
       font-weight: 400;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .game-overlay-stats .stat-value {
-      font-weight: 600;
-      color: #333;
+      font-weight: 700;
+      font-size: 24px;
       font-variant-numeric: tabular-nums;
+    }
+
+    .game-overlay-stats .stat-value.mine-hunt {
+      color: #ff4d4d;
+    }
+
+    .game-overlay-stats .stat-value.exploration {
+      color: #4dc2ff;
+    }
+
+    .game-overlay-stats .stat-value.flags,
+    .game-overlay-stats .stat-value.revealed {
+      color: #ffffff;
     }
 
     .game-overlay-button {
       padding: 12px 32px;
-      background: linear-gradient(135deg, rgba(0, 102, 255, 0.8) 0%, rgba(0, 85, 221, 0.8) 100%);
-      backdrop-filter: blur(10px) saturate(180%);
-      -webkit-backdrop-filter: blur(10px) saturate(180%);
-      color: #ffffff;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      border-radius: 12px;
+      background: #87ceeb;
+      color: #333333;
+      border: none;
+      border-radius: 18px;
       font-size: 16px;
       font-weight: 600;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0, 102, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
       transition: all 0.2s;
       font-family: inherit;
     }
 
     .game-overlay-button:hover {
-      background: linear-gradient(135deg, rgba(0, 85, 221, 0.9) 0%, rgba(0, 68, 204, 0.9) 100%);
+      background: #7ec8e3;
       transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0, 102, 255, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
 
     .game-overlay-button:active {
@@ -381,20 +393,20 @@
       <div class="game-overlay-subtitle" id="gameOverSubtitle">You ran out of lives</div>
       <div class="game-overlay-stats">
         <div class="stat-row">
-          <span class="stat-label">Mine Hunt:</span>
-          <span class="stat-value" id="statMineHunt">0%</span>
+          <span class="stat-label">MINE HUNT</span>
+          <span class="stat-value mine-hunt" id="statMineHunt">0%</span>
+        </div>
+        <div class="stat-row" style="text-align: right;">
+          <span class="stat-label">EXPLORATION</span>
+          <span class="stat-value exploration" id="statExploration">0%</span>
         </div>
         <div class="stat-row">
-          <span class="stat-label">Exploration:</span>
-          <span class="stat-value" id="statExploration">0%</span>
+          <span class="stat-label">FLAGS PLACED</span>
+          <span class="stat-value flags" id="statFlags">0/0</span>
         </div>
-        <div class="stat-row">
-          <span class="stat-label">Flags:</span>
-          <span class="stat-value" id="statFlags">0/0</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-label">Revealed:</span>
-          <span class="stat-value" id="statRevealed">0/0</span>
+        <div class="stat-row" style="text-align: right;">
+          <span class="stat-label">TILES REVEALED</span>
+          <span class="stat-value revealed" id="statRevealed">0/0</span>
         </div>
       </div>
       <button class="game-overlay-button" id="restartButton">Restart</button>
@@ -511,7 +523,7 @@
 
       <div class="debug-section-content">
 
-        <div class="debug-control"><label>Hex Color</label><div class="color-display" id="debugWireHexDisplay" style="background: #1e2129; position: relative;"><input type="color" id="debugWireHex" value="#1e2129" /></div><span class="color-hex" id="debugWireHexHex">#1e2129</span></div>
+        <div class="debug-control"><label>Hex Color</label><div class="color-display" id="debugWireHexDisplay" style="background: #0f0f10; position: relative;"><input type="color" id="debugWireHex" value="#0f0f10" /></div><span class="color-hex" id="debugWireHexHex">#0f0f10</span></div>
 
         <div class="debug-control"><label>Pent Color</label><div class="color-display" id="debugWirePentDisplay" style="background: #1e2129; position: relative;"><input type="color" id="debugWirePent" value="#1e2129" /></div><span class="color-hex" id="debugWirePentHex">#1e2129</span></div>
 
@@ -525,11 +537,11 @@
 
       <div class="debug-section-content">
 
-        <div class="debug-control"><label>Hidden</label><div class="color-display" id="debugTileHiddenDisplay" style="background: #3a4555; position: relative;"><input type="color" id="debugTileHidden" value="#3a4555" /></div><span class="color-hex" id="debugTileHiddenHex">#3a4555</span></div>
+        <div class="debug-control"><label>Hidden</label><div class="color-display" id="debugTileHiddenDisplay" style="background: #2d3643; position: relative;"><input type="color" id="debugTileHidden" value="#2d3643" /></div><span class="color-hex" id="debugTileHiddenHex">#2d3643</span></div>
 
         <div class="debug-control"><label>Revealed</label><div class="color-display" id="debugTileRevealedDisplay" style="background: #4a5565; position: relative;"><input type="color" id="debugTileRevealed" value="#4a5565" /></div><span class="color-hex" id="debugTileRevealedHex">#4a5565</span></div>
 
-        <div class="debug-control"><label>Flag</label><div class="color-display" id="debugTileFlagDisplay" style="background: #ff6b6b; position: relative;"><input type="color" id="debugTileFlag" value="#ff6b6b" /></div><span class="color-hex" id="debugTileFlagHex">#ff6b6b</span></div>
+        <div class="debug-control"><label>Flag</label><div class="color-display" id="debugTileFlagDisplay" style="background: #cc5555; position: relative;"><input type="color" id="debugTileFlag" value="#cc5555" /></div><span class="color-hex" id="debugTileFlagHex">#cc5555</span></div>
 
         <div class="debug-control"><label>Mine</label><div class="color-display" id="debugTileMineDisplay" style="background: #ff4444; position: relative;"><input type="color" id="debugTileMine" value="#ff4444" /></div><span class="color-hex" id="debugTileMineHex">#ff4444</span></div>
 
@@ -543,7 +555,7 @@
 
       <div class="debug-section-content">
 
-        <div class="debug-control"><label>Offset</label><div class="control-wrapper"><input type="range" id="debugLabelOffset" min="1" max="1.1" step="0.001" value="1.015" /></div><input type="number" id="debugLabelOffsetValue" value="1.015" step="0.001" readonly /></div>
+        <div class="debug-control"><label>Offset</label><div class="control-wrapper"><input type="range" id="debugLabelOffset" min="1" max="1.1" step="0.001" value="1.009" /></div><input type="number" id="debugLabelOffsetValue" value="1.009" step="0.001" readonly /></div>
 
         <div class="debug-control"><label>Rotation (deg)</label><div class="control-wrapper"><input type="range" id="debugLabelRot" min="0" max="360" step="1" value="0" /></div><input type="number" id="debugLabelRotValue" value="0" readonly /></div>
 
@@ -555,7 +567,7 @@
 
         <div class="debug-control"><label>Scale</label><div class="control-wrapper"><input type="range" id="debugLabelScale" min="0.01" max="0.2" step="0.01" value="0.07" /></div><input type="number" id="debugLabelScaleValue" value="0.07" step="0.01" readonly /></div>
 
-        <div class="debug-control"><label>Color</label><div class="color-display" id="debugLabelColorDisplay" style="background: #6b7585; position: relative;"><input type="color" id="debugLabelColor" value="#6b7585" /></div><span class="color-hex" id="debugLabelColorHex">#6b7585</span></div>
+        <div class="debug-control"><label>Color</label><div class="color-display" id="debugLabelColorDisplay" style="background: #787e87; position: relative;"><input type="color" id="debugLabelColor" value="#787e87" /></div><span class="color-hex" id="debugLabelColorHex">#787e87</span></div>
 
       </div>
 
@@ -1064,6 +1076,7 @@
 
 
 
+
     // ===== Utilities =====
 
     function labelScale(f){
@@ -1234,7 +1247,7 @@
     // Using MeshStandardMaterial for material presets (supports roughness, metalness)
     // Default: matte material (roughness: 1.0, metalness: 0.0)
     let matHidden = new THREE.MeshStandardMaterial({ 
-      color: 0x3a4555, 
+      color: 0x2d3643, 
       side: THREE.DoubleSide,
       roughness: 0.8,
       metalness: 0.0
@@ -1248,10 +1261,12 @@
     });
     
     let matFlag = new THREE.MeshStandardMaterial({ 
-      color: 0xff6b6b, 
+      color: 0xcc5555, // Darker red to reduce brightness when seen through empty tiles
       side: THREE.DoubleSide,
       roughness: 1.0,
-      metalness: 0.0
+      metalness: 0.0,
+      emissive: 0x000000, // No emissive glow
+      emissiveIntensity: 0.0
     });
     
     let matMine = new THREE.MeshStandardMaterial({ 
@@ -1295,7 +1310,7 @@
       wireGroup = new THREE.Group();
       scene.add(wireGroup);
       
-      const hexColor = wireHexMaterial ? wireHexMaterial.color.getHex() : 0x1e2129;
+      const hexColor = wireHexMaterial ? wireHexMaterial.color.getHex() : 0x0f0f10;
       const pentColor = wirePentMaterial ? wirePentMaterial.color.getHex() : 0x1e2129;
       
       const { lines, pentLines } = buildEdgeLines(state.polys, hexColor, pentColor, state.neighbors, state.tiles);
@@ -1313,7 +1328,7 @@
 
       scene.remove(tileGroup); tileGroup.clear(); tileGroup = new THREE.Group(); scene.add(tileGroup);
 
-      const hexColor = wireHexMaterial ? wireHexMaterial.color.getHex() : 0x1e2129;
+      const hexColor = wireHexMaterial ? wireHexMaterial.color.getHex() : 0x0f0f10;
 
       const pentColor = wirePentMaterial ? wirePentMaterial.color.getHex() : 0x1e2129;
 
@@ -1644,6 +1659,9 @@
 
       t.revealed = true;
       
+      // Reset scale to normal when revealed
+      t.mesh.scale.set(1.0, 1.0, 1.0);
+      
       // Apply appropriate material: mine, empty (glass), or revealed
       if (t.mine) {
         t.mesh.material = matMine;
@@ -1675,12 +1693,19 @@
       checkWin(); updateCounters();
       
       // If this tile has count 0, add adjacent safe tiles to reveal queue
-      if (t.count === 0) {
+      // Only add direct neighbors (tiles that share an edge) - not tiles that are farther away
+      if (t.count === 0 && state.neighbors[i]) {
         for (const nb of state.neighbors[i]) {
+          // Validate neighbor index is within bounds
+          if (nb < 0 || nb >= state.tiles.length) continue;
+          
           const neighbor = state.tiles[nb];
-          if (!neighbor.revealed && !neighbor.flagged && !neighbor.isEmpty && !neighbor.mine) {
-            if (!revealQueue.includes(nb)) {
+          // Only add direct neighbors that are safe, not revealed, not flagged, not empty, and not mines
+          if (neighbor && !neighbor.revealed && !neighbor.flagged && !neighbor.isEmpty && !neighbor.mine) {
+            // Use Set for O(1) lookup instead of O(n) includes()
+            if (!revealQueueSet.has(nb)) {
               revealQueue.push(nb);
+              revealQueueSet.add(nb);
             }
           }
         }
@@ -1706,6 +1731,9 @@
           if (!t.revealed && !t.flagged && !t.isEmpty) {
             t.revealed = true;
             
+            // Reset scale to normal when revealed
+            t.mesh.scale.set(1.0, 1.0, 1.0);
+            
             if (t.mine) {
               t.mesh.material = matMine;
               if (!document.getElementById('debugImmortal')?.checked) {
@@ -1725,10 +1753,13 @@
               addLabel(idx, t.count);
             }
             
-            if (t.count === 0) {
+            if (t.count === 0 && state.neighbors[idx]) {
               for (const nb of state.neighbors[idx]) {
+                // Validate neighbor index is within bounds
+                if (nb < 0 || nb >= state.tiles.length) continue;
+                
                 const neighbor = state.tiles[nb];
-                if (!neighbor.revealed && !neighbor.flagged && !neighbor.isEmpty && !neighbor.mine) {
+                if (neighbor && !neighbor.revealed && !neighbor.flagged && !neighbor.isEmpty && !neighbor.mine) {
                   if (!revealQueueSet.has(nb)) {
                     revealQueue.push(nb);
                     revealQueueSet.add(nb);
@@ -1785,6 +1816,9 @@
           // Reveal this tile
           t.revealed = true;
           
+          // Reset scale to normal when revealed
+          t.mesh.scale.set(1.0, 1.0, 1.0);
+          
           // Update material
           if (t.mine) {
             t.mesh.material = matMine;
@@ -1809,11 +1843,14 @@
             
             // Only cascade if this tile has count 0 (no adjacent mines)
             // Tiles with count > 0 should not trigger cascades
-            if (t.count === 0) {
+            if (t.count === 0 && state.neighbors[idx]) {
               for (const nb of state.neighbors[idx]) {
+                // Validate neighbor index is within bounds
+                if (nb < 0 || nb >= state.tiles.length) continue;
+                
                 const neighbor = state.tiles[nb];
                 // Only add safe, non-empty, non-flagged, non-revealed neighbors
-                if (!neighbor.revealed && !neighbor.flagged && !neighbor.isEmpty && !neighbor.mine) {
+                if (neighbor && !neighbor.revealed && !neighbor.flagged && !neighbor.isEmpty && !neighbor.mine) {
                   if (!revealQueueSet.has(nb)) {
                     revealQueue.push(nb);
                     revealQueueSet.add(nb);
@@ -1851,6 +1888,8 @@
           }
         } else {
           t.revealed = true;
+          // Reset scale to normal when revealed
+          t.mesh.scale.set(1.0, 1.0, 1.0);
           t.mesh.material = matRevealed;
           state.safeRevealed++;
           addLabel(i, t.count);
@@ -1881,14 +1920,13 @@
 
       const t = state.tiles[i]; if (t.label) return;
 
-      // Get label color, or calculate it from revealed tile color if not set
+      // Get label color, or use default if not set
       let labelColorHex = document.getElementById('debugLabelColor')?.value;
       if (!labelColorHex) {
-        const revealedColor = document.getElementById('debugTileRevealed')?.value || '#4c5b7b';
-        labelColorHex = lightenColor(revealedColor, 0.55);
+        labelColorHex = '#787e87'; // Default label color
       }
 
-      const s = makeNumberSprite(n, labelScale(state.f), labelColorHex); s.position.copy(t.center).multiplyScalar(1.015);
+      const s = makeNumberSprite(n, labelScale(state.f), labelColorHex); s.position.copy(t.center).multiplyScalar(1.009);
 
       tileGroup.add(s); t.label = s;
 
@@ -1900,7 +1938,9 @@
       const t = state.tiles[i]; 
       if (t.revealed || state.gameOver) return; 
       t.flagged = !t.flagged; 
-      t.mesh.material = t.flagged ? matFlag : matHidden; 
+      t.mesh.material = t.flagged ? matFlag : matHidden;
+      // Reset scale to normal when flag state changes
+      t.mesh.scale.set(1.0, 1.0, 1.0);
       state.flags += t.flagged ? 1 : -1; 
       updateCounters();
       // Play sound for flag toggle
@@ -1938,7 +1978,7 @@
       if (state.lives <= 0) {
         state.gameOver = true;
         stopTimer();
-        state.tiles.forEach((t)=>{ if (t.mine){ t.mesh.material = matMine; if (!t.revealed) { t.revealed = true; } } });
+        state.tiles.forEach((t)=>{ if (t.mine){ t.mesh.material = matMine; t.mesh.scale.set(1.0, 1.0, 1.0); if (!t.revealed) { t.revealed = true; } } });
         
         // Show game over overlay with stats
         const gameOverOverlay = document.getElementById('gameOverOverlay');
@@ -1965,10 +2005,22 @@
           const minePercent = state.totalMines > 0 ? Math.round((state.flags / state.totalMines) * 100) : 0;
           const explorePercent = totalSafe > 0 ? Math.round((nonEmptySafeRevealed / totalSafe) * 100) : 0;
           
-          if (statMineHunt) statMineHunt.textContent = `${minePercent}%`;
-          if (statExploration) statExploration.textContent = `${explorePercent}%`;
-          if (statFlags) statFlags.textContent = `${state.flags}/${state.totalMines}`;
-          if (statRevealed) statRevealed.textContent = `${nonEmptySafeRevealed}/${totalSafe}`;
+          if (statMineHunt) {
+            statMineHunt.textContent = `${minePercent}%`;
+            statMineHunt.className = 'stat-value mine-hunt';
+          }
+          if (statExploration) {
+            statExploration.textContent = `${explorePercent}%`;
+            statExploration.className = 'stat-value exploration';
+          }
+          if (statFlags) {
+            statFlags.textContent = `${state.flags}/${state.totalMines}`;
+            statFlags.className = 'stat-value flags';
+          }
+          if (statRevealed) {
+            statRevealed.textContent = `${nonEmptySafeRevealed}/${totalSafe}`;
+            statRevealed.className = 'stat-value revealed';
+          }
           
           gameOverOverlay.classList.add('visible');
         }
@@ -2010,10 +2062,22 @@
           const minePercent = state.totalMines > 0 ? Math.round((state.flags / state.totalMines) * 100) : 0;
           const explorePercent = 100;
           
-          if (statMineHunt) statMineHunt.textContent = `${minePercent}%`;
-          if (statExploration) statExploration.textContent = `${explorePercent}%`;
-          if (statFlags) statFlags.textContent = `${state.flags}/${state.totalMines}`;
-          if (statRevealed) statRevealed.textContent = `${nonEmptySafeRevealed}/${totalSafe}`;
+          if (statMineHunt) {
+            statMineHunt.textContent = `${minePercent}%`;
+            statMineHunt.className = 'stat-value mine-hunt';
+          }
+          if (statExploration) {
+            statExploration.textContent = `${explorePercent}%`;
+            statExploration.className = 'stat-value exploration';
+          }
+          if (statFlags) {
+            statFlags.textContent = `${state.flags}/${state.totalMines}`;
+            statFlags.className = 'stat-value flags';
+          }
+          if (statRevealed) {
+            statRevealed.textContent = `${nonEmptySafeRevealed}/${totalSafe}`;
+            statRevealed.className = 'stat-value revealed';
+          }
           
           gameOverOverlay.classList.add('visible');
         }
@@ -2221,6 +2285,8 @@
     const rotationFriction = 0.88; // Friction for momentum decay (0.88 = 12% decay per frame - faster stop)
     const rotationAcceleration = 0.08; // How quickly velocity builds up (0-1) - slower easing in
     const rotationSpeed = 0.0025; // Base rotation speed multiplier - less responsive
+    const touchRotationSpeed = 0.0035; // Touch rotation speed multiplier - more responsive for touch
+    const touchRotationAcceleration = 0.12; // Touch acceleration - faster response for touch
 
 
     function pickTile(event){
@@ -2365,8 +2431,12 @@
       if (e.button === 2 && dragState.button === 2) {
         rightClickHandled = true;
         toggleFlag(idx);
-        // Clear flag immediately for faster response
-        setTimeout(() => { rightClickHandled = false; }, 50);
+        // Clear flag immediately after flag toggle to allow immediate left-click
+        rightClickHandled = false;
+        // Reset drag state completely to allow immediate left-click
+        dragState.startTile = -1;
+        dragState.isDragging = false;
+        dragState.button = -1;
       } else if (e.button === 0 && dragState.button === 0) {
 
         const now = Date.now();
@@ -2467,12 +2537,12 @@
           touchState.isRotating = true;
           touchState.lastMoveTime = performance.now();
           
-          // Use same smooth rotation system as mouse
-          const targetVelocityX = deltaX * rotationSpeed;
-          const targetVelocityY = deltaY * rotationSpeed;
+          // Use enhanced rotation system for touch with higher sensitivity
+          const targetVelocityX = deltaX * touchRotationSpeed;
+          const targetVelocityY = deltaY * touchRotationSpeed;
           
-          rotationVelocity.x += (targetVelocityX - rotationVelocity.x) * rotationAcceleration;
-          rotationVelocity.y += (targetVelocityY - rotationVelocity.y) * rotationAcceleration;
+          rotationVelocity.x += (targetVelocityX - rotationVelocity.x) * touchRotationAcceleration;
+          rotationVelocity.y += (targetVelocityY - rotationVelocity.y) * touchRotationAcceleration;
         } else {
           // If not actively dragging, stop rotation immediately
           touchState.isRotating = false;
@@ -3489,16 +3559,15 @@
 
             if (t.count > 0 && !t.isEmpty) {
 
-              // Get label color, or calculate it from revealed tile color if not set
+              // Get label color, or use default if not set
               let labelColorHex = document.getElementById('debugLabelColor')?.value;
               if (!labelColorHex) {
-                const revealedColor = document.getElementById('debugTileRevealed')?.value || '#4c5b7b';
-                labelColorHex = lightenColor(revealedColor, 0.55);
+                labelColorHex = '#787e87'; // Default label color
               }
 
               const s = makeNumberSprite(t.count, labelScale(state.f), labelColorHex);
 
-              s.position.copy(t.center).multiplyScalar(debugSettings.labelOffset || 1.015);
+              s.position.copy(t.center).multiplyScalar(debugSettings.labelOffset || 1.009);
 
               tileGroup.add(s);
 
@@ -3628,35 +3697,8 @@
 
       state.tiles.forEach(t => { if (t.revealed && !t.mine) t.mesh.material.color.copy(matRevealed.color); });
 
-      // Automatically update label color to be a lighter tone of revealed tile color
-      const lighterColor = lightenColor(tileRevealedInput.value, 0.55);
-      if (labelColorInput) {
-        labelColorInput.value = lighterColor;
-        updateColorDisplay(labelColorInput, labelColorDisplay, labelColorHex);
-        // Update all existing labels
-        state.tiles.forEach(t => {
-          if (t.label && t.count > 0 && !t.isEmpty) {
-            const canvas = document.createElement('canvas');
-            canvas.width = 128; canvas.height = 128;
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = 'rgba(0,0,0,0)';
-            ctx.fillRect(0,0,128,128);
-            ctx.font = '700 72px system-ui, Arial';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillStyle = lighterColor;
-            ctx.shadowColor = 'rgba(0,0,0,0.5)';
-            ctx.shadowBlur = 8;
-            ctx.fillText(String(t.count), 64, 64);
-            const tex = new THREE.CanvasTexture(canvas);
-            tex.anisotropy = 4;
-            tex.needsUpdate = true;
-            t.label.material.map.dispose();
-            t.label.material.map = tex;
-            t.label.material.needsUpdate = true;
-          }
-        });
-      }
+      // Label color is no longer automatically updated - user can set it manually in the debug panel
+      // This allows the default #949ead to persist
 
     });
 
@@ -3770,11 +3812,16 @@
 
     const labelColorHex = document.getElementById('debugLabelColorHex');
 
-    // Initialize label color based on revealed tile color on page load
-    if (tileRevealedInput && labelColorInput) {
-      const initialLighterColor = lightenColor(tileRevealedInput.value, 0.55);
-      labelColorInput.value = initialLighterColor;
+    // Initialize label color with default value on page load
+    if (labelColorInput) {
+      labelColorInput.value = '#787e87'; // Default label color
       updateColorDisplay(labelColorInput, labelColorDisplay, labelColorHex);
+    }
+    
+    // Initialize label offset with default value on page load
+    if (labelOffsetSlider) {
+      labelOffsetSlider.value = '1.009'; // Default label offset
+      syncSliderValue(labelOffsetSlider, labelOffsetValue);
     }
 
     labelColorDisplay.addEventListener('click', () => labelColorInput.click());
@@ -4309,6 +4356,42 @@
         }
       }
       
+      // Oscillate tile scale when mine hunting reaches 80%
+      const mineHuntPercent = state.totalMines > 0 ? Math.round((state.flags / state.totalMines) * 100) : 0;
+      if (mineHuntPercent >= 80 && !state.gameOver && !state.won) {
+        const animTime = time * 0.001; // Convert to seconds
+        const oscillationSpeed = 12.0; // Much faster oscillation frequency for quick vibration
+        const scaleAmplitude = 0.0078125; // Half of previous: 1.5625% of radius variation (±0.78125% = 1.5625% total range)
+        
+        state.tiles.forEach((t, i) => {
+          if (t.isEmpty) return; // Skip empty tiles
+          
+          // Oscillate scale of unrevealed tiles
+          if (!t.revealed && !t.flagged) {
+            const pulse = Math.sin(animTime * oscillationSpeed + i * 0.1); // -1 to 1
+            const scale = 1.0 + pulse * scaleAmplitude; // Scale between 0.9921875 and 1.0078125
+            t.mesh.scale.set(scale, scale, scale);
+          }
+          // Oscillate scale of incorrectly flagged tiles (faster pattern)
+          else if (t.flagged && !t.mine) {
+            const pulse = Math.sin(animTime * oscillationSpeed * 1.5 + i * 0.15); // -1 to 1, faster
+            const scale = 1.0 + pulse * scaleAmplitude; // Scale between 0.9921875 and 1.0078125
+            t.mesh.scale.set(scale, scale, scale);
+          }
+          // Reset scale for other tiles
+          else {
+            t.mesh.scale.set(1.0, 1.0, 1.0);
+          }
+        });
+      } else {
+        // Reset all tile scales when oscillation is not active
+        state.tiles.forEach(t => {
+          if (!t.isEmpty) {
+            t.mesh.scale.set(1.0, 1.0, 1.0);
+          }
+        });
+      }
+      
       renderer.render(scene, camera); 
       
       // Update FPS counter
@@ -4326,59 +4409,58 @@
 
     // ===== Presets =====
     
-    // Color Presets (10 presets) - Research-based, visually appealing, harmonious color palettes
-    // Based on 60-30-10 rule, nature-inspired colors, complementary contrasts, desaturated backgrounds
-    // centerLightColor: point light color that complements the palette
+    // Color Presets (10 presets) - Visually appealing, harmonious color palettes
+    // Optimized for contrast, readability, and aesthetic appeal
     const colorPresets = {
-      1: { // Ocean - Deep teal hidden, Soft aqua revealed
-        tileHidden: '#2d5a6b', tileRevealed: '#7fb3b5', tileFlag: '#e67e7e', tileMine: '#c55a5a',
-        labelColor: '#ffffff', wireHex: '#3d6a7b', wirePent: '#2d5a6b', camBg: '#242528',
-        centerLightColor: '#7fb3b5'
+      1: { // Midnight - Deep blue-gray hidden, Soft cyan revealed
+        tileHidden: '#2a3441', tileRevealed: '#6b9bd1', tileFlag: '#cc5555', tileMine: '#aa4444',
+        labelColor: '#949ead', wireHex: '#3a4451', wirePent: '#2a3441', camBg: '#1a1d24',
+        centerLightColor: '#6b9bd1'
       },
-      2: { // Forest - Sage green hidden, Cream revealed
-        tileHidden: '#5a6b5a', tileRevealed: '#e8dcc0', tileFlag: '#e67e7e', tileMine: '#c55a5a',
-        labelColor: '#2c3e50', wireHex: '#6a7b6a', wirePent: '#5a6b5a', camBg: '#242528',
-        centerLightColor: '#e8dcc0'
+      2: { // Forest - Dark green hidden, Light sage revealed
+        tileHidden: '#3d4a3d', tileRevealed: '#a8c5a8', tileFlag: '#cc5555', tileMine: '#aa4444',
+        labelColor: '#949ead', wireHex: '#4d5a4d', wirePent: '#3d4a3d', camBg: '#1a1d24',
+        centerLightColor: '#a8c5a8'
       },
-      3: { // Fire - Rust hidden, Sky blue revealed
-        tileHidden: '#8b5a4a', tileRevealed: '#9db5c8', tileFlag: '#e67e7e', tileMine: '#c55a5a',
-        labelColor: '#ffffff', wireHex: '#9b6a5a', wirePent: '#8b5a4a', camBg: '#242528',
-        centerLightColor: '#9db5c8'
+      3: { // Sunset - Deep orange hidden, Peach revealed
+        tileHidden: '#5a3d2a', tileRevealed: '#d4a88a', tileFlag: '#cc5555', tileMine: '#aa4444',
+        labelColor: '#949ead', wireHex: '#6a4d3a', wirePent: '#5a3d2a', camBg: '#1a1d24',
+        centerLightColor: '#d4a88a'
       },
-      4: { // Sunset - Plum hidden, Amber revealed
-        tileHidden: '#6b5a7b', tileRevealed: '#d4a574', tileFlag: '#e67e7e', tileMine: '#c55a5a',
-        labelColor: '#ffffff', wireHex: '#7b6a8b', wirePent: '#6b5a7b', camBg: '#242528',
-        centerLightColor: '#d4a574'
+      4: { // Purple - Deep purple hidden, Lavender revealed
+        tileHidden: '#4a3d5a', tileRevealed: '#b8a8d4', tileFlag: '#cc5555', tileMine: '#aa4444',
+        labelColor: '#949ead', wireHex: '#5a4d6a', wirePent: '#4a3d5a', camBg: '#1a1d24',
+        centerLightColor: '#b8a8d4'
       },
-      5: { // Moonlight - Charcoal hidden, Lavender revealed
-        tileHidden: '#4a5a6b', tileRevealed: '#c4a8d8', tileFlag: '#e67e7e', tileMine: '#c55a5a',
-        labelColor: '#ffffff', wireHex: '#5a6a7b', wirePent: '#4a5a6b', camBg: '#242528',
-        centerLightColor: '#c4a8d8'
-      },
-      6: { // Chaos - Deep purple hidden, Chartreuse revealed
-        tileHidden: '#5a4a6b', tileRevealed: '#b8c88a', tileFlag: '#e67e7e', tileMine: '#c55a5a',
-        labelColor: '#ffffff', wireHex: '#6a5a7b', wirePent: '#5a4a6b', camBg: '#242528',
-        centerLightColor: '#b8c88a'
-      },
-      7: { // Amber - Olive hidden, Apricot revealed
-        tileHidden: '#6b7a5a', tileRevealed: '#e8b88a', tileFlag: '#e67e7e', tileMine: '#c55a5a',
-        labelColor: '#ffffff', wireHex: '#7b8a6a', wirePent: '#6b7a5a', camBg: '#242528',
-        centerLightColor: '#e8b88a'
-      },
-      8: { // Desert - Terracotta hidden, Turquoise revealed
-        tileHidden: '#8b6a5a', tileRevealed: '#7ab8b8', tileFlag: '#e67e7e', tileMine: '#c55a5a',
-        labelColor: '#ffffff', wireHex: '#9b7a6a', wirePent: '#8b6a5a', camBg: '#242528',
+      5: { // Ocean - Deep teal hidden, Aqua revealed
+        tileHidden: '#2a4a4a', tileRevealed: '#7ab8b8', tileFlag: '#cc5555', tileMine: '#aa4444',
+        labelColor: '#949ead', wireHex: '#3a5a5a', wirePent: '#2a4a4a', camBg: '#1a1d24',
         centerLightColor: '#7ab8b8'
       },
-      9: { // Arctic - Slate blue hidden, Rose revealed
-        tileHidden: '#5a6b8b', tileRevealed: '#d88a9a', tileFlag: '#e67e7e', tileMine: '#c55a5a',
-        labelColor: '#ffffff', wireHex: '#6a7b9b', wirePent: '#5a6b8b', camBg: '#242528',
-        centerLightColor: '#d88a9a'
+      6: { // Earth - Brown hidden, Beige revealed
+        tileHidden: '#4a3d2a', tileRevealed: '#c5b8a8', tileFlag: '#cc5555', tileMine: '#aa4444',
+        labelColor: '#949ead', wireHex: '#5a4d3a', wirePent: '#4a3d2a', camBg: '#1a1d24',
+        centerLightColor: '#c5b8a8'
       },
-      10: { // Aurora - Forest teal hidden, Blush revealed
-        tileHidden: '#4a7a7b', tileRevealed: '#d8a8a8', tileFlag: '#e67e7e', tileMine: '#c55a5a',
-        labelColor: '#ffffff', wireHex: '#5a8a8b', wirePent: '#4a7a7b', camBg: '#242528',
-        centerLightColor: '#d8a8a8'
+      7: { // Slate - Dark gray hidden, Light gray revealed
+        tileHidden: '#3a3d41', tileRevealed: '#9ba8b8', tileFlag: '#cc5555', tileMine: '#aa4444',
+        labelColor: '#949ead', wireHex: '#4a4d51', wirePent: '#3a3d41', camBg: '#1a1d24',
+        centerLightColor: '#9ba8b8'
+      },
+      8: { // Rose - Deep rose hidden, Pink revealed
+        tileHidden: '#5a3d4a', tileRevealed: '#d4a8b8', tileFlag: '#cc5555', tileMine: '#aa4444',
+        labelColor: '#949ead', wireHex: '#6a4d5a', wirePent: '#5a3d4a', camBg: '#1a1d24',
+        centerLightColor: '#d4a8b8'
+      },
+      9: { // Emerald - Dark green hidden, Mint revealed
+        tileHidden: '#2a4a3d', tileRevealed: '#7ab8a8', tileFlag: '#cc5555', tileMine: '#aa4444',
+        labelColor: '#949ead', wireHex: '#3a5a4d', wirePent: '#2a4a3d', camBg: '#1a1d24',
+        centerLightColor: '#7ab8a8'
+      },
+      10: { // Amber - Dark amber hidden, Gold revealed
+        tileHidden: '#5a4a2a', tileRevealed: '#d4b88a', tileFlag: '#cc5555', tileMine: '#aa4444',
+        labelColor: '#949ead', wireHex: '#6a5a3a', wirePent: '#5a4a2a', camBg: '#1a1d24',
+        centerLightColor: '#d4b88a'
       }
     };
 
@@ -4766,6 +4848,7 @@
         applyMaterialPreset(presetNum);
       });
     }
+
 
   </script>
 
