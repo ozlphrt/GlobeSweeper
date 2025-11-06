@@ -12,7 +12,7 @@
 
   <style>
 
-    html, body { height: 100%; margin: 0; background: #4f5059; color: #1a1a1a; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+    html, body { height: 100%; margin: 0; background: #242528; color: #1a1a1a; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
 
     #app { position: fixed; inset: 0; }
 
@@ -481,9 +481,9 @@
 
   <div id="debugPanel">
 
-    <div class="debug-section">
+    <div class="debug-section collapsed">
 
-      <div class="debug-section-header"><span class="triangle"></span>Game Settings</div>
+      <div class="debug-section-header collapsed"><span class="triangle"></span>Game Settings</div>
 
       <div class="debug-section-content">
 
@@ -525,9 +525,9 @@
 
       <div class="debug-section-content">
 
-        <div class="debug-control"><label>Hidden</label><div class="color-display" id="debugTileHiddenDisplay" style="background: #313f5e; position: relative;"><input type="color" id="debugTileHidden" value="#313f5e" /></div><span class="color-hex" id="debugTileHiddenHex">#313f5e</span></div>
+        <div class="debug-control"><label>Hidden</label><div class="color-display" id="debugTileHiddenDisplay" style="background: #3a4555; position: relative;"><input type="color" id="debugTileHidden" value="#3a4555" /></div><span class="color-hex" id="debugTileHiddenHex">#3a4555</span></div>
 
-        <div class="debug-control"><label>Revealed</label><div class="color-display" id="debugTileRevealedDisplay" style="background: #4c5b7b; position: relative;"><input type="color" id="debugTileRevealed" value="#4c5b7b" /></div><span class="color-hex" id="debugTileRevealedHex">#4c5b7b</span></div>
+        <div class="debug-control"><label>Revealed</label><div class="color-display" id="debugTileRevealedDisplay" style="background: #4a5565; position: relative;"><input type="color" id="debugTileRevealed" value="#4a5565" /></div><span class="color-hex" id="debugTileRevealedHex">#4a5565</span></div>
 
         <div class="debug-control"><label>Flag</label><div class="color-display" id="debugTileFlagDisplay" style="background: #ff6b6b; position: relative;"><input type="color" id="debugTileFlag" value="#ff6b6b" /></div><span class="color-hex" id="debugTileFlagHex">#ff6b6b</span></div>
 
@@ -537,9 +537,9 @@
 
     </div>
 
-    <div class="debug-section">
+    <div class="debug-section collapsed">
 
-      <div class="debug-section-header"><span class="triangle"></span>Number Labels</div>
+      <div class="debug-section-header collapsed"><span class="triangle"></span>Number Labels</div>
 
       <div class="debug-section-content">
 
@@ -555,7 +555,7 @@
 
         <div class="debug-control"><label>Scale</label><div class="control-wrapper"><input type="range" id="debugLabelScale" min="0.01" max="0.2" step="0.01" value="0.07" /></div><input type="number" id="debugLabelScaleValue" value="0.07" step="0.01" readonly /></div>
 
-        <div class="debug-control"><label>Color</label><div class="color-display" id="debugLabelColorDisplay" style="background: #aeb5c4; position: relative;"><input type="color" id="debugLabelColor" value="#aeb5c4" /></div><span class="color-hex" id="debugLabelColorHex">#aeb5c4</span></div>
+        <div class="debug-control"><label>Color</label><div class="color-display" id="debugLabelColorDisplay" style="background: #6b7585; position: relative;"><input type="color" id="debugLabelColor" value="#6b7585" /></div><span class="color-hex" id="debugLabelColorHex">#6b7585</span></div>
 
       </div>
 
@@ -571,16 +571,16 @@
           <div class="debug-subsection-header">Hemisphere Light</div>
         <div class="debug-control"><label>Sky Color</label><div class="color-display" id="debugHemiSkyDisplay" style="background: #ffffff; position: relative;"><input type="color" id="debugHemiSky" value="#ffffff" /></div><span class="color-hex" id="debugHemiSkyHex">#ffffff</span></div>
 
-        <div class="debug-control"><label>Ground Color</label><div class="color-display" id="debugHemiGroundDisplay" style="background: #cccccc; position: relative;"><input type="color" id="debugHemiGround" value="#cccccc" /></div><span class="color-hex" id="debugHemiGroundHex">#cccccc</span></div>
+        <div class="debug-control"><label>Ground Color</label><div class="color-display" id="debugHemiGroundDisplay" style="background: #888888; position: relative;"><input type="color" id="debugHemiGround" value="#888888" /></div><span class="color-hex" id="debugHemiGroundHex">#888888</span></div>
 
-        <div class="debug-control"><label>Intensity</label><div class="control-wrapper"><input type="range" id="debugHemiIntensity" min="0" max="2" step="0.1" value="0.5" /></div><input type="number" id="debugHemiIntensityValue" value="0.5" step="0.1" readonly /></div>
+        <div class="debug-control"><label>Intensity</label><div class="control-wrapper"><input type="range" id="debugHemiIntensity" min="0" max="2" step="0.1" value="0.4" /></div><input type="number" id="debugHemiIntensityValue" value="0.4" step="0.1" readonly /></div>
 
         </div>
         <div class="debug-subsection">
           <div class="debug-subsection-header">Directional Light</div>
         <div class="debug-control"><label>Color</label><div class="color-display" id="debugDirColorDisplay" style="background: #ffffff; position: relative;"><input type="color" id="debugDirColor" value="#ffffff" /></div><span class="color-hex" id="debugDirColorHex">#ffffff</span></div>
 
-        <div class="debug-control"><label>Intensity</label><div class="control-wrapper"><input type="range" id="debugDirIntensity" min="0" max="2" step="0.1" value="0.7" /></div><input type="number" id="debugDirIntensityValue" value="0.7" step="0.1" readonly /></div>
+        <div class="debug-control"><label>Intensity</label><div class="control-wrapper"><input type="range" id="debugDirIntensity" min="0" max="2" step="0.1" value="1.2" /></div><input type="number" id="debugDirIntensityValue" value="1.2" step="0.1" readonly /></div>
 
         <div class="debug-control"><label>Position X</label><div class="control-wrapper"><input type="range" id="debugDirX" min="-10" max="10" step="0.1" value="2.8" /></div><input type="number" id="debugDirXValue" value="2.8" step="0.1" readonly /></div>
 
@@ -588,7 +588,7 @@
 
         <div class="debug-control"><label>Position Z</label><div class="control-wrapper"><input type="range" id="debugDirZ" min="-10" max="10" step="0.1" value="-1.2" /></div><input type="number" id="debugDirZValue" value="-1.2" step="0.1" readonly /></div>
 
-        <div class="debug-control"><label>Distance</label><div class="control-wrapper"><input type="range" id="debugDirDistance" min="1" max="100" step="1" value="20" /></div><input type="number" id="debugDirDistanceValue" value="20" step="1" readonly /></div>
+        <div class="debug-control"><label>Distance</label><div class="control-wrapper"><input type="range" id="debugDirDistance" min="1" max="100" step="1" value="25" /></div><input type="number" id="debugDirDistanceValue" value="25" step="1" readonly /></div>
 
         <div class="debug-control"><label>Decay</label><div class="control-wrapper"><input type="range" id="debugDirDecay" min="0" max="3" step="0.1" value="2" /></div><input type="number" id="debugDirDecayValue" value="2" step="0.1" readonly /></div>
 
@@ -599,11 +599,11 @@
         </div>
         <div class="debug-subsection">
           <div class="debug-subsection-header">Point Light</div>
-        <div class="debug-control"><label>Color</label><div class="color-display" id="debugCenterLightColorDisplay" style="background: #ffffff; position: relative;"><input type="color" id="debugCenterLightColor" value="#ffffff" /></div><span class="color-hex" id="debugCenterLightColorHex">#ffffff</span></div>
+        <div class="debug-control"><label>Color</label><div class="color-display" id="debugCenterLightColorDisplay" style="background: #ffaa88; position: relative;"><input type="color" id="debugCenterLightColor" value="#ffaa88" /></div><span class="color-hex" id="debugCenterLightColorHex">#ffaa88</span></div>
 
-        <div class="debug-control"><label>Intensity</label><div class="control-wrapper"><input type="range" id="debugCenterLightIntensity" min="0" max="3" step="0.1" value="1.0" /></div><input type="number" id="debugCenterLightIntensityValue" value="1.0" step="0.1" readonly /></div>
+        <div class="debug-control"><label>Intensity</label><div class="control-wrapper"><input type="range" id="debugCenterLightIntensity" min="0" max="3" step="0.1" value="1.5" /></div><input type="number" id="debugCenterLightIntensityValue" value="1.5" step="0.1" readonly /></div>
 
-        <div class="debug-control"><label>Distance</label><div class="control-wrapper"><input type="range" id="debugCenterLightDistance" min="1" max="20" step="0.5" value="5" /></div><input type="number" id="debugCenterLightDistanceValue" value="5" step="0.5" readonly /></div>
+        <div class="debug-control"><label>Distance</label><div class="control-wrapper"><input type="range" id="debugCenterLightDistance" min="1" max="20" step="0.5" value="6" /></div><input type="number" id="debugCenterLightDistanceValue" value="6" step="0.5" readonly /></div>
 
         <div class="debug-control"><label>Decay</label><div class="control-wrapper"><input type="range" id="debugCenterLightDecay" min="0" max="3" step="0.1" value="2" /></div><input type="number" id="debugCenterLightDecayValue" value="2" step="0.1" readonly /></div>
         </div>
@@ -620,13 +620,67 @@
       </div>
     </div>
 
-    <div class="debug-section">
+    <div class="debug-section collapsed">
+      <div class="debug-section-header collapsed"><span class="triangle"></span>Color Presets</div>
+      <div class="debug-section-content">
+        <div class="debug-control"><label>Preset</label><div class="control-wrapper"><select id="debugColorPreset">
+          <option value="1">1. Ocean</option>
+          <option value="2">2. Forest</option>
+          <option value="3">3. Fire</option>
+          <option value="4">4. Sunset</option>
+          <option value="5">5. Moonlight</option>
+          <option value="6">6. Chaos</option>
+          <option value="7">7. Amber</option>
+          <option value="8">8. Desert</option>
+          <option value="9">9. Arctic</option>
+          <option value="10">10. Aurora</option>
+        </select></div></div>
+      </div>
+    </div>
 
-      <div class="debug-section-header"><span class="triangle"></span>Camera</div>
+    <div class="debug-section collapsed">
+      <div class="debug-section-header collapsed"><span class="triangle"></span>Light Presets</div>
+      <div class="debug-section-content">
+        <div class="debug-control"><label>Preset</label><div class="control-wrapper"><select id="debugLightPreset">
+          <option value="0">0. Current Default</option>
+          <option value="1">1. Soft Ambient</option>
+          <option value="2">2. Dramatic Shadows</option>
+          <option value="3">3. Studio Lighting</option>
+          <option value="4">4. High Contrast</option>
+          <option value="5">5. Warm Sunset</option>
+          <option value="6">6. Cool Moonlight</option>
+          <option value="7">7. Natural Overcast</option>
+          <option value="8">8. Twilight</option>
+          <option value="9">9. Dim Warm</option>
+        </select></div></div>
+      </div>
+    </div>
+
+    <div class="debug-section collapsed">
+      <div class="debug-section-header collapsed"><span class="triangle"></span>Material Presets</div>
+      <div class="debug-section-content">
+        <div class="debug-control"><label>Preset</label><div class="control-wrapper"><select id="debugMaterialPreset">
+          <option value="1">1. Matte (Rough)</option>
+          <option value="2">2. Smooth</option>
+          <option value="3">3. Glossy</option>
+          <option value="4">4. Shiny</option>
+          <option value="5">5. Velvet</option>
+          <option value="6">6. Semi-Metallic</option>
+          <option value="7">7. Matte Green</option>
+          <option value="8">8. Shiny Purple</option>
+          <option value="9">9. Rough Orange</option>
+          <option value="10">10. Ceramic</option>
+        </select></div></div>
+      </div>
+    </div>
+
+    <div class="debug-section collapsed">
+
+      <div class="debug-section-header collapsed"><span class="triangle"></span>Camera</div>
 
       <div class="debug-section-content">
 
-        <div class="debug-control"><label>Background</label><div class="color-display" id="debugCamBgDisplay" style="background: #4f5059; position: relative;"><input type="color" id="debugCamBg" value="#4f5059" /></div><span class="color-hex" id="debugCamBgHex">#4f5059</span></div>
+        <div class="debug-control"><label>Background</label><div class="color-display" id="debugCamBgDisplay" style="background: #242528; position: relative;"><input type="color" id="debugCamBg" value="#242528" /></div><span class="color-hex" id="debugCamBgHex">#242528</span></div>
 
         <div class="debug-control"><label>FOV</label><div class="control-wrapper"><input type="range" id="debugCamFOV" min="10" max="120" step="1" value="32" /></div><input type="number" id="debugCamFOVValue" value="32" readonly /></div>
 
@@ -654,7 +708,8 @@
 
   </div>
 
-  <div id="fpsCounter" style="position: fixed; bottom: 12px; right: 12px; font-family: monospace; font-size: 12px; color: #1a1a1a; background: rgba(255, 255, 255, 0.8); padding: 4px 8px; border-radius: 4px; backdrop-filter: blur(8px); z-index: 100;">FPS: --</div>
+  <div id="fpsCounter" style="position: fixed; bottom: 12px; right: 12px; font-family: monospace; font-size: 12px; color: rgba(255, 255, 255, 0.8); z-index: 100;">FPS: --</div>
+  <div id="commitHash" style="position: fixed; bottom: 12px; left: 12px; font-family: monospace; font-size: 10px; color: rgba(255, 255, 255, 0.7); z-index: 100;">ca632f4</div>
 
   <!-- Three.js (UMD) pinned to r146 so OrbitControls works without modules -->
 
@@ -1117,7 +1172,7 @@
 
     const app = document.getElementById('app');
 
-    const scene = new THREE.Scene(); scene.background = new THREE.Color(0x4f5059);
+    const scene = new THREE.Scene(); scene.background = new THREE.Color(0x242528);
 
     const camera = new THREE.PerspectiveCamera(32, innerWidth/innerHeight, 0.01, 100); camera.position.set(3.1, 0.6, 1.4);
 
@@ -1125,7 +1180,7 @@
     renderer.setSize(innerWidth, innerHeight); 
     renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5)); // Reduced from 2 for better performance 
     renderer.sortObjects = false; // Disable sorting for better performance - only enable when needed for transparency
-    renderer.setClearColor(0x4f5059, 1); // Set clear color to match background
+    renderer.setClearColor(0x242528, 1); // Set clear color to match background
     app.appendChild(renderer.domElement);
 
     const controls = new THREE.OrbitControls(camera, renderer.domElement); 
@@ -1148,7 +1203,7 @@
     dir.decay = 2; // Decay rate (1 = linear, 2 = physically correct)
     
     // Center point light for illuminating internal faces of tiles
-    const centerLight = new THREE.PointLight(0xffffff, 1.0);
+    const centerLight = new THREE.PointLight(0xff0000, 1.0);
     centerLight.position.set(0, 0, 0); // Center of the sphere
     centerLight.distance = 5; // Distance at which intensity becomes 0
     centerLight.decay = 2; // Decay rate
@@ -1176,23 +1231,46 @@
 
 
     // ===== Minesweeper state & materials =====
-    // Using MeshLambertMaterial for better performance (per-vertex vs per-pixel lighting)
-    const matHidden = new THREE.MeshLambertMaterial({ color: 0x313f5e, side: THREE.DoubleSide });
-
-    const matRevealed = new THREE.MeshLambertMaterial({ color: 0x4c5b7b, side: THREE.DoubleSide });
-
-    const matFlag = new THREE.MeshLambertMaterial({ color: 0xff6b6b, side: THREE.DoubleSide }); // bright red
-
-    const matMine = new THREE.MeshLambertMaterial({ color: 0xff4444, side: THREE.DoubleSide });
-
-    // Simple glass material for empty tiles - no complex shaders for better performance
-    const matEmpty = new THREE.MeshLambertMaterial({
+    // Using MeshStandardMaterial for material presets (supports roughness, metalness)
+    // Default: matte material (roughness: 1.0, metalness: 0.0)
+    let matHidden = new THREE.MeshStandardMaterial({ 
+      color: 0x3a4555, 
+      side: THREE.DoubleSide,
+      roughness: 0.8,
+      metalness: 0.0
+    });
+    
+    let matRevealed = new THREE.MeshStandardMaterial({ 
+      color: 0x4a5565, 
+      side: THREE.DoubleSide,
+      roughness: 0.6,
+      metalness: 0.0
+    });
+    
+    let matFlag = new THREE.MeshStandardMaterial({ 
+      color: 0xff6b6b, 
+      side: THREE.DoubleSide,
+      roughness: 1.0,
+      metalness: 0.0
+    });
+    
+    let matMine = new THREE.MeshStandardMaterial({ 
+      color: 0xff4444, 
+      side: THREE.DoubleSide,
+      roughness: 1.0,
+      metalness: 0.0
+    });
+    
+    // Simple glass material for empty tiles
+    let matEmpty = new THREE.MeshStandardMaterial({
       color: 0x4c5b7b,
       transparent: true,
       opacity: 0.4,
       depthWrite: false,
       depthTest: true,
-      side: THREE.DoubleSide
+      side: THREE.DoubleSide,
+      roughness: 0.1,
+      metalness: 0.0
     });
 
 
@@ -1615,9 +1693,8 @@
       if (revealQueue.length === 0 || isRevealing) return;
 
       isRevealing = true;
-      let soundPlayed = false; // Only play sound once per cascade
       
-      // Initial reveal: process all tiles synchronously at once
+      // Initial reveal: process all tiles synchronously at once (no sound)
       if (isInitialReveal) {
         while (revealQueue.length > 0 && !state.gameOver) {
           const idx = revealQueue.shift();
@@ -1721,27 +1798,26 @@
           } else {
             t.mesh.material = matRevealed;
             state.safeRevealed++; // Only count non-empty, non-mine tiles
-          }
-          
-          // Add label if needed (only for numbered tiles)
-          if (t.count > 0) {
-            addLabel(idx, t.count);
-          }
-          
-          // Play sound only once per cascade (not per tile)
-          if (!soundPlayed) {
+            
+            // Play sound for each tile revealed during normal cascade
             playSound('reveal');
-            soundPlayed = true;
-          }
-          
-          // If this tile has count 0, add adjacent safe tiles to reveal queue
-          if (t.count === 0) {
-            for (const nb of state.neighbors[idx]) {
-              const neighbor = state.tiles[nb];
-              if (!neighbor.revealed && !neighbor.flagged && !neighbor.isEmpty && !neighbor.mine) {
-                if (!revealQueueSet.has(nb)) {
-                  revealQueue.push(nb);
-                  revealQueueSet.add(nb);
+            
+            // Add label if needed (only for numbered tiles)
+            if (t.count > 0) {
+              addLabel(idx, t.count);
+            }
+            
+            // Only cascade if this tile has count 0 (no adjacent mines)
+            // Tiles with count > 0 should not trigger cascades
+            if (t.count === 0) {
+              for (const nb of state.neighbors[idx]) {
+                const neighbor = state.tiles[nb];
+                // Only add safe, non-empty, non-flagged, non-revealed neighbors
+                if (!neighbor.revealed && !neighbor.flagged && !neighbor.isEmpty && !neighbor.mine) {
+                  if (!revealQueueSet.has(nb)) {
+                    revealQueue.push(nb);
+                    revealQueueSet.add(nb);
+                  }
                 }
               }
             }
@@ -1762,8 +1838,30 @@
         return;
       }
 
-      const t = state.tiles[i]; if (t.revealed || t.flagged) return;
+      const t = state.tiles[i]; 
+      if (t.revealed || t.flagged || t.isEmpty) return;
 
+      // If tile has a number (count > 0), reveal it directly without cascade
+      if (t.count > 0) {
+        if (t.mine) {
+          t.mesh.material = matMine;
+          if (!document.getElementById('debugImmortal')?.checked) {
+            gameLost(i);
+            return;
+          }
+        } else {
+          t.revealed = true;
+          t.mesh.material = matRevealed;
+          state.safeRevealed++;
+          addLabel(i, t.count);
+          playSound('reveal');
+          updateCounters();
+          checkWin();
+        }
+        return;
+      }
+
+      // Only use cascade system for tiles with count 0 (no number)
       if (!isRevealing && revealQueue.length === 0){
         lifeLostInCurrentReveal = false;
         revealQueue.push(i);
@@ -1815,7 +1913,7 @@
 
 
 
-    function chord(i){ const t = state.tiles[i]; if (!t.revealed || state.gameOver) return; const flagsAround = state.neighbors[i].reduce((acc,nb)=> acc + (state.tiles[nb].flagged?1:0),0); if (flagsAround === t.count){ for (const nb of state.neighbors[i]) if (!state.tiles[nb].flagged && !state.tiles[nb].revealed) reveal(nb); } }
+    function chord(i){ const t = state.tiles[i]; if (!t.revealed || state.gameOver) return; const flagsAround = state.neighbors[i].reduce((acc,nb)=> acc + (state.tiles[nb].flagged?1:0),0); if (flagsAround === t.count){ for (const nb of state.neighbors[i]) { const neighbor = state.tiles[nb]; if (!neighbor.flagged && !neighbor.revealed && !neighbor.isEmpty) reveal(nb); } } }
 
 
 
@@ -2314,117 +2412,119 @@
 
     // Touch support for sphere rotation
 
-    let touchState = { isActive: false, lastX: 0, lastY: 0, startTile: -1 };
+    let touchState = { 
+      isActive: false, 
+      lastX: 0, 
+      lastY: 0, 
+      startX: 0,
+      startY: 0,
+      startTile: -1, 
+      startTime: 0,
+      isDragging: false,
+      isRotating: false,
+      lastMoveTime: 0
+    };
 
     renderer.domElement.addEventListener('touchstart', (e) => {
-
       e.preventDefault();
 
       if (e.touches.length === 1) {
-
         const touch = e.touches[0];
-
         const idx = pickTile({ clientX: touch.clientX, clientY: touch.clientY });
 
         touchState.isActive = true;
-
+        touchState.isDragging = false;
+        touchState.isRotating = false;
+        touchState.startX = touch.clientX;
+        touchState.startY = touch.clientY;
         touchState.lastX = touch.clientX;
-
         touchState.lastY = touch.clientY;
-
         touchState.startTile = idx;
-
+        touchState.startTime = performance.now();
+        touchState.lastMoveTime = performance.now();
       }
-
     });
 
     renderer.domElement.addEventListener('touchmove', (e) => {
-
       e.preventDefault();
 
       if (e.touches.length === 1 && touchState.isActive) {
-
         const touch = e.touches[0];
-
         const deltaX = touch.clientX - touchState.lastX;
-
         const deltaY = touch.clientY - touchState.lastY;
-
+        
+        // Check total drag distance from start
+        const totalDragX = touch.clientX - touchState.startX;
+        const totalDragY = touch.clientY - touchState.startY;
+        const totalDrag = Math.abs(totalDragX) + Math.abs(totalDragY);
+        
         // Check if we've moved enough to consider it a drag
-
         const dragDistance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-
-        if (dragDistance > 5) {
-
-          // Get camera's local axes in world space (screen-space aligned)
-          camera.updateMatrixWorld();
+        const isMoving = Math.abs(deltaX) > 0.1 || Math.abs(deltaY) > 0.1;
+        
+        if (totalDrag > 5 && isMoving) {
+          touchState.isDragging = true;
+          touchState.isRotating = true;
+          touchState.lastMoveTime = performance.now();
           
-          const right = new THREE.Vector3();
-          const up = new THREE.Vector3();
-          const forward = new THREE.Vector3();
-          camera.matrixWorld.extractBasis(right, up, forward);
+          // Use same smooth rotation system as mouse
+          const targetVelocityX = deltaX * rotationSpeed;
+          const targetVelocityY = deltaY * rotationSpeed;
           
-          // Rotate directly based on current movement (no accumulation during drag)
-          const currentRotX = deltaX * rotationSpeed;
-          const currentRotY = deltaY * rotationSpeed;
-          
-          // Rotate sphere: drag left = rotate right, drag up = rotate down
-          const rotX = new THREE.Quaternion().setFromAxisAngle(up, currentRotX);
-          const rotY = new THREE.Quaternion().setFromAxisAngle(right, currentRotY);
-
-          const combinedRot = rotX.multiply(rotY);
-
-          tileGroup.quaternion.premultiply(combinedRot);
-          wireGroup.quaternion.premultiply(combinedRot);
-          
-          // Store velocity for momentum after release (only when actively moving)
-          rotationVelocity.x = currentRotX * 0.5; // Scale down for smoother momentum
-          rotationVelocity.y = currentRotY * 0.5;
-
+          rotationVelocity.x += (targetVelocityX - rotationVelocity.x) * rotationAcceleration;
+          rotationVelocity.y += (targetVelocityY - rotationVelocity.y) * rotationAcceleration;
+        } else {
+          // If not actively dragging, stop rotation immediately
+          touchState.isRotating = false;
         }
 
         touchState.lastX = touch.clientX;
-
         touchState.lastY = touch.clientY;
-
       }
-
     });
 
     renderer.domElement.addEventListener('touchend', (e) => {
-
       e.preventDefault();
 
       if (touchState.isActive && touchState.startTile >= 0 && e.changedTouches.length > 0) {
-
         const touch = e.changedTouches[0];
-
         const finalX = touch.clientX;
-
         const finalY = touch.clientY;
-
-        const dragDistance = Math.sqrt(Math.pow(finalX - touchState.lastX, 2) + Math.pow(finalY - touchState.lastY, 2));
-
-        // Only process tile click if we didn't drag much
-
-        if (dragDistance < 10) {
-
+        
+        // Calculate total drag distance from start
+        const totalDragX = finalX - touchState.startX;
+        const totalDragY = finalY - touchState.startY;
+        const totalDrag = Math.sqrt(totalDragX * totalDragX + totalDragY * totalDragY);
+        
+        // Calculate touch duration
+        const touchDuration = performance.now() - touchState.startTime;
+        const TAP_THRESHOLD = 200; // milliseconds - anything longer than this is a hold
+        
+        // Stop rotation
+        touchState.isRotating = false;
+        
+        // Only process tile click if we didn't drag much (less than 10 pixels)
+        if (totalDrag < 10 && !touchState.isDragging) {
           const idx = pickTile({ clientX: finalX, clientY: finalY });
 
           if (idx === touchState.startTile && idx >= 0) {
-
-            toggleFlag(idx); // Touch is typically used for flagging in mobile
-
+            // Tap (short duration) = left click (reveal)
+            // Hold (longer duration) = right click (flag)
+            if (touchDuration < TAP_THRESHOLD) {
+              // Tap = left click
+              reveal(idx);
+            } else {
+              // Hold = right click
+              toggleFlag(idx);
+            }
           }
-
         }
-
       }
 
       touchState.isActive = false;
-
+      touchState.isDragging = false;
+      touchState.isRotating = false;
       touchState.startTile = -1;
-
     });
 
 
@@ -3418,75 +3518,44 @@
     });
 
     const glassSlider = document.getElementById('debugGlass');
-
     const glassValue = document.getElementById('debugGlassValue');
+    const glassTintInput = document.getElementById('debugGlassTint');
+    const glassTintDisplay = document.getElementById('debugGlassTintDisplay');
+    const glassTintHex = document.getElementById('debugGlassTintHex');
 
     glassSlider.addEventListener('input', (e) => {
-
       syncSliderValue(glassSlider, glassValue);
-
       const opacity = parseFloat(glassSlider.value);
-
-      const tintColor = glassTintInput.value;
-
+      const tintColor = glassTintInput ? glassTintInput.value : '#5a7aff';
+      // Only affect empty tiles (glass effect)
+      const emptyOpacity = 1 - opacity; // Invert: slider 0 = opaque, slider 1 = transparent
+      matEmpty.opacity = emptyOpacity;
+      matEmpty.transparent = opacity > 0;
+      if (opacity > 0) {
+        const tint = parseInt(tintColor.substring(1), 16);
+        matEmpty.color.setHex(tint);
+      }
+      // Update all empty tiles
       state.tiles.forEach(t => {
-
-        // Only affect hidden, non-empty, non-flagged tiles
-        if (!t.revealed && !t.flagged && !t.isEmpty) {
-
-          t.mesh.material.opacity = 1 - opacity;
-
-          t.mesh.material.transparent = opacity > 0;
-
-          if (opacity > 0) {
-
-            const tint = parseInt(tintColor.substring(1), 16);
-
-            t.mesh.material.color.setHex(tint);
-
-          } else {
-
-            t.mesh.material.color.copy(matHidden.color);
-
-          }
-
+        if (t.isEmpty) {
+          t.mesh.material = matEmpty;
         }
-
       });
-
     });
-
-    const glassTintInput = document.getElementById('debugGlassTint');
-
-    const glassTintDisplay = document.getElementById('debugGlassTintDisplay');
-
-    const glassTintHex = document.getElementById('debugGlassTintHex');
 
     glassTintDisplay.addEventListener('click', () => glassTintInput.click());
 
     glassTintInput.addEventListener('input', (e) => {
-
       updateColorDisplay(glassTintInput, glassTintDisplay, glassTintHex);
-
-      const opacity = parseFloat(glassSlider.value);
-
-      if (opacity > 0) {
-
-        const tint = parseInt(glassTintInput.value.substring(1), 16);
-
-        state.tiles.forEach(t => {
-
-          // Only affect hidden, non-empty, non-flagged tiles
-          if (!t.revealed && !t.flagged && !t.isEmpty) {
-
-            t.mesh.material.color.setHex(tint);
-
-          }
-
-        });
-
-      }
-
+      const tint = parseInt(glassTintInput.value.substring(1), 16);
+      // Only affect empty tiles (glass tint)
+      matEmpty.color.setHex(tint);
+      // Update all empty tiles
+      state.tiles.forEach(t => {
+        if (t.isEmpty) {
+          t.mesh.material = matEmpty;
+        }
+      });
     });
 
     const wireHexInput = document.getElementById('debugWireHex');
@@ -4254,6 +4323,449 @@
         }
       }
     });
+
+    // ===== Presets =====
+    
+    // Color Presets (10 presets) - Research-based, visually appealing, harmonious color palettes
+    // Based on 60-30-10 rule, nature-inspired colors, complementary contrasts, desaturated backgrounds
+    // centerLightColor: point light color that complements the palette
+    const colorPresets = {
+      1: { // Ocean - Deep teal hidden, Soft aqua revealed
+        tileHidden: '#2d5a6b', tileRevealed: '#7fb3b5', tileFlag: '#e67e7e', tileMine: '#c55a5a',
+        labelColor: '#ffffff', wireHex: '#3d6a7b', wirePent: '#2d5a6b', camBg: '#242528',
+        centerLightColor: '#7fb3b5'
+      },
+      2: { // Forest - Sage green hidden, Cream revealed
+        tileHidden: '#5a6b5a', tileRevealed: '#e8dcc0', tileFlag: '#e67e7e', tileMine: '#c55a5a',
+        labelColor: '#2c3e50', wireHex: '#6a7b6a', wirePent: '#5a6b5a', camBg: '#242528',
+        centerLightColor: '#e8dcc0'
+      },
+      3: { // Fire - Rust hidden, Sky blue revealed
+        tileHidden: '#8b5a4a', tileRevealed: '#9db5c8', tileFlag: '#e67e7e', tileMine: '#c55a5a',
+        labelColor: '#ffffff', wireHex: '#9b6a5a', wirePent: '#8b5a4a', camBg: '#242528',
+        centerLightColor: '#9db5c8'
+      },
+      4: { // Sunset - Plum hidden, Amber revealed
+        tileHidden: '#6b5a7b', tileRevealed: '#d4a574', tileFlag: '#e67e7e', tileMine: '#c55a5a',
+        labelColor: '#ffffff', wireHex: '#7b6a8b', wirePent: '#6b5a7b', camBg: '#242528',
+        centerLightColor: '#d4a574'
+      },
+      5: { // Moonlight - Charcoal hidden, Lavender revealed
+        tileHidden: '#4a5a6b', tileRevealed: '#c4a8d8', tileFlag: '#e67e7e', tileMine: '#c55a5a',
+        labelColor: '#ffffff', wireHex: '#5a6a7b', wirePent: '#4a5a6b', camBg: '#242528',
+        centerLightColor: '#c4a8d8'
+      },
+      6: { // Chaos - Deep purple hidden, Chartreuse revealed
+        tileHidden: '#5a4a6b', tileRevealed: '#b8c88a', tileFlag: '#e67e7e', tileMine: '#c55a5a',
+        labelColor: '#ffffff', wireHex: '#6a5a7b', wirePent: '#5a4a6b', camBg: '#242528',
+        centerLightColor: '#b8c88a'
+      },
+      7: { // Amber - Olive hidden, Apricot revealed
+        tileHidden: '#6b7a5a', tileRevealed: '#e8b88a', tileFlag: '#e67e7e', tileMine: '#c55a5a',
+        labelColor: '#ffffff', wireHex: '#7b8a6a', wirePent: '#6b7a5a', camBg: '#242528',
+        centerLightColor: '#e8b88a'
+      },
+      8: { // Desert - Terracotta hidden, Turquoise revealed
+        tileHidden: '#8b6a5a', tileRevealed: '#7ab8b8', tileFlag: '#e67e7e', tileMine: '#c55a5a',
+        labelColor: '#ffffff', wireHex: '#9b7a6a', wirePent: '#8b6a5a', camBg: '#242528',
+        centerLightColor: '#7ab8b8'
+      },
+      9: { // Arctic - Slate blue hidden, Rose revealed
+        tileHidden: '#5a6b8b', tileRevealed: '#d88a9a', tileFlag: '#e67e7e', tileMine: '#c55a5a',
+        labelColor: '#ffffff', wireHex: '#6a7b9b', wirePent: '#5a6b8b', camBg: '#242528',
+        centerLightColor: '#d88a9a'
+      },
+      10: { // Aurora - Forest teal hidden, Blush revealed
+        tileHidden: '#4a7a7b', tileRevealed: '#d8a8a8', tileFlag: '#e67e7e', tileMine: '#c55a5a',
+        labelColor: '#ffffff', wireHex: '#5a8a8b', wirePent: '#4a7a7b', camBg: '#242528',
+        centerLightColor: '#d8a8a8'
+      }
+    };
+
+    // Light Presets (10 presets)
+    const lightPresets = {
+      0: { // Current Default
+        hemiSky: '#ffffff', hemiGround: '#888888', hemiIntensity: 0.4,
+        dirColor: '#ffffff', dirIntensity: 1.2, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 25, dirDecay: 2,
+        centerColor: '#ffaa88', centerIntensity: 1.5, centerDistance: 6, centerDecay: 2
+      },
+      1: { // Soft Ambient
+        hemiSky: '#f0f4ff', hemiGround: '#d0d5dc', hemiIntensity: 0.6,
+        dirColor: '#ffffff', dirIntensity: 0.5, dirX: 2.0, dirY: 1.5, dirZ: -1.0, dirDistance: 25, dirDecay: 2,
+        centerColor: '#ffffff', centerIntensity: 0.8, centerDistance: 6, centerDecay: 2
+      },
+      2: { // Dramatic Shadows
+        hemiSky: '#4a5568', hemiGround: '#1a202c', hemiIntensity: 0.3,
+        dirColor: '#ffffff', dirIntensity: 1.5, dirX: 4.0, dirY: 3.0, dirZ: -2.0, dirDistance: 15, dirDecay: 2,
+        centerColor: '#ffffff', centerIntensity: 0.5, centerDistance: 4, centerDecay: 2
+      },
+      3: { // Studio Lighting
+        hemiSky: '#ffffff', hemiGround: '#888888', hemiIntensity: 0.7,
+        dirColor: '#ffffff', dirIntensity: 1.0, dirX: 3.5, dirY: 2.5, dirZ: -1.8, dirDistance: 18, dirDecay: 2,
+        centerColor: '#ffffff', centerIntensity: 1.0, centerDistance: 5, centerDecay: 2
+      },
+      4: { // High Contrast
+        hemiSky: '#ffffff', hemiGround: '#000000', hemiIntensity: 0.5,
+        dirColor: '#ffffff', dirIntensity: 1.8, dirX: 3.0, dirY: 3.0, dirZ: -2.0, dirDistance: 15, dirDecay: 2,
+        centerColor: '#ffffff', centerIntensity: 0.3, centerDistance: 3, centerDecay: 2
+      },
+      5: { // Warm Sunset
+        hemiSky: '#ffd89b', hemiGround: '#ff9a56', hemiIntensity: 0.8,
+        dirColor: '#ffaa88', dirIntensity: 0.9, dirX: 3.0, dirY: 2.5, dirZ: -1.5, dirDistance: 20, dirDecay: 2,
+        centerColor: '#ffcc99', centerIntensity: 1.2, centerDistance: 5, centerDecay: 2
+      },
+      6: { // Cool Moonlight
+        hemiSky: '#a8c5ff', hemiGround: '#2d3748', hemiIntensity: 0.5,
+        dirColor: '#b8d4ff', dirIntensity: 0.7, dirX: 2.5, dirY: 2.0, dirZ: -1.0, dirDistance: 22, dirDecay: 2,
+        centerColor: '#c8e4ff', centerIntensity: 0.6, centerDistance: 5, centerDecay: 2
+      },
+      7: { // Natural Overcast
+        hemiSky: '#e8f0f5', hemiGround: '#c8d5e0', hemiIntensity: 0.85,
+        dirColor: '#d0e0f0', dirIntensity: 0.4, dirX: 2.5, dirY: 2.5, dirZ: -1.2, dirDistance: 28, dirDecay: 2,
+        centerColor: '#e0f0ff', centerIntensity: 1.0, centerDistance: 7, centerDecay: 2
+      },
+      8: { // Twilight
+        hemiSky: '#4a5568', hemiGround: '#2d3748', hemiIntensity: 0.5,
+        dirColor: '#a8c5ff', dirIntensity: 0.8, dirX: 3.0, dirY: 2.5, dirZ: -2.0, dirDistance: 18, dirDecay: 2,
+        centerColor: '#b8d4ff', centerIntensity: 0.7, centerDistance: 5, centerDecay: 2
+      },
+      9: { // Dim Warm
+        hemiSky: '#d0c8a8', hemiGround: '#8a7a6a', hemiIntensity: 0.4,
+        dirColor: '#f0d8a8', dirIntensity: 0.6, dirX: 2.5, dirY: 2.0, dirZ: -1.5, dirDistance: 16, dirDecay: 2,
+        centerColor: '#f5e0b8', centerIntensity: 0.7, centerDistance: 4, centerDecay: 2
+      }
+    };
+
+    // Material Presets (10 presets)
+    // emptyOpacity: transparency for empty tiles (0-1, where 1 = fully transparent)
+    // tileType: 'matte', 'smooth', 'shiny', 'rough', 'metallic'
+    // roughness: 0-1 (0 = mirror, 1 = rough)
+    // metalness: 0-1 (0 = dielectric, 1 = metal)
+    const materialPresets = {
+      1: { // Opaque Solid
+        emptyOpacity: 0.4, emptyTint: '#5a7aff',
+        tileType: 'matte', roughness: 1.0, metalness: 0.0
+      },
+      2: { // Light Glass
+        emptyOpacity: 0.6, emptyTint: '#5a7aff',
+        tileType: 'smooth', roughness: 0.3, metalness: 0.0
+      },
+      3: { // Medium Glass
+        emptyOpacity: 0.7, emptyTint: '#5a7aff',
+        tileType: 'smooth', roughness: 0.2, metalness: 0.0
+      },
+      4: { // Heavy Glass
+        emptyOpacity: 0.8, emptyTint: '#5a7aff',
+        tileType: 'shiny', roughness: 0.1, metalness: 0.0
+      },
+      5: { // Velvet
+        emptyOpacity: 0.7, emptyTint: '#ffffff',
+        tileType: 'velvet', roughness: 0.95, metalness: 0.0
+      },
+      6: { // Tinted Blue
+        emptyOpacity: 0.6, emptyTint: '#4a90e2',
+        tileType: 'smooth', roughness: 0.4, metalness: 0.1
+      },
+      7: { // Tinted Green
+        emptyOpacity: 0.6, emptyTint: '#4ade80',
+        tileType: 'matte', roughness: 0.9, metalness: 0.0
+      },
+      8: { // Tinted Purple
+        emptyOpacity: 0.6, emptyTint: '#a78bfa',
+        tileType: 'shiny', roughness: 0.15, metalness: 0.2
+      },
+      9: { // Tinted Orange
+        emptyOpacity: 0.6, emptyTint: '#fb923c',
+        tileType: 'rough', roughness: 0.7, metalness: 0.0
+      },
+      10: { // Ceramic
+        emptyOpacity: 0.9, emptyTint: '#ffffff',
+        tileType: 'ceramic', roughness: 0.25, metalness: 0.05
+      }
+    };
+
+    // Apply Color Preset
+    function applyColorPreset(presetNum) {
+      const preset = colorPresets[presetNum];
+      if (!preset) return;
+
+      // Apply tile colors
+      if (tileHiddenInput && preset.tileHidden) {
+        tileHiddenInput.value = preset.tileHidden;
+        updateColorDisplay(tileHiddenInput, tileHiddenDisplay, tileHiddenHex);
+        matHidden.color.setHex(parseInt(preset.tileHidden.substring(1), 16));
+        state.tiles.forEach(t => { if (!t.revealed && !t.flagged) t.mesh.material.color.copy(matHidden.color); });
+      }
+      if (tileRevealedInput && preset.tileRevealed) {
+        tileRevealedInput.value = preset.tileRevealed;
+        updateColorDisplay(tileRevealedInput, tileRevealedDisplay, tileRevealedHex);
+        matRevealed.color.setHex(parseInt(preset.tileRevealed.substring(1), 16));
+        state.tiles.forEach(t => { if (t.revealed && !t.mine) t.mesh.material.color.copy(matRevealed.color); });
+      }
+      if (tileFlagInput && preset.tileFlag) {
+        tileFlagInput.value = preset.tileFlag;
+        updateColorDisplay(tileFlagInput, tileFlagDisplay, tileFlagHex);
+        matFlag.color.setHex(parseInt(preset.tileFlag.substring(1), 16));
+        state.tiles.forEach(t => { if (t.flagged) t.mesh.material.color.copy(matFlag.color); });
+      }
+      if (tileMineInput && preset.tileMine) {
+        tileMineInput.value = preset.tileMine;
+        updateColorDisplay(tileMineInput, tileMineDisplay, tileMineHex);
+        matMine.color.setHex(parseInt(preset.tileMine.substring(1), 16));
+        state.tiles.forEach(t => { if (t.mine && t.revealed) t.mesh.material.color.copy(matMine.color); });
+      }
+      // Apply label color from preset (distinct color, not calculated)
+      if (labelColorInput && preset.labelColor) {
+        labelColorInput.value = preset.labelColor;
+        updateColorDisplay(labelColorInput, labelColorDisplay, labelColorHex);
+        // Update all existing labels with the preset label color
+        state.tiles.forEach(t => {
+          if (t.label && t.count > 0 && !t.isEmpty) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 128; canvas.height = 128;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = 'rgba(0,0,0,0)';
+            ctx.fillRect(0,0,128,128);
+            ctx.font = '700 72px system-ui, Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = preset.labelColor;
+            ctx.shadowColor = 'rgba(0,0,0,0.5)';
+            ctx.shadowBlur = 8;
+            ctx.fillText(String(t.count), 64, 64);
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.anisotropy = 4;
+            tex.needsUpdate = true;
+            t.label.material.map.dispose();
+            t.label.material.map = tex;
+            t.label.material.needsUpdate = true;
+          }
+        });
+      }
+      // Apply wireframe colors
+      if (wireHexInput && preset.wireHex) {
+        wireHexInput.value = preset.wireHex;
+        updateColorDisplay(wireHexInput, wireHexDisplay, wireHexHex);
+        const color = parseInt(preset.wireHex.substring(1), 16);
+        if (wireHexMaterial) wireHexMaterial.color.setHex(color);
+      }
+      if (wirePentInput && preset.wirePent) {
+        wirePentInput.value = preset.wirePent;
+        updateColorDisplay(wirePentInput, wirePentDisplay, wirePentHex);
+        const color = parseInt(preset.wirePent.substring(1), 16);
+        if (wirePentMaterial) wirePentMaterial.color.setHex(color);
+      }
+      // Apply background color
+      if (camBgInput && preset.camBg) {
+        camBgInput.value = preset.camBg;
+        updateColorDisplay(camBgInput, camBgDisplay, camBgHex);
+        scene.background.setHex(parseInt(preset.camBg.substring(1), 16));
+        renderer.setClearColor(parseInt(preset.camBg.substring(1), 16), 1);
+      }
+      // Apply center point light color
+      if (centerLightColorInput && preset.centerLightColor) {
+        centerLightColorInput.value = preset.centerLightColor;
+        updateColorDisplay(centerLightColorInput, centerLightColorDisplay, centerLightColorHex);
+        centerLight.color.setHex(parseInt(preset.centerLightColor.substring(1), 16));
+      }
+    }
+
+    // Apply Light Preset
+    function applyLightPreset(presetNum) {
+      const preset = lightPresets[presetNum];
+      if (!preset) return;
+
+      // Hemisphere Light
+      if (hemiSkyInput && preset.hemiSky) {
+        hemiSkyInput.value = preset.hemiSky;
+        updateColorDisplay(hemiSkyInput, hemiSkyDisplay, hemiSkyHex);
+        hemi.color.setHex(parseInt(preset.hemiSky.substring(1), 16));
+      }
+      if (hemiGroundInput && preset.hemiGround) {
+        hemiGroundInput.value = preset.hemiGround;
+        updateColorDisplay(hemiGroundInput, hemiGroundDisplay, hemiGroundHex);
+        hemi.groundColor.setHex(parseInt(preset.hemiGround.substring(1), 16));
+      }
+      if (hemiIntensitySlider && preset.hemiIntensity !== undefined) {
+        hemiIntensitySlider.value = preset.hemiIntensity;
+        hemi.intensity = preset.hemiIntensity;
+        syncSliderValue(hemiIntensitySlider, hemiIntensityValue);
+      }
+      // Directional Light
+      if (dirColorInput && preset.dirColor) {
+        dirColorInput.value = preset.dirColor;
+        updateColorDisplay(dirColorInput, dirColorDisplay, dirColorHex);
+        dir.color.setHex(parseInt(preset.dirColor.substring(1), 16));
+      }
+      if (dirIntensitySlider && preset.dirIntensity !== undefined) {
+        dirIntensitySlider.value = preset.dirIntensity;
+        dir.intensity = preset.dirIntensity;
+        syncSliderValue(dirIntensitySlider, dirIntensityValue);
+      }
+      if (dirXSlider && preset.dirX !== undefined) {
+        dirXSlider.value = preset.dirX;
+        dir.position.x = preset.dirX;
+        syncSliderValue(dirXSlider, dirXValue);
+      }
+      if (dirYSlider && preset.dirY !== undefined) {
+        dirYSlider.value = preset.dirY;
+        dir.position.y = preset.dirY;
+        syncSliderValue(dirYSlider, dirYValue);
+      }
+      if (dirZSlider && preset.dirZ !== undefined) {
+        dirZSlider.value = preset.dirZ;
+        dir.position.z = preset.dirZ;
+        syncSliderValue(dirZSlider, dirZValue);
+      }
+      if (dirDistanceSlider && preset.dirDistance !== undefined) {
+        dirDistanceSlider.value = preset.dirDistance;
+        dir.distance = preset.dirDistance;
+        syncSliderValue(dirDistanceSlider, dirDistanceValue);
+      }
+      if (dirDecaySlider && preset.dirDecay !== undefined) {
+        dirDecaySlider.value = preset.dirDecay;
+        dir.decay = preset.dirDecay;
+        syncSliderValue(dirDecaySlider, dirDecayValue);
+      }
+      // Center Point Light
+      if (centerLightColorInput && preset.centerColor) {
+        centerLightColorInput.value = preset.centerColor;
+        updateColorDisplay(centerLightColorInput, centerLightColorDisplay, centerLightColorHex);
+        centerLight.color.setHex(parseInt(preset.centerColor.substring(1), 16));
+      }
+      if (centerLightIntensitySlider && preset.centerIntensity !== undefined) {
+        centerLightIntensitySlider.value = preset.centerIntensity;
+        centerLight.intensity = preset.centerIntensity;
+        syncSliderValue(centerLightIntensitySlider, centerLightIntensityValue);
+      }
+      if (centerLightDistanceSlider && preset.centerDistance !== undefined) {
+        centerLightDistanceSlider.value = preset.centerDistance;
+        centerLight.distance = preset.centerDistance;
+        syncSliderValue(centerLightDistanceSlider, centerLightDistanceValue);
+      }
+      if (centerLightDecaySlider && preset.centerDecay !== undefined) {
+        centerLightDecaySlider.value = preset.centerDecay;
+        centerLight.decay = preset.centerDecay;
+        syncSliderValue(centerLightDecaySlider, centerLightDecayValue);
+      }
+    }
+
+    // Apply Material Preset
+    function applyMaterialPreset(presetNum) {
+      const preset = materialPresets[presetNum];
+      if (!preset) return;
+
+      // Update empty tile material (glass effect)
+      if (preset.emptyOpacity !== undefined) {
+        const emptyOpacity = preset.emptyOpacity;
+        matEmpty.opacity = emptyOpacity;
+        matEmpty.transparent = emptyOpacity < 1.0;
+        if (preset.emptyTint) {
+          matEmpty.color.setHex(parseInt(preset.emptyTint.substring(1), 16));
+        }
+        // Update all empty tiles
+        state.tiles.forEach(t => {
+          if (t.isEmpty) {
+            t.mesh.material = matEmpty;
+          }
+        });
+        // Update glass slider if it exists
+        if (glassSlider) {
+          glassSlider.value = 1 - emptyOpacity; // Invert for slider (0 = opaque, 1 = transparent)
+          syncSliderValue(glassSlider, glassValue);
+        }
+        if (glassTintInput && preset.emptyTint) {
+          glassTintInput.value = preset.emptyTint;
+          updateColorDisplay(glassTintInput, glassTintDisplay, glassTintHex);
+        }
+      }
+
+      // Update tile materials (revealed and unrevealed) with new properties
+      if (preset.roughness !== undefined && preset.metalness !== undefined) {
+        // Create new materials with updated properties
+        const hiddenColor = matHidden.color.getHex();
+        const revealedColor = matRevealed.color.getHex();
+        const flagColor = matFlag.color.getHex();
+        const mineColor = matMine.color.getHex();
+
+        // Dispose old materials
+        matHidden.dispose();
+        matRevealed.dispose();
+        matFlag.dispose();
+        matMine.dispose();
+
+        // Create new materials with preset properties
+        matHidden = new THREE.MeshStandardMaterial({
+          color: hiddenColor,
+          side: THREE.DoubleSide,
+          roughness: preset.roughness,
+          metalness: preset.metalness
+        });
+
+        matRevealed = new THREE.MeshStandardMaterial({
+          color: revealedColor,
+          side: THREE.DoubleSide,
+          roughness: preset.roughness,
+          metalness: preset.metalness
+        });
+
+        matFlag = new THREE.MeshStandardMaterial({
+          color: flagColor,
+          side: THREE.DoubleSide,
+          roughness: preset.roughness,
+          metalness: preset.metalness
+        });
+
+        matMine = new THREE.MeshStandardMaterial({
+          color: mineColor,
+          side: THREE.DoubleSide,
+          roughness: preset.roughness,
+          metalness: preset.metalness
+        });
+
+        // Update all tiles with new materials
+        state.tiles.forEach(t => {
+          if (t.isEmpty) {
+            // Keep empty material as is
+            t.mesh.material = matEmpty;
+          } else if (t.mine && t.revealed) {
+            t.mesh.material = matMine;
+          } else if (t.flagged) {
+            t.mesh.material = matFlag;
+          } else if (t.revealed) {
+            t.mesh.material = matRevealed;
+          } else {
+            t.mesh.material = matHidden;
+          }
+        });
+      }
+    }
+
+    // Event listeners for preset selects - apply immediately on change
+    const colorPresetSelect = document.getElementById('debugColorPreset');
+    const lightPresetSelect = document.getElementById('debugLightPreset');
+    const materialPresetSelect = document.getElementById('debugMaterialPreset');
+
+    if (colorPresetSelect) {
+      colorPresetSelect.addEventListener('change', () => {
+        const presetNum = parseInt(colorPresetSelect.value || '1');
+        applyColorPreset(presetNum);
+      });
+    }
+
+    if (lightPresetSelect) {
+      lightPresetSelect.addEventListener('change', () => {
+        const presetNum = parseInt(lightPresetSelect.value || '1');
+        applyLightPreset(presetNum);
+      });
+    }
+
+    if (materialPresetSelect) {
+      materialPresetSelect.addEventListener('change', () => {
+        const presetNum = parseInt(materialPresetSelect.value || '1');
+        applyMaterialPreset(presetNum);
+      });
+    }
 
   </script>
 
