@@ -6,27 +6,98 @@
 
   <meta charset="UTF-8" />
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 
-  <title>Spherical Minesweeper – Goldberg Tiling</title>
+  <meta name="theme-color" content="#242528" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="GlobeSweeper" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="msapplication-TileColor" content="#242528" />
+  <meta name="msapplication-config" content="/browserconfig.xml" />
+
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="apple-touch-icon" href="/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
+
+  <title>GlobeSweeper - Spherical Minesweeper</title>
 
   <style>
 
-    html, body { height: 100%; margin: 0; background: #242528; color: #1a1a1a; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+    html, body { height: 100%; margin: 0; background: #242528; color: #1a1a1a; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; overflow: hidden; -webkit-overflow-scrolling: touch; }
+    
+    /* PWA specific styles */
+    @media (display-mode: standalone) {
+      /* Additional styles for standalone mode can be added here */
+    }
+    
+    /* Prevent text selection on mobile */
+    * {
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    
+    /* Allow text selection in input fields */
+    input, textarea {
+      -webkit-user-select: text;
+      user-select: text;
+    }
 
-    #app { position: fixed; inset: 0; }
+    #app { position: fixed; inset: 0; width: 100%; height: 100%; overflow: hidden; }
+    
+    /* Mobile-specific optimizations */
+    @media (max-width: 768px) {
+      /* Ensure full viewport usage on mobile */
+      html, body {
+        height: 100vh;
+        height: -webkit-fill-available; /* iOS Safari */
+      }
+      
+      #app {
+        height: 100vh;
+        height: -webkit-fill-available; /* iOS Safari */
+      }
+      
+      /* Optimize UI for smaller screens */
+      .ui {
+        max-width: calc(100vw - 24px);
+      }
+    }
+    
+    /* Safe area insets for notched devices (iPhone X and later) */
+    @supports (padding: max(0px)) {
+      .ui {
+        padding-left: max(16px, env(safe-area-inset-left));
+        padding-top: max(16px, env(safe-area-inset-top));
+      }
+      
+      #fpsCounter {
+        bottom: max(12px, env(safe-area-inset-bottom));
+        right: max(12px, env(safe-area-inset-right));
+      }
+      
+      #commitHash {
+        bottom: max(12px, env(safe-area-inset-bottom));
+        left: max(12px, env(safe-area-inset-left));
+      }
+    }
 
-    .ui { position: absolute; top: 12px; left: 12px; padding: 16px 12px 16px 16px; border-radius: 16px; backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.2) 100%); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6), inset 0 -1px 0 rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.3); width: fit-content; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+    .ui { position: absolute; top: 12px; left: 12px; padding: 16px 12px 0 16px; border-radius: 16px; backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.2) 100%); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6), inset 0 -1px 0 rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.3); width: fit-content; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
 
-    .progress-section { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 16px; transition: margin-bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+    .progress-section { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 12px; transition: margin-bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+    
+    .ui.compact .progress-section { gap: 12px; }
 
-    .progress-circle-wrapper { display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; }
+    .progress-circle-wrapper { display: flex; flex-direction: column; align-items: center; gap: 2px; position: relative; }
 
     .progress-circle-wrapper::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 80px; height: 80px; border-radius: 50%; background: rgba(0,0,0,0.05); z-index: 0; }
 
     .progress-circle { width: 80px; height: 80px; border-radius: 50%; position: relative; display: flex; align-items: center; justify-content: center; z-index: 1; }
 
-    .progress-circle .percent { position: relative; z-index: 4; font-size: 16px; font-weight: 700; color: #1a1a1a; text-shadow: 0 0 4px rgba(255,255,255,0.8); transition: font-size 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+    .progress-circle .percent { position: relative; z-index: 4; font-size: 16px; font-weight: 900; color: #000000; transition: font-size 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
 
     .progress-circle.mine-hunt { --progress: 0%; position: relative; }
 
@@ -54,43 +125,95 @@
 
     .progress-circle.exploration .white-center { position: absolute; inset: 4px; border-radius: 50%; background: rgba(255, 255, 255, 0.95); z-index: 2; pointer-events: none; }
 
-    .progress-label { font-size: 12px; color: #1a1a1a; opacity: 0.9; font-weight: 600; transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .progress-label { font-size: 12px; color: #000000; opacity: 1.0; font-weight: 900; transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
 
-    .progress-value { font-size: 11px; color: #1a1a1a; opacity: 0.8; font-variant-numeric: tabular-nums; transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .progress-value { font-size: 11px; color: #000000; opacity: 1.0; font-weight: 800; font-variant-numeric: tabular-nums; transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
 
-    .hearts-container { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
+    .hearts-container { display: flex; flex-direction: column; gap: 2px; margin-top: 4px; }
 
     .heart { width: 20px; height: 20px; color: #ff4444; filter: drop-shadow(0 0 4px rgba(255,68,68,0.6)); font-size: 18px; line-height: 1; transition: font-size 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
 
-    .timer-section { display: none; align-items: center; gap: 10px; padding: 10px 12px; background: rgba(0,0,0,0.05); border-radius: 10px; margin-bottom: 12px; border: 1px solid rgba(0,0,0,0.1); box-sizing: border-box; transition: margin-bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+    .timer-section { display: none; align-items: center; gap: 8px; padding: 8px 12px; background: rgba(0,0,0,0.05); border-radius: 10px; margin-bottom: 8px; border: 1px solid rgba(0,0,0,0.1); box-sizing: border-box; transition: margin-bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+    
+    .ui.compact .timer-section { padding: 6px 10px; gap: 6px; }
 
     .timer-section.aligned { display: flex; }
 
-    .timer-icon { font-size: 16px; opacity: 0.9; transition: font-size 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+    .timer-icon { font-size: 16px; opacity: 1.0; filter: drop-shadow(0 1px 2px rgba(255,255,255,0.8)); transition: font-size 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
 
-    .timer-value { font-size: 14px; font-weight: 600; color: #1a1a1a; font-variant-numeric: tabular-nums; letter-spacing: 1px; transition: font-size 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+    .timer-value { font-size: 14px; font-weight: 900; color: #000000; font-variant-numeric: tabular-nums; letter-spacing: 1px; transition: font-size 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
 
-    .ui.compact { padding: 8px 6px 8px 8px; min-width: auto; transform: scale(0.7); transform-origin: top left; }
+    .ui.compact { padding: 6px 4px 0 6px; min-width: auto; transform: scale(0.6); transform-origin: top left; }
 
     .ui.compact .progress-label { opacity: 0; visibility: hidden; max-height: 0; overflow: hidden; }
 
     .ui.compact .progress-value { opacity: 0; visibility: hidden; max-height: 0; overflow: hidden; }
 
     .ui.compact .controls-section { opacity: 0; visibility: hidden; max-height: 0; overflow: hidden; pointer-events: none; }
+    
+    .ui.compact .instructions-section { opacity: 0; visibility: hidden; max-height: 0; overflow: hidden; pointer-events: none; }
 
-    .ui.compact .progress-section { margin-bottom: 10px; }
+    .ui.compact .progress-section { margin-bottom: 8px; }
 
-    .ui.compact .timer-section { margin-bottom: 10px; }
+    .ui.compact .timer-section { margin-bottom: 0; padding-bottom: 0; }
 
-    .ui.compact .progress-circle .percent { font-size: 24px; }
+    .ui.compact .progress-circle .percent { font-size: 20px; }
 
-    .ui.compact .timer-value { font-size: 22px; }
+    .ui.compact .timer-value { font-size: 18px; }
 
-    .ui.compact .timer-icon { font-size: 24px; }
+    .ui.compact .timer-icon { font-size: 20px; }
 
-    .ui.compact .heart { font-size: 26px; }
+    .ui.compact .heart { font-size: 22px; }
 
     .controls-section { display: flex; gap: 8px; width: fit-content; box-sizing: border-box; transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    
+    .instructions-section {
+      margin-top: 16px;
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 10px;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      max-width: 280px;
+      transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .instructions-title {
+      font-size: 12px;
+      font-weight: 900;
+      color: #000000;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .instructions-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .instructions-list li {
+      font-size: 11px;
+      color: #000000;
+      opacity: 0.95;
+      font-weight: 700;
+      line-height: 1.3;
+      margin-bottom: 2px;
+      padding-left: 16px;
+      position: relative;
+    }
+    
+    .instructions-list li:before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      color: #0066ff;
+      font-weight: bold;
+    }
+    
+    .instructions-list li:last-child {
+      margin-bottom: 0;
+    }
 
     .control-btn { width: 40px; height: 40px; border-radius: 10px; background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; font-size: 18px; color: #1a1a1a; }
 
@@ -120,7 +243,7 @@
 
     .bad { color: #ff8080; }
 
-    #debugPanel { position: fixed; top: 12px; right: 12px; width: 340px; max-height: 90vh; overflow-y: auto; overflow-x: hidden; background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.2) 100%); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); display: none; z-index: 1000; font-family: 'Lucida Grande', sans-serif; font-size: 11px; font-weight: 600; color: #1a1a1a; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6), inset 0 -1px 0 rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 16px; box-sizing: border-box; }
+    #debugPanel { position: fixed; top: 12px; right: 12px; width: 340px; max-height: 90vh; overflow-y: auto; overflow-x: hidden; background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.2) 100%); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); display: none; z-index: 1000; font-family: 'Lucida Grande', sans-serif; font-size: 11px; font-weight: 600; color: #1a1a1a; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6), inset 0 -1px 0 rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 16px; box-sizing: border-box; -webkit-user-select: text; user-select: text; }
 
     #debugPanel.visible { display: block; }
 
@@ -145,7 +268,7 @@
 
     .debug-control:hover { background: rgba(255, 255, 255, 0.2); border-radius: 6px; }
 
-    .debug-control label { flex: 0 0 auto; min-width: 110px; max-width: 110px; font-size: 11px; font-weight: 600; color: #1a1a1a; margin-right: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .debug-control label { flex: 0 0 auto; min-width: 110px; max-width: 110px; font-size: 11px; font-weight: 600; color: #1a1a1a; margin-right: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; -webkit-user-select: text; user-select: text; cursor: text; }
 
     .debug-control .control-wrapper { flex: 1; display: flex; align-items: center; height: 20px; position: relative; margin-right: 8px; min-width: 0; }
 
@@ -184,7 +307,7 @@
       margin: 0;
     }
 
-    .debug-control .color-hex { font-size: 10px; color: #0066aa; font-family: monospace; min-width: 50px; }
+    .debug-control .color-hex { font-size: 10px; color: #0066aa; font-family: monospace; min-width: 50px; -webkit-user-select: text; user-select: text; cursor: text; }
 
     .debug-control input[type=checkbox] { width: 14px; height: 14px; margin: 0; cursor: pointer; -webkit-appearance: none; appearance: none; background: #ffffff; border: 1px solid #999; position: relative; }
 
@@ -243,8 +366,27 @@
       border: 1px solid rgba(255, 255, 255, 0.3);
       text-align: center;
       max-width: 500px;
+      width: calc(100% - 32px);
       transform: scale(0.9);
       transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    
+    @media (max-width: 768px) {
+      .game-overlay-content {
+        padding: 24px 20px;
+        max-width: calc(100vw - 32px);
+        max-height: calc(100vh - 32px);
+        overflow-y: auto;
+        border-radius: 16px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .game-overlay-content {
+        padding: 20px 16px;
+        max-width: calc(100vw - 24px);
+        max-height: calc(100vh - 24px);
+      }
     }
 
     .game-overlay.visible .game-overlay-content {
@@ -258,6 +400,13 @@
       margin-bottom: 12px;
       text-shadow: 0 0 8px rgba(255, 77, 77, 0.8), 0 0 16px rgba(255, 77, 77, 0.6);
       letter-spacing: -0.5px;
+    }
+    
+    @media (max-width: 768px) {
+      .game-overlay-title {
+        font-size: 32px;
+        margin-bottom: 8px;
+      }
     }
 
     .game-overlay-title.win {
@@ -276,6 +425,13 @@
       margin-bottom: 32px;
       line-height: 1.4;
       font-weight: 400;
+    }
+    
+    @media (max-width: 768px) {
+      .game-overlay-subtitle {
+        font-size: 16px;
+        margin-bottom: 20px;
+      }
     }
 
     .game-overlay-message {
@@ -296,6 +452,32 @@
       text-align: left;
       min-width: 400px;
     }
+    
+    @media (max-width: 768px) {
+      .game-overlay-stats {
+        font-size: 14px;
+        margin-bottom: 24px;
+        gap: 16px 24px;
+        min-width: auto;
+        width: 100%;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .game-overlay-stats {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        text-align: center;
+      }
+      
+      .game-overlay-stats .stat-row {
+        align-items: center;
+      }
+      
+      .game-overlay-stats .stat-row[style*="text-align: right"] {
+        text-align: center !important;
+      }
+    }
 
     .game-overlay-stats .stat-row {
       display: flex;
@@ -310,11 +492,24 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
+    
+    @media (max-width: 768px) {
+      .game-overlay-stats .stat-label {
+        font-size: 11px;
+        letter-spacing: 0.3px;
+      }
+    }
 
     .game-overlay-stats .stat-value {
       font-weight: 700;
       font-size: 24px;
       font-variant-numeric: tabular-nums;
+    }
+    
+    @media (max-width: 768px) {
+      .game-overlay-stats .stat-value {
+        font-size: 18px;
+      }
     }
 
     .game-overlay-stats .stat-value.mine-hunt {
@@ -342,6 +537,14 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
       transition: all 0.2s;
       font-family: inherit;
+    }
+    
+    @media (max-width: 768px) {
+      .game-overlay-button {
+        padding: 10px 24px;
+        font-size: 14px;
+        border-radius: 14px;
+      }
     }
 
     .game-overlay-button:hover {
@@ -431,7 +634,7 @@
 
         </div>
 
-        <div class="progress-label" style="font-weight: 600;">Mine Hunt</div>
+        <div class="progress-label" style="font-weight: 900;">Mine Hunt</div>
 
         <div class="progress-value" id="mineHuntValue">0/0</div>
 
@@ -449,7 +652,7 @@
 
         </div>
 
-        <div class="progress-label" style="font-weight: 600;">Exploration</div>
+        <div class="progress-label" style="font-weight: 900;">Exploration</div>
 
         <div class="progress-value" id="explorationValue">0/0</div>
 
@@ -486,6 +689,17 @@
       <button class="control-btn" id="globeBtn" title="Globe">🌐</button>
 
     </div>
+    
+    <div class="instructions-section">
+      <div class="instructions-title">How to Play</div>
+      <ul class="instructions-list">
+        <li>Tap/Click to reveal tiles</li>
+        <li>Right-click/Hold to flag mines</li>
+        <li>Numbers show nearby mine count</li>
+        <li>Rotate sphere by dragging</li>
+        <li>Find all mines to win!</li>
+      </ul>
+    </div>
 
   </div>
 
@@ -505,7 +719,7 @@
 
         <div class="debug-control"><label>Empty Tile %</label><div class="control-wrapper"><input type="range" id="debugEmptyRatio" min="0" max="100" step="1" value="30" /></div><input type="number" id="debugEmptyRatioValue" value="30" readonly /></div>
 
-        <div class="debug-control"><label>Initial Reveal %</label><div class="control-wrapper"><input type="range" id="debugInitialReveal" min="0" max="100" step="1" value="12" /></div><input type="number" id="debugInitialRevealValue" value="12" readonly /></div>
+        <div class="debug-control"><label>Initial Reveal %</label><div class="control-wrapper"><input type="range" id="debugInitialReveal" min="0" max="100" step="1" value="3" /></div><input type="number" id="debugInitialRevealValue" value="3" readonly /></div>
 
         <div class="debug-control"><label>Glass</label><div class="control-wrapper"><input type="range" id="debugGlass" min="0" max="1" step="0.01" value="0" /></div><input type="number" id="debugGlassValue" value="0" step="0.01" readonly /></div>
 
@@ -611,9 +825,9 @@
         </div>
         <div class="debug-subsection">
           <div class="debug-subsection-header">Point Light</div>
-        <div class="debug-control"><label>Color</label><div class="color-display" id="debugCenterLightColorDisplay" style="background: #ffaa88; position: relative;"><input type="color" id="debugCenterLightColor" value="#ffaa88" /></div><span class="color-hex" id="debugCenterLightColorHex">#ffaa88</span></div>
+        <div class="debug-control"><label>Color</label><div class="color-display" id="debugCenterLightColorDisplay" style="background: #ff0000; position: relative;"><input type="color" id="debugCenterLightColor" value="#ff0000" /></div><span class="color-hex" id="debugCenterLightColorHex">#ff0000</span></div>
 
-        <div class="debug-control"><label>Intensity</label><div class="control-wrapper"><input type="range" id="debugCenterLightIntensity" min="0" max="3" step="0.1" value="1.5" /></div><input type="number" id="debugCenterLightIntensityValue" value="1.5" step="0.1" readonly /></div>
+        <div class="debug-control"><label>Intensity</label><div class="control-wrapper"><input type="range" id="debugCenterLightIntensity" min="0" max="3" step="0.1" value="1.3" /></div><input type="number" id="debugCenterLightIntensityValue" value="1.3" step="0.1" readonly /></div>
 
         <div class="debug-control"><label>Distance</label><div class="control-wrapper"><input type="range" id="debugCenterLightDistance" min="1" max="20" step="0.5" value="6" /></div><input type="number" id="debugCenterLightDistanceValue" value="6" step="0.5" readonly /></div>
 
@@ -629,6 +843,28 @@
       <div class="debug-section-content">
         <div class="debug-control"><label>Click Sound</label><div class="control-wrapper"><input type="range" id="debugClickSound" min="1" max="5" step="1" value="5" /></div><input type="number" id="debugClickSoundValue" value="5" readonly /></div>
         <div class="debug-control"><label>Game Over Sound</label><div class="control-wrapper"><input type="range" id="debugGameOverSound" min="1" max="5" step="1" value="1" /></div><input type="number" id="debugGameOverSoundValue" value="1" readonly /></div>
+      </div>
+    </div>
+
+    <div class="debug-section collapsed">
+      <div class="debug-section-header collapsed"><span class="triangle"></span>Global Presets</div>
+      <div class="debug-section-content">
+        <div class="debug-control"><label>Preset</label><div class="control-wrapper"><select id="debugGlobalPreset">
+          <option value="0">0. Default</option>
+          <option value="1">1. Lighter</option>
+          <option value="2">2. More Glass</option>
+          <option value="3">3. Closer Light</option>
+          <option value="4">4. Balanced</option>
+          <option value="5">5. Warm Smooth</option>
+          <option value="6">6. Warm Sand</option>
+          <option value="7">7. Warm Smooth Glass</option>
+          <option value="8">8. Warm Sand Glass</option>
+          <option value="9">9. Warm Terracotta Glass</option>
+          <option value="10">10. Warm Sand Glossy</option>
+          <option value="11">11. Chocolate</option>
+          <option value="12">12. Modern Monochrome</option>
+          <option value="13">13. Khaki</option>
+        </select></div></div>
       </div>
     </div>
 
@@ -720,7 +956,10 @@
 
   </div>
 
-  <div id="fpsCounter" style="position: fixed; bottom: 12px; right: 12px; font-family: monospace; font-size: 12px; color: rgba(255, 255, 255, 0.8); z-index: 100;">FPS: --</div>
+  <div id="fpsCounter" style="position: fixed; bottom: 12px; right: 12px; font-family: monospace; font-size: 12px; color: rgba(255, 255, 255, 0.8); z-index: 100; display: flex; align-items: center; gap: 12px; cursor: pointer; user-select: none;">
+    <span id="fpsValue">FPS: --</span>
+    <span id="presetDisplay" style="padding: 2px 8px; background: rgba(255, 255, 255, 0.1); border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.2); transition: background 0.2s;">0. Default</span>
+  </div>
   <div id="commitHash" style="position: fixed; bottom: 12px; left: 12px; font-family: monospace; font-size: 10px; color: rgba(255, 255, 255, 0.7); z-index: 100;">db54664</div>
 
   <!-- Three.js (UMD) pinned to r146 so OrbitControls works without modules -->
@@ -1216,7 +1455,7 @@
     dir.decay = 2; // Decay rate (1 = linear, 2 = physically correct)
     
     // Center point light for illuminating internal faces of tiles
-    const centerLight = new THREE.PointLight(0xff0000, 1.0);
+    const centerLight = new THREE.PointLight(0xff0000, 1.3);
     centerLight.position.set(0, 0, 0); // Center of the sphere
     centerLight.distance = 5; // Distance at which intensity becomes 0
     centerLight.decay = 2; // Decay rate
@@ -1361,7 +1600,7 @@
 
 
 
-    const debugSettings = { initialRevealPercent: 12, emptyTilePercent: 30, mineRatio: 7, labelScale: 0.07 };
+    const debugSettings = { initialRevealPercent: 3, emptyTilePercent: 30, mineRatio: 7, labelScale: 0.07 };
 
     function findSafeTile(){
       const revealed = new Set(state.tiles.map((t, i) => t.revealed ? i : -1).filter(i => i >= 0));
@@ -1702,10 +1941,14 @@
           const neighbor = state.tiles[nb];
           // Only add direct neighbors that are safe, not revealed, not flagged, not empty, and not mines
           if (neighbor && !neighbor.revealed && !neighbor.flagged && !neighbor.isEmpty && !neighbor.mine) {
-            // Use Set for O(1) lookup instead of O(n) includes()
-            if (!revealQueueSet.has(nb)) {
-              revealQueue.push(nb);
-              revealQueueSet.add(nb);
+            // Verify this is a valid neighbor by checking reverse adjacency
+            // A tile should only be added if it's directly adjacent (shares an edge)
+            if (state.neighbors[nb] && state.neighbors[nb].includes(i)) {
+              // Use Set for O(1) lookup instead of O(n) includes()
+              if (!revealQueueSet.has(nb)) {
+                revealQueue.push(nb);
+                revealQueueSet.add(nb);
+              }
             }
           }
         }
@@ -1760,9 +2003,13 @@
                 
                 const neighbor = state.tiles[nb];
                 if (neighbor && !neighbor.revealed && !neighbor.flagged && !neighbor.isEmpty && !neighbor.mine) {
-                  if (!revealQueueSet.has(nb)) {
-                    revealQueue.push(nb);
-                    revealQueueSet.add(nb);
+                  // Verify this is a valid neighbor by checking reverse adjacency
+                  // A tile should only be added if it's directly adjacent (shares an edge)
+                  if (state.neighbors[nb] && state.neighbors[nb].includes(idx)) {
+                    if (!revealQueueSet.has(nb)) {
+                      revealQueue.push(nb);
+                      revealQueueSet.add(nb);
+                    }
                   }
                 }
               }
@@ -1850,10 +2097,16 @@
                 
                 const neighbor = state.tiles[nb];
                 // Only add safe, non-empty, non-flagged, non-revealed neighbors
+                // CRITICAL: Only add neighbors that share an edge (are actually adjacent)
+                // Double-check that this neighbor is actually in our neighbors list
                 if (neighbor && !neighbor.revealed && !neighbor.flagged && !neighbor.isEmpty && !neighbor.mine) {
-                  if (!revealQueueSet.has(nb)) {
-                    revealQueue.push(nb);
-                    revealQueueSet.add(nb);
+                  // Verify this is a valid neighbor by checking reverse adjacency
+                  // A tile should only be added if it's directly adjacent (shares an edge)
+                  if (state.neighbors[nb] && state.neighbors[nb].includes(idx)) {
+                    if (!revealQueueSet.has(nb)) {
+                      revealQueue.push(nb);
+                      revealQueueSet.add(nb);
+                    }
                   }
                 }
               }
@@ -4402,167 +4655,638 @@
         frameCount = 0;
         lastTime = currentTime;
         if (fpsCounter) {
-          fpsCounter.textContent = `FPS: ${fps}`;
+          const fpsValue = document.getElementById('fpsValue');
+          if (fpsValue) {
+            fpsValue.textContent = `FPS: ${fps}`;
+          }
         }
       }
     });
 
     // ===== Presets =====
     
-    // Color Presets (10 presets) - Visually appealing, harmonious color palettes
-    // Optimized for contrast, readability, and aesthetic appeal
+    // Global Presets (20 presets) - Based on user preferences
+    const globalPresets = {
+      0: { name: 'Default', color: 0, light: 0, material: 0 }, // Original default settings - NO CHANGES
+      1: { name: 'Lighter', color: 1, light: 0, material: 0 }, // Brighter tiles
+      2: { name: 'More Glass', color: 0, light: 0, material: 3 }, // Default colors/lighting, more transparent
+      3: { name: 'Closer Light', color: 0, light: 3, material: 8 }, // Default colors, closer light, changed center color
+      4: { name: 'Balanced', color: 4, light: 0, material: 0 }, // Warm brown tiles (changed from brown tint)
+      5: { name: 'Warm Smooth', color: 6, light: 4, material: 2 }, // Warm beige tiles, warm beige lighting, smooth
+      6: { name: 'Warm Sand', color: 8, light: 6, material: 2 }, // Warm sand tiles, warm sand lighting, smooth
+      7: { name: 'Warm Smooth Glass', color: 6, light: 4, material: 3 }, // Warm beige with more glass
+      8: { name: 'Warm Sand Glass', color: 8, light: 6, material: 3 }, // Warm sand with more glass
+      9: { name: 'Warm Terracotta Glass', color: 9, light: 8, material: 3 }, // Warm terracotta with more glass
+      10: { name: 'Warm Sand Glossy', color: 8, light: 6, material: 5 }, // Warm sand with glossy finish
+      11: { name: 'Chocolate', color: 40, light: 39, material: 2 }, // Chocolate tiles with chocolate lighting, smooth
+      12: { name: 'Modern Monochrome', color: 12, light: 11, material: 12 }, // Charcoal tiles with silver lighting
+      13: { name: 'Khaki', color: 49, light: 48, material: 28 } // Khaki tiles with khaki lighting, khaki glass
+    };
+    
+    let currentGlobalPreset = 0; // Start with Default preset
+    
+    // Apply Global Preset
+    function applyGlobalPreset(presetNum) {
+      const preset = globalPresets[presetNum];
+      if (!preset) return;
+      
+      // Apply color preset
+      if (preset.color !== undefined) {
+        applyColorPreset(preset.color);
+      }
+      
+      // Apply light preset
+      if (preset.light !== undefined) {
+        applyLightPreset(preset.light);
+      }
+      
+      // Apply material preset
+      if (preset.material !== undefined) {
+        applyMaterialPreset(preset.material);
+      }
+      
+      // Update display
+      const presetDisplay = document.getElementById('presetDisplay');
+      if (presetDisplay) {
+        presetDisplay.textContent = `${presetNum}. ${preset.name}`;
+      }
+      
+      // Update debug panel select
+      if (globalPresetSelect) {
+        globalPresetSelect.value = presetNum.toString();
+      }
+      
+      currentGlobalPreset = presetNum;
+    }
+    
+    // Cycle to next global preset
+    function cycleGlobalPreset() {
+      currentGlobalPreset = (currentGlobalPreset + 1) % 14; // 0-13 (14 presets including Default)
+      applyGlobalPreset(currentGlobalPreset);
+    }
+    
+    // Color Presets (10 presets) - Contrasting color palettes with varied tile and light colors
     const colorPresets = {
-      1: { // Midnight - Deep blue-gray hidden, Soft cyan revealed
-        tileHidden: '#2a3441', tileRevealed: '#6b9bd1', tileFlag: '#cc5555', tileMine: '#aa4444',
-        labelColor: '#949ead', wireHex: '#3a4451', wirePent: '#2a3441', camBg: '#1a1d24',
-        centerLightColor: '#6b9bd1'
+      0: { // Default - Original default colors
+        tileHidden: '#2d3643', tileRevealed: '#4a5565', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#787e87', wireHex: '#0f0f10', wirePent: '#1e2129', camBg: '#242528',
+        centerLightColor: '#ff0000'
       },
-      2: { // Forest - Dark green hidden, Light sage revealed
-        tileHidden: '#3d4a3d', tileRevealed: '#a8c5a8', tileFlag: '#cc5555', tileMine: '#aa4444',
-        labelColor: '#949ead', wireHex: '#4d5a4d', wirePent: '#3d4a3d', camBg: '#1a1d24',
-        centerLightColor: '#a8c5a8'
+      1: { // Lighter - Brighter tiles
+        tileHidden: '#3d4a5a', tileRevealed: '#5a6a7d', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#9aa5b5', wireHex: '#1a1f25', wirePent: '#2a323d', camBg: '#2d3540',
+        centerLightColor: '#ff0000'
       },
-      3: { // Sunset - Deep orange hidden, Peach revealed
-        tileHidden: '#5a3d2a', tileRevealed: '#d4a88a', tileFlag: '#cc5555', tileMine: '#aa4444',
-        labelColor: '#949ead', wireHex: '#6a4d3a', wirePent: '#5a3d2a', camBg: '#1a1d24',
-        centerLightColor: '#d4a88a'
+      2: { // Darker - Noticeably deeper shadows
+        tileHidden: '#1f252d', tileRevealed: '#3a4450', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#6a7079', wireHex: '#08090a', wirePent: '#15181d', camBg: '#242528',
+        centerLightColor: '#ff0000'
       },
-      4: { // Purple - Deep purple hidden, Lavender revealed
-        tileHidden: '#4a3d5a', tileRevealed: '#b8a8d4', tileFlag: '#cc5555', tileMine: '#aa4444',
-        labelColor: '#949ead', wireHex: '#5a4d6a', wirePent: '#4a3d5a', camBg: '#1a1d24',
-        centerLightColor: '#b8a8d4'
+      3: { // Cool Blue - Clear blue-gray shift
+        tileHidden: '#2a3445', tileRevealed: '#4a5a75', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#7a8595', wireHex: '#0f1215', wirePent: '#1e2430', camBg: '#1e2330',
+        centerLightColor: '#ff0000'
       },
-      5: { // Ocean - Deep teal hidden, Aqua revealed
-        tileHidden: '#2a4a4a', tileRevealed: '#7ab8b8', tileFlag: '#cc5555', tileMine: '#aa4444',
-        labelColor: '#949ead', wireHex: '#3a5a5a', wirePent: '#2a4a4a', camBg: '#1a1d24',
-        centerLightColor: '#7ab8b8'
+      4: { // Warm Brown - Warm brown tiles (for Balanced preset)
+        tileHidden: '#3d3528', tileRevealed: '#5a4f3d', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#9a8f7a', wireHex: '#1a150f', wirePent: '#2a251a', camBg: '#2a2218',
+        centerLightColor: '#ff0000'
       },
-      6: { // Earth - Brown hidden, Beige revealed
-        tileHidden: '#4a3d2a', tileRevealed: '#c5b8a8', tileFlag: '#cc5555', tileMine: '#aa4444',
-        labelColor: '#949ead', wireHex: '#5a4d3a', wirePent: '#4a3d2a', camBg: '#1a1d24',
-        centerLightColor: '#c5b8a8'
+      5: { // Neutral Gray - Pure grays
+        tileHidden: '#2d2d2d', tileRevealed: '#4a4a4a', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#787878', wireHex: '#0f0f0f', wirePent: '#1e1e1e', camBg: '#242424',
+        centerLightColor: '#ff0000'
       },
-      7: { // Slate - Dark gray hidden, Light gray revealed
-        tileHidden: '#3a3d41', tileRevealed: '#9ba8b8', tileFlag: '#cc5555', tileMine: '#aa4444',
-        labelColor: '#949ead', wireHex: '#4a4d51', wirePent: '#3a3d41', camBg: '#1a1d24',
-        centerLightColor: '#9ba8b8'
+      6: { // Warm Beige - Warm beige tiles
+        tileHidden: '#3d3a32', tileRevealed: '#5a554a', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#9a958a', wireHex: '#1a1815', wirePent: '#2a2822', camBg: '#2a2720',
+        centerLightColor: '#ffaa88'
       },
-      8: { // Rose - Deep rose hidden, Pink revealed
-        tileHidden: '#5a3d4a', tileRevealed: '#d4a8b8', tileFlag: '#cc5555', tileMine: '#aa4444',
-        labelColor: '#949ead', wireHex: '#6a4d5a', wirePent: '#5a3d4a', camBg: '#1a1d24',
-        centerLightColor: '#d4a8b8'
+      7: { // Warm Cream - Warm cream tiles
+        tileHidden: '#3d3d32', tileRevealed: '#5a5a4a', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#9a9a8a', wireHex: '#1a1a15', wirePent: '#2a2a22', camBg: '#2a2a20',
+        centerLightColor: '#ffcc99'
       },
-      9: { // Emerald - Dark green hidden, Mint revealed
-        tileHidden: '#2a4a3d', tileRevealed: '#7ab8a8', tileFlag: '#cc5555', tileMine: '#aa4444',
-        labelColor: '#949ead', wireHex: '#3a5a4d', wirePent: '#2a4a3d', camBg: '#1a1d24',
-        centerLightColor: '#7ab8a8'
+      8: { // Warm Sand - Warm sand tiles
+        tileHidden: '#3d3832', tileRevealed: '#5a524a', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#9a928a', wireHex: '#1a1815', wirePent: '#2a2522', camBg: '#2a221f',
+        centerLightColor: '#ffd4aa'
       },
-      10: { // Amber - Dark amber hidden, Gold revealed
-        tileHidden: '#5a4a2a', tileRevealed: '#d4b88a', tileFlag: '#cc5555', tileMine: '#aa4444',
-        labelColor: '#949ead', wireHex: '#6a5a3a', wirePent: '#5a4a2a', camBg: '#1a1d24',
-        centerLightColor: '#d4b88a'
+      9: { // Warm Terracotta - Warm terracotta tiles
+        tileHidden: '#3d2d28', tileRevealed: '#5a423d', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#9a7a7a', wireHex: '#1a120f', wirePent: '#2a1f1a', camBg: '#2a1a18',
+        centerLightColor: '#ff8866'
+      },
+      10: { // Cool Blue Smooth - Cool blue tiles for smooth preset
+        tileHidden: '#2a3445', tileRevealed: '#4a5a75', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#7a8595', wireHex: '#0f1215', wirePent: '#1e2430', camBg: '#1e2330',
+        centerLightColor: '#ff0000'
+      },
+      11: { // Pastel Mint - Soft mint green tiles
+        tileHidden: '#2a3d35', tileRevealed: '#4a6d5a', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#8aa595', wireHex: '#0f1a15', wirePent: '#1e2a22', camBg: '#1e2a22',
+        centerLightColor: '#a8e6cf'
+      },
+      12: { // Modern Monochrome - Charcoal gray tiles
+        tileHidden: '#1a1a1a', tileRevealed: '#3d3d3d', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#8a8a8a', wireHex: '#0a0a0a', wirePent: '#151515', camBg: '#151515',
+        centerLightColor: '#e0e0e0'
+      },
+      13: { // Sage Green - Sage green tiles
+        tileHidden: '#2a3d2a', tileRevealed: '#4a6d4a', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#8aa58a', wireHex: '#0f1a0f', wirePent: '#1e2a1e', camBg: '#1e2a1e',
+        centerLightColor: '#b8c5a8'
+      },
+      14: { // Gummy Pink - Dusty pink tiles
+        tileHidden: '#3d2a3a', tileRevealed: '#5a4a5a', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#9a8a9a', wireHex: '#1a0f15', wirePent: '#2a1e22', camBg: '#2a1e25',
+        centerLightColor: '#ffb6c1'
+      },
+      15: { // Moss Green - Dark olive green tiles
+        tileHidden: '#1a2a1a', tileRevealed: '#3d5a3d', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#7a9a7a', wireHex: '#0a150a', wirePent: '#152a15', camBg: '#152a15',
+        centerLightColor: '#9acd32'
+      },
+      16: { // Mocha Brown - Deep caramel tiles
+        tileHidden: '#2d1f1a', tileRevealed: '#4a352d', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#8a7a6a', wireHex: '#0f0a08', wirePent: '#1e1510', camBg: '#1e1510',
+        centerLightColor: '#d2b48c'
+      },
+      17: { // Sunny Yellow - Bright yellow tiles
+        tileHidden: '#3d3d1a', tileRevealed: '#5a5a2d', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#9a9a6a', wireHex: '#1a1a0a', wirePent: '#2a2a15', camBg: '#2a2a15',
+        centerLightColor: '#ffd700'
+      },
+      18: { // Sunset Spice - Warm orange tiles
+        tileHidden: '#3d281a', tileRevealed: '#5a3d2d', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#9a7a6a', wireHex: '#1a1008', wirePent: '#2a1f15', camBg: '#2a1a10',
+        centerLightColor: '#fa4a05'
+      },
+      19: { // Blue Ray - Calming blue tiles
+        tileHidden: '#1a2a3d', tileRevealed: '#3d4a6d', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#7a8aa5', wireHex: '#0a151a', wirePent: '#15222a', camBg: '#15222a',
+        centerLightColor: '#87ceeb'
+      },
+      20: { // Wet Asphalt - Dark gray-blue tiles
+        tileHidden: '#1a1f2a', tileRevealed: '#3d4255', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#7a7f8a', wireHex: '#0a0f15', wirePent: '#151f2a', camBg: '#151f2a',
+        centerLightColor: '#708090'
+      },
+      21: { // Pink Dream - Soft pink tiles
+        tileHidden: '#3d2d3a', tileRevealed: '#5a4a6a', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#9a8aa5', wireHex: '#1a1215', wirePent: '#2a1e25', camBg: '#2a1e25',
+        centerLightColor: '#ffc0cb'
+      },
+      22: { // Magic Red - Deep red tiles
+        tileHidden: '#3d1a1a', tileRevealed: '#5a2d2d', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#9a6a6a', wireHex: '#1a0a0a', wirePent: '#2a1515', camBg: '#2a1515',
+        centerLightColor: '#dc143c'
+      },
+      23: { // Pastel Ice Cream - Soft pastel tiles
+        tileHidden: '#3a3d42', tileRevealed: '#5a5d6a', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#9a9da5', wireHex: '#151a1f', wirePent: '#252a32', camBg: '#252a32',
+        centerLightColor: '#ffe4e1'
+      },
+      24: { // Dark Forest - Deep green tiles
+        tileHidden: '#0f1a0f', tileRevealed: '#1f3d1f', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#5a7a5a', wireHex: '#050a05', wirePent: '#0f1a0f', camBg: '#0a150a',
+        centerLightColor: '#556b2f'
+      },
+      25: { // Leafy Fairy - Light green tiles
+        tileHidden: '#2a3d28', tileRevealed: '#4a6d45', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#8aa585', wireHex: '#0f1a0e', wirePent: '#1e2a1c', camBg: '#1e2a1c',
+        centerLightColor: '#90ee90'
+      },
+      26: { // Golden Star - Rich gold tiles
+        tileHidden: '#3d3520', tileRevealed: '#5a4d35', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#9a8d6a', wireHex: '#1a150d', wirePent: '#2a251a', camBg: '#2a251a',
+        centerLightColor: '#ffd700'
+      },
+      27: { // Lavender - Soft purple tiles
+        tileHidden: '#3a2d3d', tileRevealed: '#5a4a6a', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#9a8aa5', wireHex: '#15121a', wirePent: '#251e2a', camBg: '#251e2a',
+        centerLightColor: '#e6e6fa'
+      },
+      28: { // Ocean Blue - Deep ocean blue tiles
+        tileHidden: '#1a2a3d', tileRevealed: '#3d4a6d', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#7a8aa5', wireHex: '#0a151a', wirePent: '#15222a', camBg: '#15222a',
+        centerLightColor: '#4682b4'
+      },
+      29: { // Rose Gold - Rose gold tiles
+        tileHidden: '#3d2828', tileRevealed: '#5a3d3d', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#9a7a7a', wireHex: '#1a1010', wirePent: '#2a1f1f', camBg: '#2a1f1f',
+        centerLightColor: '#e8b4b8'
+      },
+      30: { // Midnight Blue - Deep midnight blue tiles
+        tileHidden: '#0f1a2a', tileRevealed: '#1f2d3d', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#5a6a7a', wireHex: '#050a15', wirePent: '#0f1520', camBg: '#0f1520',
+        centerLightColor: '#191970'
+      },
+      31: { // Indigo - Deep indigo tiles
+        tileHidden: '#1a1f3d', tileRevealed: '#3d4275', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#7a7fa5', wireHex: '#0a0f1a', wirePent: '#151f2a', camBg: '#151f2a',
+        centerLightColor: '#4b0082'
+      },
+      32: { // Turquoise - Bright turquoise tiles
+        tileHidden: '#1a3d3a', tileRevealed: '#3d6d6a', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#7a9a9a', wireHex: '#0a1a18', wirePent: '#152a28', camBg: '#152a28',
+        centerLightColor: '#40e0d0'
+      },
+      33: { // Peach - Soft peach tiles
+        tileHidden: '#3d352a', tileRevealed: '#5a4d3d', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#9a8d7a', wireHex: '#1a1510', wirePent: '#2a251a', camBg: '#2a251a',
+        centerLightColor: '#ffdab9'
+      },
+      34: { // Violet - Rich violet tiles
+        tileHidden: '#2d1a3d', tileRevealed: '#4d2d6d', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#8a6aa5', wireHex: '#120a1a', wirePent: '#22152a', camBg: '#22152a',
+        centerLightColor: '#8a2be2'
+      },
+      35: { // Coral - Vibrant coral tiles
+        tileHidden: '#3d281f', tileRevealed: '#5a3d35', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#9a7a6a', wireHex: '#1a100f', wirePent: '#2a1f1a', camBg: '#2a1f1a',
+        centerLightColor: '#ff7f50'
+      },
+      36: { // Lime - Bright lime tiles
+        tileHidden: '#2d3d1a', tileRevealed: '#4d6d2d', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#8a9a6a', wireHex: '#121a0a', wirePent: '#222a15', camBg: '#222a15',
+        centerLightColor: '#32cd32'
+      },
+      37: { // Amber - Rich amber tiles
+        tileHidden: '#3d2d1a', tileRevealed: '#5a452d', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#9a856a', wireHex: '#1a120a', wirePent: '#2a2215', camBg: '#2a2215',
+        centerLightColor: '#ffbf00'
+      },
+      38: { // Magenta - Deep magenta tiles
+        tileHidden: '#3d1a3d', tileRevealed: '#5a2d5a', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#9a6a9a', wireHex: '#1a0a1a', wirePent: '#2a152a', camBg: '#2a152a',
+        centerLightColor: '#ff00ff'
+      },
+      39: { // Cyan - Bright cyan tiles
+        tileHidden: '#1a3d3d', tileRevealed: '#3d6d6d', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#7a9a9a', wireHex: '#0a1a1a', wirePent: '#152a2a', camBg: '#152a2a',
+        centerLightColor: '#00ffff'
+      },
+      40: { // Chocolate - Deep brown tiles
+        tileHidden: '#1f1a15', tileRevealed: '#3d352d', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#7a6a5a', wireHex: '#0a0805', wirePent: '#15100f', camBg: '#15100f',
+        centerLightColor: '#d2691e'
+      },
+      41: { // Sky Blue - Light sky blue tiles
+        tileHidden: '#2a3d4a', tileRevealed: '#4a6d7d', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#8aa5b5', wireHex: '#0f1a22', wirePent: '#1e2a35', camBg: '#1e2a35',
+        centerLightColor: '#87ceeb'
+      },
+      42: { // Olive - Olive green tiles
+        tileHidden: '#2a2d1a', tileRevealed: '#4a4d2d', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#8a8d6a', wireHex: '#0f120a', wirePent: '#1e2215', camBg: '#1e2215',
+        centerLightColor: '#808000'
+      },
+      43: { // Plum - Deep plum tiles
+        tileHidden: '#2a1a2a', tileRevealed: '#4a2d4a', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#8a6a8a', wireHex: '#0f0a0f', wirePent: '#1e151e', camBg: '#1e151e',
+        centerLightColor: '#dda0dd'
+      },
+      44: { // Teal - Deep teal tiles
+        tileHidden: '#1a2a2a', tileRevealed: '#3d4a4a', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#6a8a8a', wireHex: '#0a1515', wirePent: '#152222', camBg: '#152222',
+        centerLightColor: '#008080'
+      },
+      45: { // Salmon - Soft salmon tiles
+        tileHidden: '#3d2d28', tileRevealed: '#5a423d', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#9a7a75', wireHex: '#1a1210', wirePent: '#2a1f1d', camBg: '#2a1f1d',
+        centerLightColor: '#fa8072'
+      },
+      46: { // Emerald - Bright emerald tiles
+        tileHidden: '#1a3d2a', tileRevealed: '#3d6d4a', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#7a9a8a', wireHex: '#0a1a15', wirePent: '#152a22', camBg: '#152a22',
+        centerLightColor: '#50c878'
+      },
+      47: { // Rust - Rusty orange tiles
+        tileHidden: '#3d1f15', tileRevealed: '#5a3528', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#9a6a5a', wireHex: '#1a0f08', wirePent: '#2a1f15', camBg: '#2a1f15',
+        centerLightColor: '#b7410e'
+      },
+      48: { // Periwinkle - Soft periwinkle tiles
+        tileHidden: '#2a2d3d', tileRevealed: '#4a4d6d', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#8a8da5', wireHex: '#0f121a', wirePent: '#1e222a', camBg: '#1e222a',
+        centerLightColor: '#cc99ff'
+      },
+      49: { // Khaki - Khaki green tiles
+        tileHidden: '#3d3d2a', tileRevealed: '#5a5a3d', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#9a9a7a', wireHex: '#1a1a15', wirePent: '#2a2a22', camBg: '#2a2a22',
+        centerLightColor: '#c3b091'
+      },
+      50: { // Crimson - Deep crimson tiles
+        tileHidden: '#2d0f0f', tileRevealed: '#4d1f1f', tileFlag: '#cc5555', tileMine: '#ff4444',
+        labelColor: '#8a5a5a', wireHex: '#120505', wirePent: '#220f0f', camBg: '#220f0f',
+        centerLightColor: '#dc143c'
       }
     };
 
     // Light Presets (10 presets)
     const lightPresets = {
-      0: { // Current Default
-        hemiSky: '#ffffff', hemiGround: '#888888', hemiIntensity: 0.4,
-        dirColor: '#ffffff', dirIntensity: 1.2, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 25, dirDecay: 2,
-        centerColor: '#ffaa88', centerIntensity: 1.5, centerDistance: 6, centerDecay: 2
+      0: { // Default - Original default lighting
+        hemiSky: '#ffffff', hemiGround: '#cccccc', hemiIntensity: 0.5,
+        dirColor: '#ffffff', dirIntensity: 0.7, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#ff0000', centerIntensity: 1.3, centerDistance: 5, centerDecay: 2
       },
-      1: { // Soft Ambient
-        hemiSky: '#f0f4ff', hemiGround: '#d0d5dc', hemiIntensity: 0.6,
-        dirColor: '#ffffff', dirIntensity: 0.5, dirX: 2.0, dirY: 1.5, dirZ: -1.0, dirDistance: 25, dirDecay: 2,
-        centerColor: '#ffffff', centerIntensity: 0.8, centerDistance: 6, centerDecay: 2
+      1: { // Warm Amber - Warm amber lighting
+        hemiSky: '#fff8e1', hemiGround: '#ffe0b2', hemiIntensity: 0.6,
+        dirColor: '#ffcc80', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#ffaa00', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
       },
-      2: { // Dramatic Shadows
-        hemiSky: '#4a5568', hemiGround: '#1a202c', hemiIntensity: 0.3,
-        dirColor: '#ffffff', dirIntensity: 1.5, dirX: 4.0, dirY: 3.0, dirZ: -2.0, dirDistance: 15, dirDecay: 2,
-        centerColor: '#ffffff', centerIntensity: 0.5, centerDistance: 4, centerDecay: 2
+      2: { // Soft Dim - Softer, dimmer lighting
+        hemiSky: '#ffffff', hemiGround: '#cccccc', hemiIntensity: 0.35,
+        dirColor: '#ffffff', dirIntensity: 0.5, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#ff0000', centerIntensity: 1.0, centerDistance: 5, centerDecay: 2
       },
-      3: { // Studio Lighting
-        hemiSky: '#ffffff', hemiGround: '#888888', hemiIntensity: 0.7,
-        dirColor: '#ffffff', dirIntensity: 1.0, dirX: 3.5, dirY: 2.5, dirZ: -1.8, dirDistance: 18, dirDecay: 2,
-        centerColor: '#ffffff', centerIntensity: 1.0, centerDistance: 5, centerDecay: 2
+      3: { // Close Light - Directional much closer, changed center light
+        hemiSky: '#ffffff', hemiGround: '#cccccc', hemiIntensity: 0.5,
+        dirColor: '#ffffff', dirIntensity: 0.7, dirX: 2.0, dirY: 1.2, dirZ: -0.8, dirDistance: 15, dirDecay: 2,
+        centerColor: '#ffaa88', centerIntensity: 1.3, centerDistance: 5, centerDecay: 2
       },
-      4: { // High Contrast
-        hemiSky: '#ffffff', hemiGround: '#000000', hemiIntensity: 0.5,
-        dirColor: '#ffffff', dirIntensity: 1.8, dirX: 3.0, dirY: 3.0, dirZ: -2.0, dirDistance: 15, dirDecay: 2,
-        centerColor: '#ffffff', centerIntensity: 0.3, centerDistance: 3, centerDecay: 2
+      4: { // Warm Beige Light - Warm beige lighting
+        hemiSky: '#fff8f0', hemiGround: '#e8dcc8', hemiIntensity: 0.6,
+        dirColor: '#ffaa88', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#ffaa88', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
       },
-      5: { // Warm Sunset
-        hemiSky: '#ffd89b', hemiGround: '#ff9a56', hemiIntensity: 0.8,
-        dirColor: '#ffaa88', dirIntensity: 0.9, dirX: 3.0, dirY: 2.5, dirZ: -1.5, dirDistance: 20, dirDecay: 2,
-        centerColor: '#ffcc99', centerIntensity: 1.2, centerDistance: 5, centerDecay: 2
+      5: { // Warm Cream Light - Warm cream lighting
+        hemiSky: '#fffef0', hemiGround: '#f0e8d8', hemiIntensity: 0.6,
+        dirColor: '#ffcc99', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#ffcc99', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
       },
-      6: { // Cool Moonlight
-        hemiSky: '#a8c5ff', hemiGround: '#2d3748', hemiIntensity: 0.5,
-        dirColor: '#b8d4ff', dirIntensity: 0.7, dirX: 2.5, dirY: 2.0, dirZ: -1.0, dirDistance: 22, dirDecay: 2,
-        centerColor: '#c8e4ff', centerIntensity: 0.6, centerDistance: 5, centerDecay: 2
+      6: { // Warm Sand Light - Warm sand lighting
+        hemiSky: '#fffaf0', hemiGround: '#f0e0d0', hemiIntensity: 0.6,
+        dirColor: '#ffd4aa', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#ffd4aa', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
       },
-      7: { // Natural Overcast
-        hemiSky: '#e8f0f5', hemiGround: '#c8d5e0', hemiIntensity: 0.85,
-        dirColor: '#d0e0f0', dirIntensity: 0.4, dirX: 2.5, dirY: 2.5, dirZ: -1.2, dirDistance: 28, dirDecay: 2,
-        centerColor: '#e0f0ff', centerIntensity: 1.0, centerDistance: 7, centerDecay: 2
+      7: { // Cyan Cool - Cool cyan lighting
+        hemiSky: '#e0f7fa', hemiGround: '#b2ebf2', hemiIntensity: 0.6,
+        dirColor: '#00ffff', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#00ffff', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
       },
-      8: { // Twilight
-        hemiSky: '#4a5568', hemiGround: '#2d3748', hemiIntensity: 0.5,
-        dirColor: '#a8c5ff', dirIntensity: 0.8, dirX: 3.0, dirY: 2.5, dirZ: -2.0, dirDistance: 18, dirDecay: 2,
-        centerColor: '#b8d4ff', centerIntensity: 0.7, centerDistance: 5, centerDecay: 2
+      8: { // Warm Terracotta Light - Warm terracotta lighting
+        hemiSky: '#fff0e8', hemiGround: '#f0d8c8', hemiIntensity: 0.6,
+        dirColor: '#ff8866', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#ff8866', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
       },
-      9: { // Dim Warm
-        hemiSky: '#d0c8a8', hemiGround: '#8a7a6a', hemiIntensity: 0.4,
-        dirColor: '#f0d8a8', dirIntensity: 0.6, dirX: 2.5, dirY: 2.0, dirZ: -1.5, dirDistance: 16, dirDecay: 2,
-        centerColor: '#f5e0b8', centerIntensity: 0.7, centerDistance: 4, centerDecay: 2
+      9: { // Warm White - Warm white lighting
+        hemiSky: '#fffef5', hemiGround: '#fff8dc', hemiIntensity: 0.6,
+        dirColor: '#fff8dc', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#fff8dc', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
+      },
+      10: { // Pastel Mint Light - Soft mint lighting
+        hemiSky: '#e8f5e9', hemiGround: '#c8e6c9', hemiIntensity: 0.6,
+        dirColor: '#a8e6cf', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#a8e6cf', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
+      },
+      11: { // Monochrome Light - Silver white lighting
+        hemiSky: '#f5f5f5', hemiGround: '#e0e0e0', hemiIntensity: 0.6,
+        dirColor: '#e0e0e0', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#e0e0e0', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
+      },
+      12: { // Sage Light - Soft sage lighting
+        hemiSky: '#f1f8f4', hemiGround: '#d8e8dc', hemiIntensity: 0.6,
+        dirColor: '#b8c5a8', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#b8c5a8', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
+      },
+      13: { // Pink Light - Soft pink lighting
+        hemiSky: '#ffeef5', hemiGround: '#ffddee', hemiIntensity: 0.6,
+        dirColor: '#ffb6c1', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#ffb6c1', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
+      },
+      14: { // Moss Light - Lime green lighting
+        hemiSky: '#f0f8e8', hemiGround: '#d8e8c8', hemiIntensity: 0.6,
+        dirColor: '#9acd32', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#9acd32', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
+      },
+      15: { // Mocha Light - Caramel lighting
+        hemiSky: '#fff8f0', hemiGround: '#f0e8d8', hemiIntensity: 0.6,
+        dirColor: '#d2b48c', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#d2b48c', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
+      },
+      16: { // Sunny Light - Bright yellow lighting
+        hemiSky: '#fffef0', hemiGround: '#fffacd', hemiIntensity: 0.7,
+        dirColor: '#ffd700', dirIntensity: 0.9, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#ffd700', centerIntensity: 1.8, centerDistance: 5, centerDecay: 2
+      },
+      17: { // Sunset Light - Warm orange lighting
+        hemiSky: '#fff4e6', hemiGround: '#ffe0c8', hemiIntensity: 0.65,
+        dirColor: '#fa4a05', dirIntensity: 0.85, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#fa4a05', centerIntensity: 1.6, centerDistance: 5, centerDecay: 2
+      },
+      18: { // Sky Blue Light - Calming blue lighting
+        hemiSky: '#e6f5ff', hemiGround: '#c8e8ff', hemiIntensity: 0.6,
+        dirColor: '#87ceeb', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#87ceeb', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
+      },
+      19: { // Slate Light - Cool gray lighting
+        hemiSky: '#f0f4f8', hemiGround: '#d8e0e8', hemiIntensity: 0.6,
+        dirColor: '#708090', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#708090', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
+      },
+      20: { // Rose Light - Soft rose lighting
+        hemiSky: '#ffeef5', hemiGround: '#ffddee', hemiIntensity: 0.6,
+        dirColor: '#ffc0cb', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#ffc0cb', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
+      },
+      21: { // Crimson Light - Deep red lighting
+        hemiSky: '#ffe8e8', hemiGround: '#ffd0d0', hemiIntensity: 0.6,
+        dirColor: '#dc143c', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#dc143c', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
+      },
+      22: { // Pastel Light - Soft pastel lighting
+        hemiSky: '#fffef8', hemiGround: '#fff8f0', hemiIntensity: 0.6,
+        dirColor: '#ffe4e1', dirIntensity: 0.75, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#ffe4e1', centerIntensity: 1.4, centerDistance: 5, centerDecay: 2
+      },
+      23: { // Forest Light - Deep green lighting
+        hemiSky: '#e8f0e8', hemiGround: '#d0e0d0', hemiIntensity: 0.5,
+        dirColor: '#556b2f', dirIntensity: 0.7, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#556b2f', centerIntensity: 1.3, centerDistance: 5, centerDecay: 2
+      },
+      24: { // Light Green Light - Bright green lighting
+        hemiSky: '#f0fff0', hemiGround: '#e0ffe0', hemiIntensity: 0.6,
+        dirColor: '#90ee90', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#90ee90', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
+      },
+      25: { // Gold Light - Rich gold lighting
+        hemiSky: '#fffef0', hemiGround: '#fffacd', hemiIntensity: 0.65,
+        dirColor: '#ffd700', dirIntensity: 0.9, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#ffd700', centerIntensity: 1.6, centerDistance: 5, centerDecay: 2
+      },
+      26: { // Lavender Light - Soft purple lighting
+        hemiSky: '#f8f0ff', hemiGround: '#f0e0ff', hemiIntensity: 0.6,
+        dirColor: '#e6e6fa', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#e6e6fa', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
+      },
+      27: { // Steel Blue Light - Deep blue lighting
+        hemiSky: '#e6f0f8', hemiGround: '#c8d8e8', hemiIntensity: 0.6,
+        dirColor: '#4682b4', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#4682b4', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
+      },
+      28: { // Rose Gold Light - Rose gold lighting
+        hemiSky: '#fff0f5', hemiGround: '#ffe0e8', hemiIntensity: 0.6,
+        dirColor: '#e8b4b8', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#e8b4b8', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
+      },
+      29: { // Midnight Light - Deep blue lighting
+        hemiSky: '#e8e8f0', hemiGround: '#d0d0e0', hemiIntensity: 0.5,
+        dirColor: '#191970', dirIntensity: 0.7, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#191970', centerIntensity: 1.3, centerDistance: 5, centerDecay: 2
+      },
+      30: { // Indigo Light - Deep indigo lighting
+        hemiSky: '#e8e8f0', hemiGround: '#d0d0e8', hemiIntensity: 0.5,
+        dirColor: '#4b0082', dirIntensity: 0.7, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#4b0082', centerIntensity: 1.3, centerDistance: 5, centerDecay: 2
+      },
+      31: { // Turquoise Light - Bright turquoise lighting
+        hemiSky: '#e0f8f5', hemiGround: '#c0f0ea', hemiIntensity: 0.6,
+        dirColor: '#40e0d0', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#40e0d0', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
+      },
+      32: { // Peach Light - Soft peach lighting
+        hemiSky: '#fff8f0', hemiGround: '#ffe8d8', hemiIntensity: 0.6,
+        dirColor: '#ffdab9', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#ffdab9', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
+      },
+      33: { // Violet Light - Rich violet lighting
+        hemiSky: '#f0e8f8', hemiGround: '#e0d0f0', hemiIntensity: 0.6,
+        dirColor: '#8a2be2', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#8a2be2', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
+      },
+      34: { // Coral Light - Vibrant coral lighting
+        hemiSky: '#ffe8e0', hemiGround: '#ffd0c0', hemiIntensity: 0.6,
+        dirColor: '#ff7f50', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#ff7f50', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
+      },
+      35: { // Lime Light - Bright lime lighting
+        hemiSky: '#f0fff0', hemiGround: '#e0ffe0', hemiIntensity: 0.65,
+        dirColor: '#32cd32', dirIntensity: 0.85, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#32cd32', centerIntensity: 1.6, centerDistance: 5, centerDecay: 2
+      },
+      36: { // Amber Light - Rich amber lighting
+        hemiSky: '#fffef0', hemiGround: '#fffacd', hemiIntensity: 0.65,
+        dirColor: '#ffbf00', dirIntensity: 0.9, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#ffbf00', centerIntensity: 1.6, centerDistance: 5, centerDecay: 2
+      },
+      37: { // Magenta Light - Deep magenta lighting
+        hemiSky: '#ffe8ff', hemiGround: '#ffd0ff', hemiIntensity: 0.6,
+        dirColor: '#ff00ff', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#ff00ff', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
+      },
+      38: { // Cyan Light - Bright cyan lighting
+        hemiSky: '#e0ffff', hemiGround: '#c0ffff', hemiIntensity: 0.65,
+        dirColor: '#00ffff', dirIntensity: 0.85, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#00ffff', centerIntensity: 1.6, centerDistance: 5, centerDecay: 2
+      },
+      39: { // Chocolate Light - Deep brown lighting
+        hemiSky: '#fff8f0', hemiGround: '#ffe8d8', hemiIntensity: 0.55,
+        dirColor: '#d2691e', dirIntensity: 0.75, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#d2691e', centerIntensity: 1.4, centerDistance: 5, centerDecay: 2
+      },
+      40: { // Sky Blue Light - Light sky blue lighting
+        hemiSky: '#e6f5ff', hemiGround: '#c8e8ff', hemiIntensity: 0.6,
+        dirColor: '#87ceeb', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#87ceeb', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
+      },
+      41: { // Olive Light - Olive green lighting
+        hemiSky: '#f0f8e8', hemiGround: '#e0f0d0', hemiIntensity: 0.6,
+        dirColor: '#808000', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#808000', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
+      },
+      42: { // Plum Light - Deep plum lighting
+        hemiSky: '#f8e8f8', hemiGround: '#f0d0f0', hemiIntensity: 0.6,
+        dirColor: '#dda0dd', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#dda0dd', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
+      },
+      43: { // Teal Light - Deep teal lighting
+        hemiSky: '#e0f5f5', hemiGround: '#c0e8e8', hemiIntensity: 0.6,
+        dirColor: '#008080', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#008080', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
+      },
+      44: { // Salmon Light - Soft salmon lighting
+        hemiSky: '#ffe8e0', hemiGround: '#ffd0c8', hemiIntensity: 0.6,
+        dirColor: '#fa8072', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#fa8072', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
+      },
+      45: { // Emerald Light - Bright emerald lighting
+        hemiSky: '#e8f8f0', hemiGround: '#d0f0e0', hemiIntensity: 0.6,
+        dirColor: '#50c878', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#50c878', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
+      },
+      46: { // Rust Light - Rusty orange lighting
+        hemiSky: '#fff0e8', hemiGround: '#ffe0d0', hemiIntensity: 0.6,
+        dirColor: '#b7410e', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#b7410e', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
+      },
+      47: { // Periwinkle Light - Soft periwinkle lighting
+        hemiSky: '#f0e8ff', hemiGround: '#e0d0ff', hemiIntensity: 0.6,
+        dirColor: '#cc99ff', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#cc99ff', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
+      },
+      48: { // Khaki Light - Khaki green lighting
+        hemiSky: '#fffaf0', hemiGround: '#fff5e0', hemiIntensity: 0.6,
+        dirColor: '#c3b091', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#c3b091', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
+      },
+      49: { // Crimson Light - Deep crimson lighting
+        hemiSky: '#ffe8e8', hemiGround: '#ffd0d0', hemiIntensity: 0.6,
+        dirColor: '#dc143c', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
+        centerColor: '#dc143c', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
       }
     };
 
-    // Material Presets (10 presets)
+    // Material Presets (10 presets) - More varied material properties
     // emptyOpacity: transparency for empty tiles (0-1, where 1 = fully transparent)
     // tileType: 'matte', 'smooth', 'shiny', 'rough', 'metallic'
     // roughness: 0-1 (0 = mirror, 1 = rough)
     // metalness: 0-1 (0 = dielectric, 1 = metal)
     const materialPresets = {
-      1: { // Opaque Solid
-        emptyOpacity: 0.4, emptyTint: '#5a7aff',
+      0: { // Default - Original default materials
+        emptyOpacity: 0.4, emptyTint: '#4c5b7b',
+        tileType: 'matte', roughness: 0.8, metalness: 0.0
+      },
+      1: { // Rough Matte - Very matte finish
+        emptyOpacity: 0.4, emptyTint: '#4c5b7b',
         tileType: 'matte', roughness: 1.0, metalness: 0.0
       },
-      2: { // Light Glass
-        emptyOpacity: 0.6, emptyTint: '#5a7aff',
-        tileType: 'smooth', roughness: 0.3, metalness: 0.0
+      2: { // Smooth - Noticeably smoother
+        emptyOpacity: 0.4, emptyTint: '#4c5b7b',
+        tileType: 'smooth', roughness: 0.4, metalness: 0.0
       },
-      3: { // Medium Glass
-        emptyOpacity: 0.7, emptyTint: '#5a7aff',
-        tileType: 'smooth', roughness: 0.2, metalness: 0.0
+      3: { // More Glass - Much more transparent
+        emptyOpacity: 0.65, emptyTint: '#4c5b7b',
+        tileType: 'matte', roughness: 0.8, metalness: 0.0
       },
-      4: { // Heavy Glass
-        emptyOpacity: 0.8, emptyTint: '#5a7aff',
-        tileType: 'shiny', roughness: 0.1, metalness: 0.0
+      4: { // Less Glass - More opaque
+        emptyOpacity: 0.25, emptyTint: '#4c5b7b',
+        tileType: 'matte', roughness: 0.8, metalness: 0.0
       },
-      5: { // Velvet
-        emptyOpacity: 0.7, emptyTint: '#ffffff',
+      5: { // Glossy - Shiny finish
+        emptyOpacity: 0.4, emptyTint: '#4c5b7b',
+        tileType: 'shiny', roughness: 0.2, metalness: 0.0
+      },
+      6: { // Amber Glass - Warm amber tint
+        emptyOpacity: 0.5, emptyTint: '#ffaa88',
+        tileType: 'smooth', roughness: 0.5, metalness: 0.0
+      },
+      7: { // Cool Glass - Cooler blue tint
+        emptyOpacity: 0.4, emptyTint: '#3e4d6c',
+        tileType: 'matte', roughness: 0.8, metalness: 0.0
+      },
+      8: { // Semi-Gloss - Moderate shine
+        emptyOpacity: 0.4, emptyTint: '#4c5b7b',
+        tileType: 'smooth', roughness: 0.5, metalness: 0.0
+      },
+      9: { // Velvet - Very soft matte
+        emptyOpacity: 0.4, emptyTint: '#4c5b7b',
         tileType: 'velvet', roughness: 0.95, metalness: 0.0
       },
-      6: { // Tinted Blue
-        emptyOpacity: 0.6, emptyTint: '#4a90e2',
-        tileType: 'smooth', roughness: 0.4, metalness: 0.1
-      },
-      7: { // Tinted Green
-        emptyOpacity: 0.6, emptyTint: '#4ade80',
-        tileType: 'matte', roughness: 0.9, metalness: 0.0
-      },
-      8: { // Tinted Purple
-        emptyOpacity: 0.6, emptyTint: '#a78bfa',
-        tileType: 'shiny', roughness: 0.15, metalness: 0.2
-      },
-      9: { // Tinted Orange
-        emptyOpacity: 0.6, emptyTint: '#fb923c',
-        tileType: 'rough', roughness: 0.7, metalness: 0.0
-      },
-      10: { // Ceramic
-        emptyOpacity: 0.9, emptyTint: '#ffffff',
-        tileType: 'ceramic', roughness: 0.25, metalness: 0.05
+      10: { // Cyan Glass - Cool cyan tint
+        emptyOpacity: 0.5, emptyTint: '#88ccff',
+        tileType: 'smooth', roughness: 0.5, metalness: 0.0
       }
     };
 
@@ -4824,9 +5548,18 @@
     }
 
     // Event listeners for preset selects - apply immediately on change
+    const globalPresetSelect = document.getElementById('debugGlobalPreset');
     const colorPresetSelect = document.getElementById('debugColorPreset');
     const lightPresetSelect = document.getElementById('debugLightPreset');
     const materialPresetSelect = document.getElementById('debugMaterialPreset');
+
+    if (globalPresetSelect) {
+      globalPresetSelect.addEventListener('change', () => {
+        const presetNum = parseInt(globalPresetSelect.value || '0');
+        applyGlobalPreset(presetNum);
+        currentGlobalPreset = presetNum;
+      });
+    }
 
     if (colorPresetSelect) {
       colorPresetSelect.addEventListener('change', () => {
@@ -4848,7 +5581,134 @@
         applyMaterialPreset(presetNum);
       });
     }
+    
+    // Global preset cycling - click on FPS counter to cycle
+    const fpsCounterClickable = document.getElementById('fpsCounter');
+    if (fpsCounterClickable) {
+      fpsCounterClickable.addEventListener('click', (e) => {
+        // Only cycle on left click, not on right click or middle click
+        if (e.button === 0 || !e.button) {
+          cycleGlobalPreset();
+        }
+      });
+      // Add hover effect
+      fpsCounterClickable.addEventListener('mouseenter', () => {
+        const presetDisplay = document.getElementById('presetDisplay');
+        if (presetDisplay) {
+          presetDisplay.style.background = 'rgba(255, 255, 255, 0.2)';
+        }
+      });
+      fpsCounterClickable.addEventListener('mouseleave', () => {
+        const presetDisplay = document.getElementById('presetDisplay');
+        if (presetDisplay) {
+          presetDisplay.style.background = 'rgba(255, 255, 255, 0.1)';
+        }
+      });
+    }
+    
+    // Initialize with default preset (original settings)
+    applyGlobalPreset(0);
 
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('ServiceWorker registration successful:', registration.scope);
+            
+            // Check for updates
+            registration.addEventListener('updatefound', () => {
+              const newWorker = registration.installing;
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  // New service worker available, prompt user to refresh
+                  console.log('New service worker available. Please refresh the page.');
+                }
+              });
+            });
+          })
+          .catch((error) => {
+            console.log('ServiceWorker registration failed:', error);
+          });
+      });
+
+      // Handle service worker updates
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+          refreshing = true;
+          window.location.reload();
+        }
+      });
+    }
+
+    // Prevent default touch behaviors that interfere with game
+    document.addEventListener('touchmove', (e) => {
+      // Allow touch moves on the canvas, prevent on body to avoid scrolling
+      if (e.target === document.body || e.target === document.documentElement) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    // Prevent pull-to-refresh on mobile (improved)
+    let touchStartY = 0;
+    let isScrolling = false;
+    let touchStartTime = 0;
+    let lastTouchEnd = 0;
+    
+    document.addEventListener('touchstart', (e) => {
+      touchStartY = e.touches[0].clientY;
+      touchStartTime = Date.now();
+      isScrolling = false;
+    }, { passive: true });
+
+    document.addEventListener('touchmove', (e) => {
+      if (!isScrolling) {
+        const touchY = e.touches[0].clientY;
+        const touchYDelta = touchY - touchStartY;
+        
+        // Prevent pull-to-refresh when at top and swiping down
+        if (window.scrollY === 0 && touchYDelta > 10) {
+          e.preventDefault();
+          isScrolling = true;
+        }
+        // Prevent overscroll bounce
+        else if ((window.scrollY === 0 && touchYDelta > 0) || 
+                 (window.innerHeight + window.scrollY >= document.body.scrollHeight && touchYDelta < 0)) {
+          e.preventDefault();
+        }
+      }
+    }, { passive: false });
+
+    // Prevent zoom on double tap (iOS) - improved
+    document.addEventListener('touchend', (e) => {
+      const now = Date.now();
+      const touchDuration = now - touchStartTime;
+      
+      // Prevent double-tap zoom (two taps within 300ms)
+      if (now - lastTouchEnd < 300 && touchDuration < 200) {
+        e.preventDefault();
+        // Optionally trigger a click event if needed
+        const target = e.target;
+        if (target && target.click && target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA' && target.tagName !== 'BUTTON') {
+          target.click();
+        }
+      }
+      lastTouchEnd = now;
+    }, { passive: false });
+    
+    // Prevent pinch zoom
+    document.addEventListener('gesturestart', (e) => {
+      e.preventDefault();
+    });
+    
+    document.addEventListener('gesturechange', (e) => {
+      e.preventDefault();
+    });
+    
+    document.addEventListener('gestureend', (e) => {
+      e.preventDefault();
+    });
 
   </script>
 
