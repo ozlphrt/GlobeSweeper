@@ -12,7 +12,7 @@
 
   <style>
 
-    html, body { height: 100%; margin: 0; background: #f5f7fa; color: #1a1a1a; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+    html, body { height: 100%; margin: 0; background: #304323; color: #1a1a1a; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
 
     #app { position: fixed; inset: 0; }
 
@@ -120,7 +120,7 @@
 
     .bad { color: #ff8080; }
 
-    #debugPanel { position: fixed; top: 12px; right: 12px; width: 300px; max-height: 90vh; overflow-y: auto; overflow-x: hidden; background: #ffffff; display: none; z-index: 1000; font-family: 'Lucida Grande', sans-serif; font-size: 11px; font-weight: 600; color: #1a1a1a; box-shadow: 0 2px 10px rgba(0,0,0,0.2); border: 1px solid rgba(0,0,0,0.1); box-sizing: border-box; }
+    #debugPanel { position: fixed; top: 12px; right: 12px; width: 340px; max-height: 90vh; overflow-y: auto; overflow-x: hidden; background: #ffffff; display: none; z-index: 1000; font-family: 'Lucida Grande', sans-serif; font-size: 11px; font-weight: 600; color: #1a1a1a; box-shadow: 0 2px 10px rgba(0,0,0,0.2); border: 1px solid rgba(0,0,0,0.1); box-sizing: border-box; }
 
     #debugPanel.visible { display: block; }
 
@@ -137,12 +137,15 @@
     .debug-section-content { display: block; }
 
     .debug-section.collapsed .debug-section-content { display: none; }
+    .debug-subsection { padding: 4px 0; border-bottom: 1px solid #f0f0f0; }
+    .debug-subsection:last-child { border-bottom: none; }
+    .debug-subsection-header { padding: 6px 8px; font-size: 10px; font-weight: 700; color: #666; text-transform: uppercase; letter-spacing: 0.5px; background: #f9f9f9; margin: 0 -8px 4px -8px; }
 
     .debug-control { display: flex; align-items: center; height: 24px; padding: 0 8px; box-sizing: border-box; min-width: 0; }
 
     .debug-control:hover { background: #f9f9f9; }
 
-    .debug-control label { flex: 0 0 auto; min-width: 90px; max-width: 90px; font-size: 11px; font-weight: 600; color: #1a1a1a; margin-right: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .debug-control label { flex: 0 0 auto; min-width: 110px; max-width: 110px; font-size: 11px; font-weight: 600; color: #1a1a1a; margin-right: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
     .debug-control .control-wrapper { flex: 1; display: flex; align-items: center; height: 20px; position: relative; margin-right: 8px; min-width: 0; }
 
@@ -165,6 +168,21 @@
     .debug-control input[type=color] { width: 40px; height: 18px; border: 1px solid #ddd; cursor: pointer; padding: 0; }
 
     .debug-control .color-display { width: 40px; height: 18px; border: 1px solid #ddd; margin-right: 8px; cursor: pointer; position: relative; }
+    
+    .debug-control input[type=color] { 
+      position: absolute; 
+      top: 0;
+      left: 0;
+      opacity: 0; 
+      width: 40px; 
+      height: 18px; 
+      cursor: pointer; 
+      pointer-events: auto;
+      z-index: 10;
+      border: none;
+      padding: 0;
+      margin: 0;
+    }
 
     .debug-control .color-hex { font-size: 10px; color: #0066aa; font-family: monospace; min-width: 50px; }
 
@@ -192,6 +210,153 @@
 
     #debugCloseBtn:hover { background: #eeeeee; }
 
+    /* Loading and Game Over Overlays */
+    .game-overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .game-overlay.visible {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .game-overlay-content {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-radius: 20px;
+      padding: 40px 60px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6), inset 0 -1px 0 rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      text-align: center;
+      max-width: 400px;
+      transform: scale(0.9);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .game-overlay.visible .game-overlay-content {
+      transform: scale(1);
+    }
+
+    .game-overlay-title {
+      font-size: 48px;
+      font-weight: 700;
+      color: #dc3545;
+      margin-bottom: 12px;
+      text-shadow: none;
+      letter-spacing: -0.5px;
+    }
+
+    .game-overlay-title.win {
+      color: #28a745;
+    }
+
+    .game-overlay-title.loss {
+      color: #dc3545;
+    }
+
+    .game-overlay-subtitle {
+      font-size: 20px;
+      color: #666;
+      margin-bottom: 32px;
+      line-height: 1.4;
+      font-weight: 400;
+    }
+
+    .game-overlay-message {
+      font-size: 18px;
+      color: #666;
+      margin-bottom: 24px;
+      line-height: 1.5;
+      font-weight: 400;
+    }
+
+    .game-overlay-stats {
+      font-size: 16px;
+      margin-bottom: 32px;
+      line-height: 2;
+      text-align: left;
+      display: inline-block;
+      min-width: 280px;
+    }
+
+    .game-overlay-stats .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .game-overlay-stats .stat-row:last-child {
+      border-bottom: none;
+    }
+
+    .game-overlay-stats .stat-label {
+      color: #999;
+      font-weight: 400;
+    }
+
+    .game-overlay-stats .stat-value {
+      font-weight: 600;
+      color: #333;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .game-overlay-button {
+      padding: 12px 32px;
+      background: linear-gradient(135deg, rgba(0, 102, 255, 0.8) 0%, rgba(0, 85, 221, 0.8) 100%);
+      backdrop-filter: blur(10px) saturate(180%);
+      -webkit-backdrop-filter: blur(10px) saturate(180%);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 102, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .game-overlay-button:hover {
+      background: linear-gradient(135deg, rgba(0, 85, 221, 0.9) 0%, rgba(0, 68, 204, 0.9) 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 102, 255, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    }
+
+    .game-overlay-button:active {
+      transform: translateY(0);
+    }
+
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(0, 102, 255, 0.2);
+      border-top-color: #0066ff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+      filter: drop-shadow(0 0 8px rgba(0, 102, 255, 0.5));
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
   </style>
 
 </head>
@@ -199,6 +364,42 @@
 <body>
 
   <div id="app"></div>
+
+  <!-- Loading Game Overlay -->
+  <div id="loadingOverlay" class="game-overlay">
+    <div class="game-overlay-content">
+      <div class="loading-spinner"></div>
+      <div class="game-overlay-title">Loading Game...</div>
+      <div class="game-overlay-message" id="loadingMessage">Generating solvable puzzle...</div>
+    </div>
+  </div>
+
+  <!-- Game Over Overlay -->
+  <div id="gameOverOverlay" class="game-overlay">
+    <div class="game-overlay-content">
+      <div class="game-overlay-title" id="gameOverTitle">Game Over</div>
+      <div class="game-overlay-subtitle" id="gameOverSubtitle">You ran out of lives</div>
+      <div class="game-overlay-stats">
+        <div class="stat-row">
+          <span class="stat-label">Mine Hunt:</span>
+          <span class="stat-value" id="statMineHunt">0%</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Exploration:</span>
+          <span class="stat-value" id="statExploration">0%</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Flags:</span>
+          <span class="stat-value" id="statFlags">0/0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Revealed:</span>
+          <span class="stat-value" id="statRevealed">0/0</span>
+        </div>
+      </div>
+      <button class="game-overlay-button" id="restartButton">Restart</button>
+    </div>
+  </div>
 
   <div class="ui">
 
@@ -296,7 +497,7 @@
 
         <div class="debug-control"><label>Glass</label><div class="control-wrapper"><input type="range" id="debugGlass" min="0" max="1" step="0.01" value="0" /></div><input type="number" id="debugGlassValue" value="0" step="0.01" readonly /></div>
 
-        <div class="debug-control"><label>Glass Tint</label><div class="color-display" id="debugGlassTintDisplay" style="background: #5a7aff;"></div><span class="color-hex" id="debugGlassTintHex">#5a7aff</span><input type="color" id="debugGlassTint" value="#5a7aff" style="display:none;" /></div>
+        <div class="debug-control"><label>Glass Tint</label><div class="color-display" id="debugGlassTintDisplay" style="background: #5a7aff; position: relative;"><input type="color" id="debugGlassTint" value="#5a7aff" /></div><span class="color-hex" id="debugGlassTintHex">#5a7aff</span></div>
 
         <div class="debug-control"><label>Immortal Mode</label><div class="control-wrapper"></div><input type="checkbox" id="debugImmortal" /></div>
 
@@ -310,9 +511,9 @@
 
       <div class="debug-section-content">
 
-        <div class="debug-control"><label>Hex Color</label><div class="color-display" id="debugWireHexDisplay" style="background: #2a5aff;"></div><span class="color-hex" id="debugWireHexHex">#2a5aff</span><input type="color" id="debugWireHex" value="#2a5aff" style="display:none;" /></div>
+        <div class="debug-control"><label>Hex Color</label><div class="color-display" id="debugWireHexDisplay" style="background: #1e2129; position: relative;"><input type="color" id="debugWireHex" value="#1e2129" /></div><span class="color-hex" id="debugWireHexHex">#1e2129</span></div>
 
-        <div class="debug-control"><label>Pent Color</label><div class="color-display" id="debugWirePentDisplay" style="background: #ffb86b;"></div><span class="color-hex" id="debugWirePentHex">#ffb86b</span><input type="color" id="debugWirePent" value="#ffb86b" style="display:none;" /></div>
+        <div class="debug-control"><label>Pent Color</label><div class="color-display" id="debugWirePentDisplay" style="background: #1e2129; position: relative;"><input type="color" id="debugWirePent" value="#1e2129" /></div><span class="color-hex" id="debugWirePentHex">#1e2129</span></div>
 
       </div>
 
@@ -324,13 +525,13 @@
 
       <div class="debug-section-content">
 
-        <div class="debug-control"><label>Hidden</label><div class="color-display" id="debugTileHiddenDisplay" style="background: #d0d5dc;"></div><span class="color-hex" id="debugTileHiddenHex">#d0d5dc</span><input type="color" id="debugTileHidden" value="#d0d5dc" style="display:none;" /></div>
+        <div class="debug-control"><label>Hidden</label><div class="color-display" id="debugTileHiddenDisplay" style="background: #313f5e; position: relative;"><input type="color" id="debugTileHidden" value="#313f5e" /></div><span class="color-hex" id="debugTileHiddenHex">#313f5e</span></div>
 
-        <div class="debug-control"><label>Revealed</label><div class="color-display" id="debugTileRevealedDisplay" style="background: #a0c4ff;"></div><span class="color-hex" id="debugTileRevealedHex">#a0c4ff</span><input type="color" id="debugTileRevealed" value="#a0c4ff" style="display:none;" /></div>
+        <div class="debug-control"><label>Revealed</label><div class="color-display" id="debugTileRevealedDisplay" style="background: #4c5b7b; position: relative;"><input type="color" id="debugTileRevealed" value="#4c5b7b" /></div><span class="color-hex" id="debugTileRevealedHex">#4c5b7b</span></div>
 
-        <div class="debug-control"><label>Flag</label><div class="color-display" id="debugTileFlagDisplay" style="background: #ff6b6b;"></div><span class="color-hex" id="debugTileFlagHex">#ff6b6b</span><input type="color" id="debugTileFlag" value="#ff6b6b" style="display:none;" /></div>
+        <div class="debug-control"><label>Flag</label><div class="color-display" id="debugTileFlagDisplay" style="background: #ff6b6b; position: relative;"><input type="color" id="debugTileFlag" value="#ff6b6b" /></div><span class="color-hex" id="debugTileFlagHex">#ff6b6b</span></div>
 
-        <div class="debug-control"><label>Mine</label><div class="color-display" id="debugTileMineDisplay" style="background: #ff4444;"></div><span class="color-hex" id="debugTileMineHex">#ff4444</span><input type="color" id="debugTileMine" value="#ff4444" style="display:none;" /></div>
+        <div class="debug-control"><label>Mine</label><div class="color-display" id="debugTileMineDisplay" style="background: #ff4444; position: relative;"><input type="color" id="debugTileMine" value="#ff4444" /></div><span class="color-hex" id="debugTileMineHex">#ff4444</span></div>
 
       </div>
 
@@ -346,18 +547,77 @@
 
         <div class="debug-control"><label>Rotation (deg)</label><div class="control-wrapper"><input type="range" id="debugLabelRot" min="0" max="360" step="1" value="0" /></div><input type="number" id="debugLabelRotValue" value="0" readonly /></div>
 
-        <div class="debug-control"><label>Rotation X (deg)</label><div class="control-wrapper"><input type="range" id="debugLabelRotX" min="0" max="360" step="1" value="0" /></div><input type="number" id="debugLabelRotXValue" value="0" readonly /></div>
+        <div class="debug-control"><label>Rot X (deg)</label><div class="control-wrapper"><input type="range" id="debugLabelRotX" min="0" max="360" step="1" value="0" /></div><input type="number" id="debugLabelRotXValue" value="0" readonly /></div>
 
-        <div class="debug-control"><label>Rotation Y (deg)</label><div class="control-wrapper"><input type="range" id="debugLabelRotY" min="0" max="360" step="1" value="0" /></div><input type="number" id="debugLabelRotYValue" value="0" readonly /></div>
+        <div class="debug-control"><label>Rot Y (deg)</label><div class="control-wrapper"><input type="range" id="debugLabelRotY" min="0" max="360" step="1" value="0" /></div><input type="number" id="debugLabelRotYValue" value="0" readonly /></div>
 
-        <div class="debug-control"><label>Rotation Z (deg)</label><div class="control-wrapper"><input type="range" id="debugLabelRotZ" min="0" max="360" step="1" value="0" /></div><input type="number" id="debugLabelRotZValue" value="0" readonly /></div>
+        <div class="debug-control"><label>Rot Z (deg)</label><div class="control-wrapper"><input type="range" id="debugLabelRotZ" min="0" max="360" step="1" value="0" /></div><input type="number" id="debugLabelRotZValue" value="0" readonly /></div>
 
-        <div class="debug-control"><label>Scale</label><div class="control-wrapper"><input type="range" id="debugLabelScale" min="0.01" max="0.2" step="0.01" value="0.12" /></div><input type="number" id="debugLabelScaleValue" value="0.12" step="0.01" readonly /></div>
+        <div class="debug-control"><label>Scale</label><div class="control-wrapper"><input type="range" id="debugLabelScale" min="0.01" max="0.2" step="0.01" value="0.07" /></div><input type="number" id="debugLabelScaleValue" value="0.07" step="0.01" readonly /></div>
 
-        <div class="debug-control"><label>Color</label><div class="color-display" id="debugLabelColorDisplay" style="background: #8aaadd;"></div><span class="color-hex" id="debugLabelColorHex">#8aaadd</span><input type="color" id="debugLabelColor" value="#8aaadd" style="display:none;" /></div>
+        <div class="debug-control"><label>Color</label><div class="color-display" id="debugLabelColorDisplay" style="background: #b3b7c1; position: relative;"><input type="color" id="debugLabelColor" value="#b3b7c1" /></div><span class="color-hex" id="debugLabelColorHex">#b3b7c1</span></div>
 
       </div>
 
+    </div>
+
+    <div class="debug-section">
+
+      <div class="debug-section-header collapsed"><span class="triangle"></span>Lighting</div>
+
+      <div class="debug-section-content">
+
+        <div class="debug-subsection">
+          <div class="debug-subsection-header">Hemisphere Light</div>
+        <div class="debug-control"><label>Sky Color</label><div class="color-display" id="debugHemiSkyDisplay" style="background: #ffffff; position: relative;"><input type="color" id="debugHemiSky" value="#ffffff" /></div><span class="color-hex" id="debugHemiSkyHex">#ffffff</span></div>
+
+        <div class="debug-control"><label>Ground Color</label><div class="color-display" id="debugHemiGroundDisplay" style="background: #cccccc; position: relative;"><input type="color" id="debugHemiGround" value="#cccccc" /></div><span class="color-hex" id="debugHemiGroundHex">#cccccc</span></div>
+
+        <div class="debug-control"><label>Intensity</label><div class="control-wrapper"><input type="range" id="debugHemiIntensity" min="0" max="2" step="0.1" value="0.5" /></div><input type="number" id="debugHemiIntensityValue" value="0.5" step="0.1" readonly /></div>
+
+        </div>
+        <div class="debug-subsection">
+          <div class="debug-subsection-header">Directional Light</div>
+        <div class="debug-control"><label>Color</label><div class="color-display" id="debugDirColorDisplay" style="background: #ffffff; position: relative;"><input type="color" id="debugDirColor" value="#ffffff" /></div><span class="color-hex" id="debugDirColorHex">#ffffff</span></div>
+
+        <div class="debug-control"><label>Intensity</label><div class="control-wrapper"><input type="range" id="debugDirIntensity" min="0" max="2" step="0.1" value="0.7" /></div><input type="number" id="debugDirIntensityValue" value="0.7" step="0.1" readonly /></div>
+
+        <div class="debug-control"><label>Position X</label><div class="control-wrapper"><input type="range" id="debugDirX" min="-10" max="10" step="0.1" value="2.8" /></div><input type="number" id="debugDirXValue" value="2.8" step="0.1" readonly /></div>
+
+        <div class="debug-control"><label>Position Y</label><div class="control-wrapper"><input type="range" id="debugDirY" min="-10" max="10" step="0.1" value="1.8" /></div><input type="number" id="debugDirYValue" value="1.8" step="0.1" readonly /></div>
+
+        <div class="debug-control"><label>Position Z</label><div class="control-wrapper"><input type="range" id="debugDirZ" min="-10" max="10" step="0.1" value="-1.2" /></div><input type="number" id="debugDirZValue" value="-1.2" step="0.1" readonly /></div>
+
+        <div class="debug-control"><label>Distance</label><div class="control-wrapper"><input type="range" id="debugDirDistance" min="1" max="100" step="1" value="20" /></div><input type="number" id="debugDirDistanceValue" value="20" step="1" readonly /></div>
+
+        <div class="debug-control"><label>Decay</label><div class="control-wrapper"><input type="range" id="debugDirDecay" min="0" max="3" step="0.1" value="2" /></div><input type="number" id="debugDirDecayValue" value="2" step="0.1" readonly /></div>
+
+        <div class="debug-control"><label>Shadow Map Size</label><div class="control-wrapper"><input type="range" id="debugDirShadowMapSize" min="256" max="4096" step="256" value="2048" /></div><input type="number" id="debugDirShadowMapSizeValue" value="2048" readonly /></div>
+
+        <div class="debug-control"><label>Shadow Radius</label><div class="control-wrapper"><input type="range" id="debugDirShadowRadius" min="0" max="20" step="0.5" value="4" /></div><input type="number" id="debugDirShadowRadiusValue" value="4" step="0.5" readonly /></div>
+
+        </div>
+        <div class="debug-subsection">
+          <div class="debug-subsection-header">Point Light</div>
+        <div class="debug-control"><label>Color</label><div class="color-display" id="debugCenterLightColorDisplay" style="background: #ffffff; position: relative;"><input type="color" id="debugCenterLightColor" value="#ffffff" /></div><span class="color-hex" id="debugCenterLightColorHex">#ffffff</span></div>
+
+        <div class="debug-control"><label>Intensity</label><div class="control-wrapper"><input type="range" id="debugCenterLightIntensity" min="0" max="3" step="0.1" value="1.0" /></div><input type="number" id="debugCenterLightIntensityValue" value="1.0" step="0.1" readonly /></div>
+
+        <div class="debug-control"><label>Distance</label><div class="control-wrapper"><input type="range" id="debugCenterLightDistance" min="1" max="20" step="0.5" value="5" /></div><input type="number" id="debugCenterLightDistanceValue" value="5" step="0.5" readonly /></div>
+
+        <div class="debug-control"><label>Decay</label><div class="control-wrapper"><input type="range" id="debugCenterLightDecay" min="0" max="3" step="0.1" value="2" /></div><input type="number" id="debugCenterLightDecayValue" value="2" step="0.1" readonly /></div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="debug-section collapsed">
+      <div class="debug-section-header collapsed"><span class="triangle"></span>Sound</div>
+      <div class="debug-section-content">
+        <div class="debug-control"><label>Click Sound</label><div class="control-wrapper"><input type="range" id="debugClickSound" min="1" max="5" step="1" value="5" /></div><input type="number" id="debugClickSoundValue" value="5" readonly /></div>
+        <div class="debug-control"><label>Game Over Sound</label><div class="control-wrapper"><input type="range" id="debugGameOverSound" min="1" max="5" step="1" value="1" /></div><input type="number" id="debugGameOverSoundValue" value="1" readonly /></div>
+      </div>
     </div>
 
     <div class="debug-section">
@@ -366,7 +626,7 @@
 
       <div class="debug-section-content">
 
-        <div class="debug-control"><label>Background</label><div class="color-display" id="debugCamBgDisplay" style="background: #f5f7fa;"></div><span class="color-hex" id="debugCamBgHex">#f5f7fa</span><input type="color" id="debugCamBg" value="#f5f7fa" style="display:none;" /></div>
+        <div class="debug-control"><label>Background</label><div class="color-display" id="debugCamBgDisplay" style="background: #4f5059; position: relative;"><input type="color" id="debugCamBg" value="#4f5059" /></div><span class="color-hex" id="debugCamBgHex">#4f5059</span></div>
 
         <div class="debug-control"><label>FOV</label><div class="control-wrapper"><input type="range" id="debugCamFOV" min="10" max="120" step="1" value="32" /></div><input type="number" id="debugCamFOVValue" value="32" readonly /></div>
 
@@ -401,6 +661,12 @@
   <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/build/three.min.js"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/controls/OrbitControls.js"></script>
+  
+  <!-- Post-processing for blur effect -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/postprocessing/EffectComposer.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/postprocessing/RenderPass.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/postprocessing/ShaderPass.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/shaders/CopyShader.js"></script>
 
 
 
@@ -678,6 +944,28 @@
 
       g.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(positions),3));
 
+      // Compute normals for lighting - required for MeshStandardMaterial
+      // For flat faces, we need to compute face normals first, then vertex normals
+      g.computeVertexNormals();
+      
+      // Ensure normals point outward from sphere center (each face is a triangle from center)
+      // Since we're using DoubleSide, normals should work in both directions, but let's ensure they point out
+      const normals = g.attributes.normal;
+      if (normals) {
+        const positions = g.attributes.position;
+        for (let i = 0; i < normals.count; i++) {
+          const nx = positions.getX(i);
+          const ny = positions.getY(i);
+          const nz = positions.getZ(i);
+          // Normalize the position vector to get outward normal
+          const len = Math.sqrt(nx * nx + ny * ny + nz * nz);
+          if (len > 0) {
+            normals.setXYZ(i, nx / len, ny / len, nz / len);
+          }
+        }
+        normals.needsUpdate = true;
+      }
+
       return new THREE.Mesh(g, mat);
 
     }
@@ -694,9 +982,8 @@
 
       ctx.font = '700 72px system-ui, Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
 
-      const colors = {1:'#9ad1ff',2:'#8de7a1',3:'#ffd27a',4:'#ff9aa2',5:'#d39aff',6:'#c0e5ff'};
-
-      ctx.fillStyle = colorOverride || colors[n] || '#333333';
+      // All numbers use the same color (from debug panel or default)
+      ctx.fillStyle = colorOverride || '#b3b7c1';
 
       ctx.shadowColor = 'rgba(0,0,0,0.5)'; ctx.shadowBlur = 8;
 
@@ -728,28 +1015,62 @@
 
 
 
-    function buildEdgeLines(polys, colorHex, colorPent) {
+    function buildEdgeLines(polys, colorHex, colorPent, neighbors, tiles) {
 
       const pts = [], pentPts = [];
-
-      for (const poly of polys) {
-
+      
+      // Build a map of edges to tiles for quick lookup
+      // An edge is defined by two vertices (as a sorted pair)
+      const edgeToTiles = new Map();
+      
+      // For each tile, record which edges it has
+      polys.forEach((poly, tileIndex) => {
         const n = poly.length;
-
-        for (let i=0; i<n; i++) {
-
-          const a = poly[i]; const b = poly[(i+1)%n];
-
-          pts.push(a.x, a.y, a.z, b.x, b.y, b.z);
-
+        for (let i = 0; i < n; i++) {
+          const a = poly[i];
+          const b = poly[(i + 1) % n];
+          // Create a unique key for the edge (sorted vertices)
+          const edgeKey = a.x < b.x || (a.x === b.x && a.y < b.y) || (a.x === b.x && a.y === b.y && a.z < b.z)
+            ? `${a.x},${a.y},${a.z}_${b.x},${b.y},${b.z}`
+            : `${b.x},${b.y},${b.z}_${a.x},${a.y},${a.z}`;
+          
+          if (!edgeToTiles.has(edgeKey)) {
+            edgeToTiles.set(edgeKey, []);
+          }
+          edgeToTiles.get(edgeKey).push(tileIndex);
         }
+      });
 
-        if (n === 5) {
+      // Build edge lines, skipping edges between two empty tiles
+      for (let tileIndex = 0; tileIndex < polys.length; tileIndex++) {
+        const poly = polys[tileIndex];
+        const n = poly.length;
+        const tileIsEmpty = tiles && tiles[tileIndex] && tiles[tileIndex].isEmpty;
 
-          for (let i=0; i<5; i++) { const a = poly[i]; const b = poly[(i+1)%5]; pentPts.push(a.x, a.y, a.z, b.x, b.y, b.z); }
-
+        for (let i = 0; i < n; i++) {
+          const a = poly[i];
+          const b = poly[(i + 1) % n];
+          
+          // Create edge key
+          const edgeKey = a.x < b.x || (a.x === b.x && a.y < b.y) || (a.x === b.x && a.y === b.y && a.z < b.z)
+            ? `${a.x},${a.y},${a.z}_${b.x},${b.y},${b.z}`
+            : `${b.x},${b.y},${b.z}_${a.x},${a.y},${a.z}`;
+          
+          // Get all tiles sharing this edge
+          const tilesOnEdge = edgeToTiles.get(edgeKey) || [];
+          
+          // Check if all tiles on this edge are empty
+          const allEmpty = tilesOnEdge.every(tIdx => tiles && tiles[tIdx] && tiles[tIdx].isEmpty);
+          
+          // Only draw edge if not all adjacent tiles are empty
+          if (!allEmpty) {
+            pts.push(a.x, a.y, a.z, b.x, b.y, b.z);
+            
+            if (n === 5) {
+              pentPts.push(a.x, a.y, a.z, b.x, b.y, b.z);
+            }
+          }
         }
-
       }
 
       const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(pts), 3));
@@ -768,19 +1089,53 @@
 
     const app = document.getElementById('app');
 
-    const scene = new THREE.Scene(); scene.background = new THREE.Color(0xf5f7fa);
+    const scene = new THREE.Scene(); scene.background = new THREE.Color(0x4f5059);
 
     const camera = new THREE.PerspectiveCamera(32, innerWidth/innerHeight, 0.01, 100); camera.position.set(3.1, 0.6, 1.4);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true }); renderer.setSize(innerWidth, innerHeight); renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); app.appendChild(renderer.domElement);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); 
+    renderer.setSize(innerWidth, innerHeight); 
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5)); // Reduced from 2 for better performance 
+    renderer.sortObjects = true; // Enable sorting for proper transparent rendering
+    renderer.setClearColor(0x4f5059, 1); // Set clear color to match background
+    app.appendChild(renderer.domElement);
 
-    const controls = new THREE.OrbitControls(camera, renderer.domElement); controls.enableDamping = true;
+    const controls = new THREE.OrbitControls(camera, renderer.domElement); 
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05; // Smooth damping for camera movement
+    controls.enableRotate = false; // Disable camera rotation - we'll rotate the sphere instead
+    controls.enableZoom = true; // Enable zoom
+    controls.zoomSpeed = 0.5; // Smooth, slower zoom speed
+    controls.enablePan = false; // Disable panning
+    controls.smoothZoom = true; // Enable smooth zoom interpolation
 
 
 
-    const hemi = new THREE.HemisphereLight(0xffffff, 0xcccccc, 1.2); scene.add(hemi);
+    const hemi = new THREE.HemisphereLight(0xffffff, 0xcccccc, 0.5); scene.add(hemi);
 
-    const dir = new THREE.DirectionalLight(0xffffff, 1.0); dir.position.set(3,2,1); scene.add(dir);
+    const dir = new THREE.PointLight(0xffffff, 0.7); dir.position.set(2.8, 1.8, -1.2); scene.add(dir); // PointLight with distance falloff
+    
+    // Configure distance-based intensity falloff
+    dir.distance = 20; // Distance at which intensity becomes 0
+    dir.decay = 2; // Decay rate (1 = linear, 2 = physically correct)
+    
+    // Center point light for illuminating internal faces of tiles
+    const centerLight = new THREE.PointLight(0xffffff, 1.0);
+    centerLight.position.set(0, 0, 0); // Center of the sphere
+    centerLight.distance = 5; // Distance at which intensity becomes 0
+    centerLight.decay = 2; // Decay rate
+    scene.add(centerLight);
+    
+    // Shadows disabled by default (very expensive - 2048x2048 shadow maps for many tiles)
+    // Enable shadows only if needed (uncomment below)
+    // dir.castShadow = true;
+    // dir.shadow.mapSize.width = 1024; // Reduced from 2048 for better performance
+    // dir.shadow.mapSize.height = 1024;
+    // dir.shadow.camera.near = 0.5;
+    // dir.shadow.camera.far = 50;
+    // dir.shadow.radius = 4;
+    // renderer.shadowMap.enabled = true;
+    // renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 
 
@@ -793,16 +1148,110 @@
 
 
     // ===== Minesweeper state & materials =====
+    // Using MeshLambertMaterial for better performance (per-vertex vs per-pixel lighting)
+    const matHidden = new THREE.MeshLambertMaterial({ color: 0x313f5e, side: THREE.DoubleSide });
 
-    const matHidden = new THREE.MeshBasicMaterial({ color: 0xd0d5dc });
+    const matRevealed = new THREE.MeshLambertMaterial({ color: 0x4c5b7b, side: THREE.DoubleSide });
 
-    const matRevealed = new THREE.MeshBasicMaterial({ color: 0xa0c4ff }); // light blue
+    const matFlag = new THREE.MeshLambertMaterial({ color: 0xff6b6b, side: THREE.DoubleSide }); // bright red
 
-    const matFlag = new THREE.MeshBasicMaterial({ color: 0xff6b6b }); // bright red
+    const matMine = new THREE.MeshLambertMaterial({ color: 0xff4444, side: THREE.DoubleSide });
 
-    const matMine = new THREE.MeshBasicMaterial({ color: 0xff4444 });
-
-    const matEmpty = new THREE.MeshBasicMaterial({ color: 0xa0c4ff, transparent: true, opacity: 0.3 }); // transparent glass for empty tiles
+    // Custom shader material for glassmorphism effect on empty tiles
+    // Using a working approach: MeshStandardMaterial with onBeforeCompile
+    const matEmpty = new THREE.MeshStandardMaterial({
+      color: 0x4c5b7b,
+      transparent: true,
+      opacity: 0.4,
+      depthWrite: false,
+      depthTest: true,
+      side: THREE.DoubleSide,
+      roughness: 0.1,
+      metalness: 0.0
+    });
+    
+    // Inject glassmorphism effect using onBeforeCompile
+    matEmpty.onBeforeCompile = function(shader) {
+      // Add varying declaration to vertex shader
+      shader.vertexShader = shader.vertexShader.replace(
+        '#include <common>',
+        `
+        #include <common>
+        varying vec3 vWorldPos;
+        `
+      );
+      
+      // Calculate and set world position in vertex shader
+      shader.vertexShader = shader.vertexShader.replace(
+        '#include <worldpos_vertex>',
+        `
+        #include <worldpos_vertex>
+        vec4 worldPos4 = modelMatrix * vec4(position, 1.0);
+        vWorldPos = worldPos4.xyz;
+        `
+      );
+      
+      // Add noise functions and glassmorphism to fragment shader
+      shader.fragmentShader = shader.fragmentShader.replace(
+        '#include <common>',
+        `
+        #include <common>
+        varying vec3 vWorldPos;
+        
+        float noise(vec3 p) {
+          return fract(sin(dot(p, vec3(12.9898, 78.233, 54.53))) * 43758.5453);
+        }
+        
+        float smoothNoise(vec3 p) {
+          vec3 i = floor(p);
+          vec3 f = fract(p);
+          f = f * f * (3.0 - 2.0 * f);
+          
+          float a = noise(i);
+          float b = noise(i + vec3(1.0, 0.0, 0.0));
+          float c = noise(i + vec3(0.0, 1.0, 0.0));
+          float d = noise(i + vec3(1.0, 1.0, 0.0));
+          float e = noise(i + vec3(0.0, 0.0, 1.0));
+          float f2 = noise(i + vec3(1.0, 0.0, 1.0));
+          float g = noise(i + vec3(0.0, 1.0, 1.0));
+          float h = noise(i + vec3(1.0, 1.0, 1.0));
+          
+          float ab = mix(a, b, f.x);
+          float cd = mix(c, d, f.x);
+          float ef = mix(e, f2, f.x);
+          float gh = mix(g, h, f.x);
+          
+          float abcd = mix(ab, cd, f.y);
+          float efgh = mix(ef, gh, f.y);
+          
+          return mix(abcd, efgh, f.z);
+        }
+        `
+      );
+      
+      // Apply glassmorphism effect after lighting is calculated
+      shader.fragmentShader = shader.fragmentShader.replace(
+        '#include <output_fragment>',
+        `
+        // Glassmorphism effect
+        vec3 pos = vWorldPos * 12.0;
+        float n = smoothNoise(pos);
+        float n2 = smoothNoise(pos * 2.0) * 0.5;
+        float n3 = smoothNoise(pos * 4.0) * 0.25;
+        float combinedNoise = (n + n2 + n3) / 1.75;
+        
+        // Fresnel effect
+        vec3 viewDir = normalize(cameraPosition - vWorldPos);
+        float fresnel = pow(1.0 - max(dot(vNormal, viewDir), 0.0), 1.5);
+        
+        // Apply glassmorphism distortion
+        float glassFactor = mix(0.7, 1.2, combinedNoise * 0.5 + fresnel * 0.3);
+        gl_FragColor.rgb *= glassFactor;
+        
+        #include <output_fragment>
+        `
+      );
+    };
 
 
 
@@ -818,17 +1267,37 @@
 
 
 
+    function rebuildWireframe() {
+      // Rebuild wireframe, skipping edges between empty tiles
+      scene.remove(wireGroup);
+      wireGroup.clear();
+      wireGroup = new THREE.Group();
+      scene.add(wireGroup);
+      
+      const hexColor = wireHexMaterial ? wireHexMaterial.color.getHex() : 0x1e2129;
+      const pentColor = wirePentMaterial ? wirePentMaterial.color.getHex() : 0x1e2129;
+      
+      const { lines, pentLines } = buildEdgeLines(state.polys, hexColor, pentColor, state.neighbors, state.tiles);
+      
+      wireHexMaterial = lines.material;
+      if (pentLines) wirePentMaterial = pentLines.material;
+      
+      wireGroup.add(lines);
+      if (pentLines) wireGroup.add(pentLines);
+    }
+
     function buildTiles() {
 
       scene.remove(wireGroup); wireGroup.clear(); wireGroup = new THREE.Group(); scene.add(wireGroup);
 
       scene.remove(tileGroup); tileGroup.clear(); tileGroup = new THREE.Group(); scene.add(tileGroup);
 
-      const hexColor = wireHexMaterial ? wireHexMaterial.color.getHex() : 0x4a7aff;
+      const hexColor = wireHexMaterial ? wireHexMaterial.color.getHex() : 0x1e2129;
 
-      const pentColor = wirePentMaterial ? wirePentMaterial.color.getHex() : 0xff9a56;
+      const pentColor = wirePentMaterial ? wirePentMaterial.color.getHex() : 0x1e2129;
 
-      const { lines, pentLines } = buildEdgeLines(state.polys, hexColor, pentColor);
+      // Initial wireframe build (tiles not yet created, so all edges shown)
+      const { lines, pentLines } = buildEdgeLines(state.polys, hexColor, pentColor, state.neighbors, null);
 
       wireHexMaterial = lines.material;
 
@@ -838,10 +1307,14 @@
 
       state.tiles = state.polys.map((poly, i)=>{
 
-        const mesh = polygonToMesh(poly, matHidden.clone());
+        const mesh = polygonToMesh(poly, matHidden); // Share material instead of cloning
 
         const center = new THREE.Vector3(); poly.forEach(p=>center.add(p)); center.multiplyScalar(1/poly.length).normalize();
 
+        // Set renderOrder so empty tiles render first (behind other tiles)
+        // This ensures edges of other tiles are visible through empty tiles
+        mesh.renderOrder = 0; // Default render order
+        
         tileGroup.add(mesh);
 
         return { index:i, mesh, center, mine:false, count:0, flagged:false, revealed:false, label:null, isEmpty:false };
@@ -852,7 +1325,7 @@
 
 
 
-    const debugSettings = { initialRevealPercent: 12, emptyTilePercent: 30, mineRatio: 7 };
+    const debugSettings = { initialRevealPercent: 12, emptyTilePercent: 30, mineRatio: 7, labelScale: 0.07 };
 
     function findSafeTile(){
       const revealed = new Set(state.tiles.map((t, i) => t.revealed ? i : -1).filter(i => i >= 0));
@@ -997,6 +1470,12 @@
     function placeMines(excludeIndex, ratioPercent, initialRevealPercent = 0, emptyTilePercent = 0){
       const total = state.tiles.length; const mineTarget = Math.max(1, Math.floor(total * ratioPercent/100));
 
+      // Show loading overlay
+      const loadingOverlay = document.getElementById('loadingOverlay');
+      if (loadingOverlay) {
+        loadingOverlay.classList.add('visible');
+      }
+
       // Use setTimeout to allow UI to update
       setTimeout(() => {
         // Try to generate a solvable board (max 10 attempts for better solvability)
@@ -1012,10 +1491,16 @@
 
           attempts++;
 
+          // Update loading message with attempt info
+          const loadingMessage = document.getElementById('loadingMessage');
+          if (loadingMessage) {
+            loadingMessage.textContent = attempts === 1 ? 'Generating solvable puzzle...' : `Attempt ${attempts} of ${maxAttempts}...`;
+          }
+
           setTimeout(() => {
             state.totalMines = mineTarget; state.flags = 0; state.safeRevealed = 0; state.gameOver=false; state.won = false; state.lives = 3; lifeLostInCurrentReveal = false; updateCounters();
 
-            state.tiles.forEach(t=>{ t.mine=false; t.count=0; t.flagged=false; t.revealed=false; t.isEmpty=false; if (t.label){ tileGroup.remove(t.label); t.label.material.map.dispose(); t.label.material.dispose(); t.label=null; } t.mesh.material = t.isEmpty ? matEmpty : matHidden.clone(); });
+            state.tiles.forEach(t=>{ t.mine=false; t.count=0; t.flagged=false; t.revealed=false; t.isEmpty=false; if (t.label){ tileGroup.remove(t.label); t.label.material.map.dispose(); t.label.material.dispose(); t.label=null; } t.mesh.material = t.isEmpty ? matEmpty : matHidden; });
 
             const forbidden = excludeIndex >= 0 ? new Set([excludeIndex, ...state.neighbors[excludeIndex]]) : new Set();
 
@@ -1032,9 +1517,12 @@
                 const idx = indices[i];
                 state.tiles[idx].count = 0;
                 state.tiles[idx].isEmpty = true;
-                state.tiles[idx].mesh.material = matEmpty.clone(); // Make empty tiles transparent
+                state.tiles[idx].mesh.material = matEmpty; // Share material for empty tiles
               }
               indices.splice(0, emptyCount);
+              
+              // Rebuild wireframe to hide edges between empty tiles
+              rebuildWireframe();
             }
 
             // Simple random mine placement
@@ -1083,6 +1571,12 @@
         };
 
         const continueBoardSetup = () => {
+          // Hide loading overlay
+          const loadingOverlay = document.getElementById('loadingOverlay');
+          if (loadingOverlay) {
+            loadingOverlay.classList.remove('visible');
+          }
+
           // Add initial tiles to reveal queue for one-by-one processing
           const safeIndices = state.tiles.map((t, i) => i).filter(i => !state.tiles[i].mine && !state.tiles[i].isEmpty);
           const revealCount = Math.max(1, Math.floor(safeIndices.length * initialRevealPercent / 100));
@@ -1128,7 +1622,7 @@
       if (t.mine) {
         t.mesh.material = matMine;
       } else if (t.isEmpty) {
-        t.mesh.material = matEmpty.clone();
+        t.mesh.material = matEmpty;
       } else {
         t.mesh.material = matRevealed;
       }
@@ -1149,7 +1643,7 @@
       if (t.count>0 && !t.isEmpty){ addLabel(i, t.count); }
 
       if (!isInitialReveal) {
-        // playSound('reveal'); // Uncomment if you have sound
+        playSound('reveal');
       }
 
       checkWin(); updateCounters();
@@ -1178,6 +1672,12 @@
         if (revealQueue.length === 0 || state.gameOver){
           isRevealing = false;
           isInitialReveal = false;
+          // Don't auto-reveal if a mine was just hit (lifeLostInCurrentReveal is true)
+          if (!lifeLostInCurrentReveal) {
+            setTimeout(() => {
+              checkIfStuckAndHelp();
+            }, 150);
+          }
           return;
         }
 
@@ -1186,9 +1686,12 @@
         if (idx === undefined){
           isRevealing = false;
           isInitialReveal = false;
-          setTimeout(() => {
-            checkIfStuckAndHelp();
-          }, 150);
+          // Don't auto-reveal if a mine was just hit
+          if (!lifeLostInCurrentReveal) {
+            setTimeout(() => {
+              checkIfStuckAndHelp();
+            }, 150);
+          }
           return;
         }
 
@@ -1196,6 +1699,14 @@
 
         if (!t.revealed && !t.flagged){
           const success = revealSingle(idx);
+
+          // If a mine was hit, stop processing the queue
+          if (t.mine && !document.getElementById('debugImmortal')?.checked) {
+            isRevealing = false;
+            isInitialReveal = false;
+            revealQueue.length = 0; // Clear the queue
+            return;
+          }
 
           if (success && t.count === 0){
             for (const nb of state.neighbors[idx]){
@@ -1249,7 +1760,20 @@
 
 
 
-    function toggleFlag(i){ const t = state.tiles[i]; if (t.revealed || state.gameOver) return; t.flagged = !t.flagged; t.mesh.material = t.flagged ? matFlag : matHidden; state.flags += t.flagged ? 1 : -1; updateCounters(); }
+    function toggleFlag(i){ 
+      const t = state.tiles[i]; 
+      if (t.revealed || state.gameOver) return; 
+      t.flagged = !t.flagged; 
+      t.mesh.material = t.flagged ? matFlag : matHidden; 
+      state.flags += t.flagged ? 1 : -1; 
+      updateCounters();
+      // Play sound for flag toggle
+      if (t.flagged) {
+        playSound('flag');
+      } else {
+        playSound('unflag');
+      }
+    }
 
 
 
@@ -1266,6 +1790,9 @@
       lifeLostInCurrentReveal = true;
       state.lives--;
       
+      // Play mine explosion sound (only once)
+      playSound('mine');
+      
       // Update hearts display
       const hearts = document.querySelectorAll('.heart');
       if (hearts.length > 0 && state.lives >= 0 && state.lives < hearts.length) {
@@ -1276,7 +1803,41 @@
         state.gameOver = true;
         stopTimer();
         state.tiles.forEach((t)=>{ if (t.mine){ t.mesh.material = matMine; if (!t.revealed) { t.revealed = true; } } });
+        
+        // Show game over overlay with stats
+        const gameOverOverlay = document.getElementById('gameOverOverlay');
+        const gameOverTitle = document.getElementById('gameOverTitle');
+        const gameOverSubtitle = document.getElementById('gameOverSubtitle');
+        const statMineHunt = document.getElementById('statMineHunt');
+        const statExploration = document.getElementById('statExploration');
+        const statFlags = document.getElementById('statFlags');
+        const statRevealed = document.getElementById('statRevealed');
+        
+        if (gameOverOverlay) {
+          if (gameOverTitle) {
+            gameOverTitle.textContent = 'Game Over';
+            gameOverTitle.className = 'game-overlay-title loss';
+          }
+          if (gameOverSubtitle) {
+            gameOverSubtitle.textContent = 'You ran out of lives';
+          }
+          
+          // Calculate stats
+          const emptyTileCount = state.tiles.filter(t => t.isEmpty).length;
+          const totalSafe = state.tiles.length - state.totalMines - emptyTileCount;
+          const nonEmptySafeRevealed = state.tiles.filter(t => t.revealed && !t.mine && !t.isEmpty).length;
+          const minePercent = state.totalMines > 0 ? Math.round((state.flags / state.totalMines) * 100) : 0;
+          const explorePercent = totalSafe > 0 ? Math.round((nonEmptySafeRevealed / totalSafe) * 100) : 0;
+          
+          if (statMineHunt) statMineHunt.textContent = `${minePercent}%`;
+          if (statExploration) statExploration.textContent = `${explorePercent}%`;
+          if (statFlags) statFlags.textContent = `${state.flags}/${state.totalMines}`;
+          if (statRevealed) statRevealed.textContent = `${nonEmptySafeRevealed}/${totalSafe}`;
+          
+          gameOverOverlay.classList.add('visible');
+        }
       }
+      // Removed duplicate playSound('lifeLost') call - mine sound already played
     }
 
 
@@ -1286,7 +1847,43 @@
       if (state.safeRevealed >= totalSafe){ 
         state.gameOver = true; 
         state.won = true; 
-        stopTimer(); 
+        stopTimer();
+        
+        // Show game over overlay with win stats
+        const gameOverOverlay = document.getElementById('gameOverOverlay');
+        const gameOverTitle = document.getElementById('gameOverTitle');
+        const gameOverSubtitle = document.getElementById('gameOverSubtitle');
+        const statMineHunt = document.getElementById('statMineHunt');
+        const statExploration = document.getElementById('statExploration');
+        const statFlags = document.getElementById('statFlags');
+        const statRevealed = document.getElementById('statRevealed');
+        
+        if (gameOverOverlay) {
+          if (gameOverTitle) {
+            gameOverTitle.textContent = 'Victory!';
+            gameOverTitle.className = 'game-overlay-title win';
+          }
+          if (gameOverSubtitle) {
+            gameOverSubtitle.textContent = 'You cleared all safe tiles!';
+          }
+          
+          // Calculate stats
+          const emptyTileCount = state.tiles.filter(t => t.isEmpty).length;
+          const totalSafe = state.tiles.length - state.totalMines - emptyTileCount;
+          const nonEmptySafeRevealed = state.tiles.filter(t => t.revealed && !t.mine && !t.isEmpty).length;
+          const minePercent = state.totalMines > 0 ? Math.round((state.flags / state.totalMines) * 100) : 0;
+          const explorePercent = 100;
+          
+          if (statMineHunt) statMineHunt.textContent = `${minePercent}%`;
+          if (statExploration) statExploration.textContent = `${explorePercent}%`;
+          if (statFlags) statFlags.textContent = `${state.flags}/${state.totalMines}`;
+          if (statRevealed) statRevealed.textContent = `${nonEmptySafeRevealed}/${totalSafe}`;
+          
+          gameOverOverlay.classList.add('visible');
+        }
+        
+        // Play win sound
+        playVictory();
       } 
     }
 
@@ -1439,7 +2036,19 @@
 
       state.polys = buildDualPolygons(geo.verts, geo.faces); state.neighbors = buildAdjacency(state.polys);
 
+      // Hide overlays
+      const loadingOverlay = document.getElementById('loadingOverlay');
+      const gameOverOverlay = document.getElementById('gameOverOverlay');
+      if (loadingOverlay) loadingOverlay.classList.remove('visible');
+      if (gameOverOverlay) gameOverOverlay.classList.remove('visible');
+      
       buildTiles(); state.firstClick = false; state.gameOver=false; state.safeRevealed=0; state.totalMines=0; state.flags=0; state.lives=3; state.won=false; lifeLostInCurrentReveal=false; resetTimer(); updateCounters();
+      
+      // Reset sphere rotation
+      tileGroup.quaternion.identity();
+      wireGroup.quaternion.identity();
+      rotationVelocity.x = 0;
+      rotationVelocity.y = 0;
 
       // Auto-start: Place mines and do initial reveals
       const ratio = debugSettings.mineRatio || 15;
@@ -1466,9 +2075,16 @@
 
     const raycaster = new THREE.Raycaster(); const mouse = new THREE.Vector2();
 
-    let dragState = { isDragging: false, startX: 0, startY: 0, startTile: -1, button: -1 };
+    let dragState = { isDragging: false, startX: 0, startY: 0, startTile: -1, button: -1, isRotating: false, lastX: 0, lastY: 0, isMouseButtonDown: false, lastMoveTime: 0 };
 
     let lastClickTime = 0; let lastClickTile = -1; let lastClickTimeout = null;
+    
+    // Smooth rotation with momentum
+    let rotationVelocity = { x: 0, y: 0 };
+    const rotationFriction = 0.96; // Friction for momentum decay (0.96 = 4% decay per frame - smoother stop)
+    const rotationAcceleration = 0.08; // How quickly velocity builds up (0-1) - slower easing in
+    const rotationSpeed = 0.0025; // Base rotation speed multiplier - less responsive
+
 
     function pickTile(event){
 
@@ -1492,13 +2108,24 @@
 
       dragState.isDragging = false;
 
+      dragState.isRotating = false;
+
       dragState.startX = e.clientX;
 
       dragState.startY = e.clientY;
 
+      dragState.lastX = e.clientX;
+
+      dragState.lastY = e.clientY;
+
       dragState.startTile = idx;
 
       dragState.button = e.button;
+      
+      if (e.button === 0) {
+        dragState.isMouseButtonDown = true;
+        dragState.lastMoveTime = performance.now();
+      }
 
     });
 
@@ -1530,9 +2157,49 @@
 
       }
 
+      // Simple sphere rotation on left mouse drag with momentum
+      if (e.buttons === 1) {
+        const deltaX = e.clientX - dragState.lastX;
+        const deltaY = e.clientY - dragState.lastY;
+        
+        // Check if we've moved enough to consider it a drag (not just a click)
+        const totalDrag = Math.abs(e.clientX - dragState.startX) + Math.abs(e.clientY - dragState.startY);
+        
+        // Check if mouse is actually moving (not just held down)
+        const isMoving = Math.abs(deltaX) > 0.1 || Math.abs(deltaY) > 0.1;
+        
+        if (totalDrag > 5 && isMoving) {
+          dragState.isDragging = true;
+          dragState.isRotating = true;
+          dragState.lastMoveTime = performance.now();
+          
+          // Build up velocity smoothly (easing in)
+          const targetVelocityX = deltaX * rotationSpeed;
+          const targetVelocityY = deltaY * rotationSpeed;
+          
+          rotationVelocity.x += (targetVelocityX - rotationVelocity.x) * rotationAcceleration;
+          rotationVelocity.y += (targetVelocityY - rotationVelocity.y) * rotationAcceleration;
+        } else {
+          // If not actively dragging, stop rotation immediately
+          dragState.isRotating = false;
+        }
+      } else {
+        // Mouse released - stop rotation
+        dragState.isMouseButtonDown = false;
+        dragState.isRotating = false;
+      }
+      
+      dragState.lastX = e.clientX;
+      dragState.lastY = e.clientY;
+
     });
 
     renderer.domElement.addEventListener('mouseup', (e)=>{
+      
+      if (e.button === 0) {
+        dragState.isMouseButtonDown = false;
+        dragState.isRotating = false;
+      }
 
       if (dragState.startTile < 0) return;
 
@@ -1603,6 +2270,121 @@
 
     });
 
+    // Touch support for sphere rotation
+
+    let touchState = { isActive: false, lastX: 0, lastY: 0, startTile: -1 };
+
+    renderer.domElement.addEventListener('touchstart', (e) => {
+
+      e.preventDefault();
+
+      if (e.touches.length === 1) {
+
+        const touch = e.touches[0];
+
+        const idx = pickTile({ clientX: touch.clientX, clientY: touch.clientY });
+
+        touchState.isActive = true;
+
+        touchState.lastX = touch.clientX;
+
+        touchState.lastY = touch.clientY;
+
+        touchState.startTile = idx;
+
+      }
+
+    });
+
+    renderer.domElement.addEventListener('touchmove', (e) => {
+
+      e.preventDefault();
+
+      if (e.touches.length === 1 && touchState.isActive) {
+
+        const touch = e.touches[0];
+
+        const deltaX = touch.clientX - touchState.lastX;
+
+        const deltaY = touch.clientY - touchState.lastY;
+
+        // Check if we've moved enough to consider it a drag
+
+        const dragDistance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+        if (dragDistance > 5) {
+
+          // Get camera's local axes in world space (screen-space aligned)
+          camera.updateMatrixWorld();
+          
+          const right = new THREE.Vector3();
+          const up = new THREE.Vector3();
+          const forward = new THREE.Vector3();
+          camera.matrixWorld.extractBasis(right, up, forward);
+          
+          // Rotate directly based on current movement (no accumulation during drag)
+          const currentRotX = deltaX * rotationSpeed;
+          const currentRotY = deltaY * rotationSpeed;
+          
+          // Rotate sphere: drag left = rotate right, drag up = rotate down
+          const rotX = new THREE.Quaternion().setFromAxisAngle(up, currentRotX);
+          const rotY = new THREE.Quaternion().setFromAxisAngle(right, currentRotY);
+
+          const combinedRot = rotX.multiply(rotY);
+
+          tileGroup.quaternion.premultiply(combinedRot);
+          wireGroup.quaternion.premultiply(combinedRot);
+          
+          // Store velocity for momentum after release (only when actively moving)
+          rotationVelocity.x = currentRotX * 0.5; // Scale down for smoother momentum
+          rotationVelocity.y = currentRotY * 0.5;
+
+        }
+
+        touchState.lastX = touch.clientX;
+
+        touchState.lastY = touch.clientY;
+
+      }
+
+    });
+
+    renderer.domElement.addEventListener('touchend', (e) => {
+
+      e.preventDefault();
+
+      if (touchState.isActive && touchState.startTile >= 0 && e.changedTouches.length > 0) {
+
+        const touch = e.changedTouches[0];
+
+        const finalX = touch.clientX;
+
+        const finalY = touch.clientY;
+
+        const dragDistance = Math.sqrt(Math.pow(finalX - touchState.lastX, 2) + Math.pow(finalY - touchState.lastY, 2));
+
+        // Only process tile click if we didn't drag much
+
+        if (dragDistance < 10) {
+
+          const idx = pickTile({ clientX: finalX, clientY: finalY });
+
+          if (idx === touchState.startTile && idx >= 0) {
+
+            toggleFlag(idx); // Touch is typically used for flagging in mobile
+
+          }
+
+        }
+
+      }
+
+      touchState.isActive = false;
+
+      touchState.startTile = -1;
+
+    });
+
 
 
     // Self-tests
@@ -1649,18 +2431,462 @@
 
 
 
+    // Sound System using Web Audio API (matching HexaSweeper exactly)
+    let soundEnabled = true;
+    let audioContext = null;
+    let clickSoundStyle = 5; // 1-5: Gentle Tap, Deep Thud, Glass Tinkle, Metallic Tick, Soft Chime (default 5)
+    let gameOverSoundStyle = 1; // 1-5: Deep Explosion, Electric Buzz, Bass Drop, Metallic Crash, Quick Pop
+    let clickBuffers = new Map(); // Cache for click sound buffers
+
+    // Initialize audio context (requires user interaction)
+    function initAudioContext() {
+      if (!audioContext) {
+        try {
+          audioContext = new (window.AudioContext || window.webkitAudioContext)();
+          // Pre-create all click sounds
+          createAllClickSounds();
+        } catch (e) {
+          console.warn('Web Audio API not supported');
+        }
+      }
+      return audioContext;
+    }
+
+    // Get audio context (for external use)
+    function getAudioContext() {
+      return audioContext;
+    }
+
+    // Set audio enabled state
+    function setAudioEnabled(enabled) {
+      soundEnabled = enabled;
+    }
+
+    // Set click sound style (1-5)
+    function setClickSoundStyle(style) {
+      clickSoundStyle = Math.max(1, Math.min(5, Math.round(style)));
+      // Create buffer if it doesn't exist
+      if (!clickBuffers.has(clickSoundStyle)) {
+        const buffer = createClickSound(clickSoundStyle);
+        if (buffer) {
+          clickBuffers.set(clickSoundStyle, buffer);
+        }
+      }
+    }
+
+    // Get click sound style
+    function getClickSoundStyle() {
+      return clickSoundStyle;
+    }
+
+    // Set game over sound style (1-5)
+    function setGameOverSoundStyle(style) {
+      gameOverSoundStyle = Math.max(1, Math.min(5, Math.round(style)));
+    }
+
+    // Get game over sound style
+    function getGameOverSoundStyle() {
+      return gameOverSoundStyle;
+    }
+
+    // Create all click sound buffers
+    async function createAllClickSounds() {
+      if (!audioContext) return;
+      for (let i = 1; i <= 5; i++) {
+        const buffer = createClickSound(i);
+        if (buffer) {
+          clickBuffers.set(i, buffer);
+        }
+      }
+    }
+
+    // Create a click sound buffer (exact HexaSweeper algorithm)
+    function createClickSound(style) {
+      if (!audioContext) return null;
+      const sampleRate = audioContext.sampleRate;
+      let duration, buffer, data;
+      
+      switch (style) {
+        case 1: // Gentle Tap
+          duration = 0.02;
+          buffer = audioContext.createBuffer(1, sampleRate * duration, sampleRate);
+          data = buffer.getChannelData(0);
+          for (let i = 0; i < data.length; i++) {
+            const t = i / sampleRate;
+            const envelope = Math.exp(-t * 100);
+            const freq = 2000;
+            data[i] = Math.sin(2 * Math.PI * freq * t) * envelope * 0.2; // Increased from 0.08
+          }
+          break;
+          
+        case 2: // Deep Thud
+          duration = 0.04;
+          buffer = audioContext.createBuffer(1, sampleRate * duration, sampleRate);
+          data = buffer.getChannelData(0);
+          for (let i = 0; i < data.length; i++) {
+            const t = i / sampleRate;
+            const envelope = Math.exp(-t * 35);
+            const wave1 = Math.sin(2 * Math.PI * 120 * t) * Math.exp(-t * 25) * 0.15;
+            const wave2 = Math.sin(2 * Math.PI * 80 * t) * 0.08;
+            const wave3 = Math.sin(2 * Math.PI * 500 * t) * Math.exp(-t * 80) * 0.05;
+            data[i] = (wave1 + wave2 + wave3) * envelope * 0.25; // Increased from 0.12
+          }
+          break;
+          
+        case 3: // Glass Tinkle
+          duration = 0.05;
+          buffer = audioContext.createBuffer(1, sampleRate * duration, sampleRate);
+          data = buffer.getChannelData(0);
+          for (let i = 0; i < data.length; i++) {
+            const t = i / sampleRate;
+            const envelope = Math.exp(-t * 25);
+            const wave1 = Math.sin(2 * Math.PI * 1200 * t) * Math.exp(-t * 30) * 0.1;
+            const wave2 = Math.sin(2 * Math.PI * 1500 * t) * Math.exp(-t * 35) * 0.08;
+            const wave3 = Math.sin(2 * Math.PI * 1800 * t) * Math.exp(-t * 40) * 0.06;
+            const wave4 = Math.sin(2 * Math.PI * 2000 * t) * Math.exp(-t * 20) * 0.04;
+            data[i] = (wave1 + wave2 + wave3 + wave4) * envelope * 0.2; // Increased from 0.1
+          }
+          break;
+          
+        case 4: // Metallic Tick
+          duration = 0.015;
+          buffer = audioContext.createBuffer(1, sampleRate * duration, sampleRate);
+          data = buffer.getChannelData(0);
+          for (let i = 0; i < data.length; i++) {
+            const t = i / sampleRate;
+            const envelope = Math.exp(-t * 120);
+            const wave1 = Math.sin(2 * Math.PI * 1500 * t) * Math.exp(-t * 100) * 0.1;
+            const wave2 = Math.sin(2 * Math.PI * 2000 * t) * Math.exp(-t * 80) * 0.05;
+            data[i] = (wave1 + wave2) * envelope * 0.2; // Increased from 0.1
+          }
+          break;
+          
+        case 5: // Soft Chime
+          duration = 0.04;
+          buffer = audioContext.createBuffer(1, sampleRate * duration, sampleRate);
+          data = buffer.getChannelData(0);
+          for (let i = 0; i < data.length; i++) {
+            const t = i / sampleRate;
+            const envelope = Math.exp(-t * 40);
+            const wave1 = Math.sin(2 * Math.PI * 1000 * t) * Math.exp(-t * 30) * 0.08;
+            const wave2 = Math.sin(2 * Math.PI * 1200 * t) * Math.exp(-t * 35) * 0.06;
+            const wave3 = Math.sin(2 * Math.PI * 1500 * t) * Math.exp(-t * 40) * 0.04;
+            data[i] = (wave1 + wave2 + wave3) * envelope * 0.2; // Increased from 0.1
+          }
+          break;
+          
+        default:
+          return null;
+      }
+      
+      return buffer;
+    }
+
+    // Play a buffer
+    function playBuffer(buffer) {
+      if (!audioContext || !buffer) return;
+      try {
+        const source = audioContext.createBufferSource();
+        source.buffer = buffer;
+        source.connect(audioContext.destination);
+        source.start();
+      } catch (e) {
+        console.warn('Could not play sound:', e);
+      }
+    }
+
+    // Play click sound based on style (exact HexaSweeper implementation)
+    function playClick() {
+      if (!soundEnabled) return;
+      
+      if (!audioContext) {
+        initAudioContext().then(() => {
+          playClickInternal();
+        }).catch(() => {});
+        return;
+      }
+      
+      if (audioContext.state === 'suspended') {
+        const style = clickSoundStyle;
+        audioContext.resume().then(() => {
+          playClickInternal(style);
+        }).catch(() => {});
+        return;
+      }
+      
+      playClickInternal();
+    }
+
+    function playClickInternal(styleOverride) {
+      if (!audioContext) return;
+      const style = styleOverride !== undefined ? styleOverride : clickSoundStyle;
+      
+      let buffer = clickBuffers.get(style);
+      if (!buffer) {
+        buffer = createClickSound(style);
+        if (buffer) {
+          clickBuffers.set(style, buffer);
+        } else {
+          // Fallback to style 1
+          buffer = clickBuffers.get(1);
+          if (!buffer) {
+            buffer = createClickSound(1);
+            if (buffer) clickBuffers.set(1, buffer);
+            else return;
+          }
+        }
+      }
+      
+      playBuffer(buffer);
+    }
+
+    // Play game over sound based on style (exact HexaSweeper implementation)
+    function playGameOver() {
+      if (!soundEnabled) {
+        console.log('Audio disabled, skipping game over sound');
+        return;
+      }
+      
+      if (!audioContext) {
+        initAudioContext().then(() => {
+          playGameOverProceduralInternalWithStyle(gameOverSoundStyle);
+        }).catch(() => {});
+        return;
+      }
+      
+      try {
+        const style = gameOverSoundStyle;
+        if (audioContext.state === 'suspended') {
+          audioContext.resume().then(() => {
+            playGameOverProceduralInternalWithStyle(style);
+          }).catch((e) => {
+            console.warn('Could not resume AudioContext:', e);
+          });
+          return;
+        }
+        playGameOverProceduralInternalWithStyle(style);
+      } catch (e) {
+        console.warn('Could not play game over sound:', e);
+      }
+    }
+
+    function playGameOverProceduralInternalWithStyle(style) {
+      if (!audioContext) {
+        console.warn('AudioContext not available for game over sound');
+        return;
+      }
+      
+      try {
+        const sampleRate = audioContext.sampleRate;
+        let buffer, data;
+        
+        switch (style) {
+          case 1: // Deep Explosion
+            buffer = audioContext.createBuffer(1, sampleRate * 0.8, sampleRate);
+            data = buffer.getChannelData(0);
+            for (let i = 0; i < data.length; i++) {
+              const t = i / sampleRate;
+              const envelope = t < 0.1 ? t / 0.1 : Math.exp(-(t - 0.1) * 8);
+              const wave1 = Math.sin(2 * Math.PI * 60 * t) * 0.4;
+              const wave2 = Math.sin(2 * Math.PI * 200 * t * (1 + t * 2)) * 0.3;
+              const noise = (Math.random() * 2 - 1) * 0.3;
+              const pop = t < 0.2 ? Math.sin(2 * Math.PI * 800 * t) * (1 - t * 5) * 0.2 : 0;
+              data[i] = (wave1 + wave2 + noise * (1 - t * 1.2) + pop) * envelope * 0.1; // Further decreased from 0.15
+            }
+            break;
+            
+          case 2: // Electric Buzz
+            buffer = audioContext.createBuffer(1, sampleRate * 0.5, sampleRate);
+            data = buffer.getChannelData(0);
+            for (let i = 0; i < data.length; i++) {
+              const t = i / sampleRate;
+              const envelope = Math.exp(-t * 15);
+              const wave1 = Math.sin(2 * Math.PI * 400 * t) * Math.exp(-t * 30) * 0.6;
+              const wave2 = Math.sin(2 * Math.PI * 1200 * t * (1 + t * 4)) * 0.4;
+              const noise = (Math.random() * 2 - 1) * Math.exp(-t * 20) * 0.5;
+              const wave3 = Math.sin(2 * Math.PI * 3000 * t) * Math.exp(-t * 40) * 0.3;
+              data[i] = (wave1 + wave2 + noise * (1 - t * 2) + wave3) * envelope * 0.12; // Further decreased from 0.18
+            }
+            break;
+            
+          case 3: // Bass Drop
+            buffer = audioContext.createBuffer(1, sampleRate * 1.0, sampleRate);
+            data = buffer.getChannelData(0);
+            for (let i = 0; i < data.length; i++) {
+              const t = i / sampleRate;
+              const envelope = Math.exp(-t * 4);
+              const freq = 90 - t * 50;
+              const wave1 = Math.sin(2 * Math.PI * freq * t) * 0.7;
+              const wave2 = Math.sin(2 * Math.PI * 45 * t) * 0.4;
+              const wave3 = Math.sin(2 * Math.PI * 180 * t) * Math.exp(-t * 12) * 0.4;
+              const wave4 = t < 0.3 ? Math.sin(2 * Math.PI * 500 * t) * Math.exp(-t * 25) * 0.3 : 0;
+              data[i] = (wave1 + wave2 + wave3 + wave4) * envelope * 0.12; // Further decreased from 0.18
+            }
+            break;
+            
+          case 4: // Metallic Crash
+            buffer = audioContext.createBuffer(1, sampleRate * 0.9, sampleRate);
+            data = buffer.getChannelData(0);
+            for (let i = 0; i < data.length; i++) {
+              const t = i / sampleRate;
+              const envelope = t < 0.03 ? t / 0.03 : Math.exp(-(t - 0.03) * 8);
+              const wave1 = Math.sin(2 * Math.PI * 600 * t) * Math.exp(-t * 35) * 0.6;
+              const wave2 = Math.sin(2 * Math.PI * 350 * t) * Math.exp(-t * 4) * 0.5;
+              const wave3 = Math.sin(2 * Math.PI * 700 * t) * Math.exp(-t * 7) * 0.4;
+              const wave4 = Math.sin(2 * Math.PI * 1400 * t) * Math.exp(-t * 10) * 0.3;
+              const wave5 = t > 0.2 ? Math.sin(2 * Math.PI * 400 * (t - 0.2)) * Math.exp(-(t - 0.2) * 8) * 0.2 : 0;
+              const noise = (Math.random() * 2 - 1) * Math.exp(-t * 25) * 0.25;
+              data[i] = (wave1 + wave2 + wave3 + wave4 + wave5 + noise * (1 - t * 1.5)) * envelope * 0.1; // Further decreased from 0.15
+            }
+            break;
+            
+          case 5: // Quick Pop
+            buffer = audioContext.createBuffer(1, sampleRate * 0.4, sampleRate);
+            data = buffer.getChannelData(0);
+            for (let i = 0; i < data.length; i++) {
+              const t = i / sampleRate;
+              const envelope = t < 0.05 ? t / 0.05 : Math.exp(-t * 20);
+              const wave1 = Math.sin(2 * Math.PI * 250 * t) * Math.exp(-t * 45) * 0.7;
+              const wave2 = Math.sin(2 * Math.PI * 1200 * t) * Math.exp(-t * 60) * 0.5;
+              const noise = (Math.random() * 2 - 1) * Math.exp(-t * 35) * 0.4;
+              const wave3 = t > 0.1 ? Math.sin(2 * Math.PI * 300 * (t - 0.1)) * Math.exp(-(t - 0.1) * 15) * 0.2 : 0;
+              data[i] = (wave1 + wave2 + noise * (1 - t * 3) + wave3) * envelope * 0.13; // Further decreased from 0.2
+            }
+            break;
+            
+          default:
+            // Fallback to style 1
+            buffer = audioContext.createBuffer(1, sampleRate * 0.8, sampleRate);
+            data = buffer.getChannelData(0);
+            for (let i = 0; i < data.length; i++) {
+              const t = i / sampleRate;
+              const envelope = t < 0.1 ? t / 0.1 : Math.exp(-(t - 0.1) * 8);
+              const wave1 = Math.sin(2 * Math.PI * 60 * t) * 0.4;
+              const wave2 = Math.sin(2 * Math.PI * 200 * t * (1 + t * 2)) * 0.3;
+              const noise = (Math.random() * 2 - 1) * 0.3;
+              data[i] = (wave1 + wave2 + noise * (1 - t * 1.2)) * envelope * 0.1; // Further decreased from 0.15
+            }
+        }
+        
+        playBuffer(buffer);
+      } catch (e) {
+        console.warn('Could not play procedural game over sound:', e);
+      }
+    }
+
+    // Play victory sound (exact HexaSweeper implementation)
+    function playVictory() {
+      if (!soundEnabled) return;
+      
+      if (!audioContext) {
+        initAudioContext().then(() => {
+          playVictoryInternal();
+        }).catch(() => {});
+        return;
+      }
+      
+      playVictoryInternal();
+    }
+
+    function playVictoryInternal() {
+      if (!audioContext) return;
+      
+      try {
+        const sampleRate = audioContext.sampleRate;
+        const buffer = audioContext.createBuffer(1, sampleRate * 1.5, sampleRate);
+        const data = buffer.getChannelData(0);
+        
+        for (let i = 0; i < data.length; i++) {
+          const t = i / sampleRate;
+          const envelope = Math.exp(-t * 2);
+          const wave1 = Math.sin(2 * Math.PI * 523.25 * t) * 0.3;
+          const wave2 = Math.sin(2 * Math.PI * 659.25 * t) * 0.3;
+          const wave3 = Math.sin(2 * Math.PI * 783.99 * t) * 0.3;
+          const wave4 = Math.sin(2 * Math.PI * 523.25 * 2 * t) * 0.1;
+          const wave5 = Math.sin(2 * Math.PI * 659.25 * 2 * t) * 0.1;
+          data[i] = (wave1 + wave2 + wave3 + wave4 + wave5) * envelope * 0.15;
+        }
+        
+        playBuffer(buffer);
+      } catch (e) {
+        console.warn('Could not play victory sound:', e);
+      }
+    }
+
+    // Play a sound using Web Audio API (legacy function for compatibility)
+    function playSound(type) {
+      if (!soundEnabled || !audioContext) return;
+
+      try {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        const now = audioContext.currentTime;
+        
+        switch (type) {
+          case 'reveal':
+            playClick();
+            break;
+          case 'flag':
+            playClick();
+            break;
+          case 'unflag':
+            playClick();
+            break;
+          case 'mine':
+            playGameOver();
+            break;
+          case 'win':
+            playVictory();
+            break;
+          case 'lifeLost':
+            playGameOver();
+            break;
+        }
+      } catch (e) {
+        console.warn('Error playing sound:', e);
+      }
+    }
+
+    // Initialize audio context on first user interaction
+    document.addEventListener('click', () => {
+      initAudioContext();
+    }, { once: true });
+
+    document.addEventListener('touchstart', () => {
+      initAudioContext();
+    }, { once: true });
+
     // UI
 
-    document.getElementById('newGame').addEventListener('click', ()=>{ rebuildCore(state.f); });
+    document.getElementById('newGame').addEventListener('click', ()=>{ 
+      initAudioContext();
+      // Hide game over overlay if visible
+      const gameOverOverlay = document.getElementById('gameOverOverlay');
+      if (gameOverOverlay) {
+        gameOverOverlay.classList.remove('visible');
+      }
+      rebuildCore(state.f); 
+    });
 
-    let soundEnabled = true;
+    // Restart button in game over overlay
+    document.getElementById('restartButton').addEventListener('click', ()=>{ 
+      initAudioContext();
+      // Hide game over overlay
+      const gameOverOverlay = document.getElementById('gameOverOverlay');
+      if (gameOverOverlay) {
+        gameOverOverlay.classList.remove('visible');
+      }
+      rebuildCore(state.f); 
+    });
 
     document.getElementById('soundToggle').addEventListener('click', (e)=>{
-
-      soundEnabled = !soundEnabled;
-
+      initAudioContext();
+      setAudioEnabled(!soundEnabled);
       e.target.textContent = soundEnabled ? '🔊' : '🔇';
-
     });
 
     document.getElementById('globeBtn').addEventListener('click', ()=>{
@@ -1668,6 +2894,12 @@
       camera.position.set(0, 0, 3.4);
 
       controls.reset();
+      
+      // Reset sphere rotation
+      tileGroup.quaternion.identity();
+      wireGroup.quaternion.identity();
+      rotationVelocity.x = 0;
+      rotationVelocity.y = 0;
 
     });
 
@@ -2054,7 +3286,7 @@
           state.tiles[idx].isEmpty = true;
           
           // Apply transparent material to empty tiles (always visible and transparent)
-          state.tiles[idx].mesh.material = matEmpty.clone();
+          state.tiles[idx].mesh.material = matEmpty; // Share material for empty tiles
 
           // Update label if tile is revealed (remove number label for empty tiles)
           if (state.tiles[idx].revealed && state.tiles[idx].label) {
@@ -2112,7 +3344,7 @@
 
             if (t.count > 0 && !t.isEmpty) {
 
-              const labelColorHex = document.getElementById('debugLabelColor')?.value || '#8aaadd';
+              const labelColorHex = document.getElementById('debugLabelColor')?.value || '#b3b7c1';
 
               const s = makeNumberSprite(t.count, labelScale(state.f), labelColorHex);
 
@@ -2127,6 +3359,9 @@
           }
 
         });
+        
+        // Rebuild wireframe to hide edges between empty tiles
+        rebuildWireframe();
 
       }
 
@@ -2146,7 +3381,8 @@
 
       state.tiles.forEach(t => {
 
-        if (!t.revealed && !t.flagged) {
+        // Only affect hidden, non-empty, non-flagged tiles
+        if (!t.revealed && !t.flagged && !t.isEmpty) {
 
           t.mesh.material.opacity = 1 - opacity;
 
@@ -2190,7 +3426,8 @@
 
         state.tiles.forEach(t => {
 
-          if (!t.revealed && !t.flagged) {
+          // Only affect hidden, non-empty, non-flagged tiles
+          if (!t.revealed && !t.flagged && !t.isEmpty) {
 
             t.mesh.material.color.setHex(tint);
 
@@ -2534,6 +3771,140 @@
 
     });
 
+    // Lighting controls
+    const hemiSkyInput = document.getElementById('debugHemiSky');
+    const hemiSkyDisplay = document.getElementById('debugHemiSkyDisplay');
+    const hemiSkyHex = document.getElementById('debugHemiSkyHex');
+    hemiSkyDisplay.addEventListener('click', () => hemiSkyInput.click());
+    hemiSkyInput.addEventListener('input', (e) => {
+      updateColorDisplay(hemiSkyInput, hemiSkyDisplay, hemiSkyHex);
+      const color = parseInt(hemiSkyInput.value.substring(1), 16);
+      hemi.color.setHex(color);
+    });
+
+    const hemiGroundInput = document.getElementById('debugHemiGround');
+    const hemiGroundDisplay = document.getElementById('debugHemiGroundDisplay');
+    const hemiGroundHex = document.getElementById('debugHemiGroundHex');
+    hemiGroundDisplay.addEventListener('click', () => hemiGroundInput.click());
+    hemiGroundInput.addEventListener('input', (e) => {
+      updateColorDisplay(hemiGroundInput, hemiGroundDisplay, hemiGroundHex);
+      const color = parseInt(hemiGroundInput.value.substring(1), 16);
+      hemi.groundColor.setHex(color);
+    });
+
+    const hemiIntensitySlider = document.getElementById('debugHemiIntensity');
+    const hemiIntensityValue = document.getElementById('debugHemiIntensityValue');
+    hemiIntensitySlider.addEventListener('input', (e) => {
+      const intensity = parseFloat(hemiIntensitySlider.value);
+      hemi.intensity = intensity;
+      syncSliderValue(hemiIntensitySlider, hemiIntensityValue);
+    });
+
+    const dirColorInput = document.getElementById('debugDirColor');
+    const dirColorDisplay = document.getElementById('debugDirColorDisplay');
+    const dirColorHex = document.getElementById('debugDirColorHex');
+    dirColorDisplay.addEventListener('click', () => dirColorInput.click());
+    dirColorInput.addEventListener('input', (e) => {
+      updateColorDisplay(dirColorInput, dirColorDisplay, dirColorHex);
+      const color = parseInt(dirColorInput.value.substring(1), 16);
+      dir.color.setHex(color);
+    });
+
+    const dirIntensitySlider = document.getElementById('debugDirIntensity');
+    const dirIntensityValue = document.getElementById('debugDirIntensityValue');
+    dirIntensitySlider.addEventListener('input', (e) => {
+      const intensity = parseFloat(dirIntensitySlider.value);
+      dir.intensity = intensity;
+      syncSliderValue(dirIntensitySlider, dirIntensityValue);
+    });
+
+    const dirXSlider = document.getElementById('debugDirX');
+    const dirXValue = document.getElementById('debugDirXValue');
+    dirXSlider.addEventListener('input', (e) => {
+      dir.position.x = parseFloat(dirXSlider.value);
+      syncSliderValue(dirXSlider, dirXValue);
+    });
+
+    const dirYSlider = document.getElementById('debugDirY');
+    const dirYValue = document.getElementById('debugDirYValue');
+    dirYSlider.addEventListener('input', (e) => {
+      dir.position.y = parseFloat(dirYSlider.value);
+      syncSliderValue(dirYSlider, dirYValue);
+    });
+
+    const dirZSlider = document.getElementById('debugDirZ');
+    const dirZValue = document.getElementById('debugDirZValue');
+    dirZSlider.addEventListener('input', (e) => {
+      dir.position.z = parseFloat(dirZSlider.value);
+      syncSliderValue(dirZSlider, dirZValue);
+    });
+
+    const dirDistanceSlider = document.getElementById('debugDirDistance');
+    const dirDistanceValue = document.getElementById('debugDirDistanceValue');
+    dirDistanceSlider.addEventListener('input', (e) => {
+      dir.distance = parseFloat(dirDistanceSlider.value);
+      syncSliderValue(dirDistanceSlider, dirDistanceValue);
+    });
+
+    const dirDecaySlider = document.getElementById('debugDirDecay');
+    const dirDecayValue = document.getElementById('debugDirDecayValue');
+    dirDecaySlider.addEventListener('input', (e) => {
+      dir.decay = parseFloat(dirDecaySlider.value);
+      syncSliderValue(dirDecaySlider, dirDecayValue);
+    });
+
+    // Center light controls
+    const centerLightColorInput = document.getElementById('debugCenterLightColor');
+    const centerLightColorDisplay = document.getElementById('debugCenterLightColorDisplay');
+    const centerLightColorHex = document.getElementById('debugCenterLightColorHex');
+    
+    centerLightColorDisplay.addEventListener('click', () => centerLightColorInput.click());
+    
+    centerLightColorInput.addEventListener('input', (e) => {
+      updateColorDisplay(centerLightColorInput, centerLightColorDisplay, centerLightColorHex);
+      const color = parseInt(centerLightColorInput.value.substring(1), 16);
+      centerLight.color.setHex(color);
+    });
+
+    const centerLightIntensitySlider = document.getElementById('debugCenterLightIntensity');
+    const centerLightIntensityValue = document.getElementById('debugCenterLightIntensityValue');
+    centerLightIntensitySlider.addEventListener('input', (e) => {
+      const intensity = parseFloat(centerLightIntensitySlider.value);
+      centerLight.intensity = intensity;
+      syncSliderValue(centerLightIntensitySlider, centerLightIntensityValue);
+    });
+
+    const centerLightDistanceSlider = document.getElementById('debugCenterLightDistance');
+    const centerLightDistanceValue = document.getElementById('debugCenterLightDistanceValue');
+    centerLightDistanceSlider.addEventListener('input', (e) => {
+      centerLight.distance = parseFloat(centerLightDistanceSlider.value);
+      syncSliderValue(centerLightDistanceSlider, centerLightDistanceValue);
+    });
+
+    const centerLightDecaySlider = document.getElementById('debugCenterLightDecay');
+    const centerLightDecayValue = document.getElementById('debugCenterLightDecayValue');
+    centerLightDecaySlider.addEventListener('input', (e) => {
+      centerLight.decay = parseFloat(centerLightDecaySlider.value);
+      syncSliderValue(centerLightDecaySlider, centerLightDecayValue);
+    });
+
+    const dirShadowMapSizeSlider = document.getElementById('debugDirShadowMapSize');
+    const dirShadowMapSizeValue = document.getElementById('debugDirShadowMapSizeValue');
+    dirShadowMapSizeSlider.addEventListener('input', (e) => {
+      const size = parseInt(dirShadowMapSizeSlider.value);
+      dir.shadow.mapSize.width = size;
+      dir.shadow.mapSize.height = size;
+      dir.shadow.mapSize.needsUpdate = true;
+      syncSliderValue(dirShadowMapSizeSlider, dirShadowMapSizeValue);
+    });
+
+    const dirShadowRadiusSlider = document.getElementById('debugDirShadowRadius');
+    const dirShadowRadiusValue = document.getElementById('debugDirShadowRadiusValue');
+    dirShadowRadiusSlider.addEventListener('input', (e) => {
+      dir.shadow.radius = parseFloat(dirShadowRadiusSlider.value);
+      syncSliderValue(dirShadowRadiusSlider, dirShadowRadiusValue);
+    });
+
     document.querySelectorAll('#debugPanel input[type="range"]').forEach(slider => {
 
       updateSliderFill(slider);
@@ -2604,6 +3975,40 @@
       // Immortal mode - prevents game over on mine hit
 
     });
+
+    // Sound controls
+    const clickSoundSlider = document.getElementById('debugClickSound');
+    const clickSoundValue = document.getElementById('debugClickSoundValue');
+    const gameOverSoundSlider = document.getElementById('debugGameOverSound');
+    const gameOverSoundValue = document.getElementById('debugGameOverSoundValue');
+
+    if (clickSoundSlider) {
+      clickSoundSlider.addEventListener('input', (e) => {
+        const style = Math.round(parseFloat(e.target.value));
+        setClickSoundStyle(style);
+        if (clickSoundValue) {
+          clickSoundValue.value = style;
+        }
+        // Preview the sound
+        requestAnimationFrame(() => {
+          playClick();
+        });
+      });
+    }
+
+    if (gameOverSoundSlider) {
+      gameOverSoundSlider.addEventListener('input', (e) => {
+        const style = Math.round(parseFloat(e.target.value));
+        setGameOverSoundStyle(style);
+        if (gameOverSoundValue) {
+          gameOverSoundValue.value = style;
+        }
+        // Preview the sound
+        requestAnimationFrame(() => {
+          playGameOver();
+        });
+      });
+    }
 
     document.getElementById('debugCamFog').addEventListener('change', (e) => {
 
@@ -2689,8 +4094,60 @@
     let frameCount = 0;
     const fpsCounter = document.getElementById('fpsCounter');
 
-    renderer.setAnimationLoop(()=>{ 
-      controls.update(); 
+    renderer.setAnimationLoop((time)=>{
+      // Update camera position uniform for glassmorphism shader
+      if (matEmpty && matEmpty.uniforms && matEmpty.uniforms.cameraPosition) {
+        matEmpty.uniforms.cameraPosition.value.copy(camera.position);
+      }
+      controls.update();
+      
+      // Check if mouse button is held but mouse hasn't moved recently (no mousemove events)
+      // If button is held but no movement detected in last 50ms, treat as released
+      if (dragState.isMouseButtonDown && dragState.isRotating) {
+        const timeSinceLastMove = performance.now() - dragState.lastMoveTime;
+        if (timeSinceLastMove > 50) {
+          // Mouse button is held but hasn't moved - treat as released
+          dragState.isRotating = false;
+          dragState.isMouseButtonDown = false; // Treat as released for momentum purposes
+        }
+      }
+      
+      // Apply smooth rotation with momentum
+      const hasVelocity = Math.abs(rotationVelocity.x) > 0.0001 || Math.abs(rotationVelocity.y) > 0.0001;
+      
+      // Only rotate if actively dragging OR if there's velocity to decay (after release or stopped movement)
+      // If button is held but not rotating, treat exactly like release (allow momentum)
+      const shouldRotate = dragState.isRotating || (hasVelocity && (!dragState.isMouseButtonDown || !dragState.isRotating));
+      
+      if (shouldRotate || hasVelocity) {
+        // Apply rotation based on current velocity
+        if (hasVelocity && shouldRotate) {
+          // Get camera's local axes in world space (only when actually rotating)
+          camera.updateMatrixWorld();
+          const right = new THREE.Vector3();
+          const up = new THREE.Vector3();
+          camera.matrixWorld.extractBasis(right, up, new THREE.Vector3());
+          
+          const rotY = new THREE.Quaternion().setFromAxisAngle(up, rotationVelocity.x);
+          const rotX = new THREE.Quaternion().setFromAxisAngle(right, rotationVelocity.y);
+          const combinedRot = rotY.multiply(rotX);
+          
+          tileGroup.quaternion.premultiply(combinedRot);
+          wireGroup.quaternion.premultiply(combinedRot);
+        }
+        
+        // Apply friction to velocity when not actively dragging
+        // Treat button held but not moving the same as released (normal friction, allow momentum)
+        if (!dragState.isRotating) {
+          rotationVelocity.x *= rotationFriction;
+          rotationVelocity.y *= rotationFriction;
+          
+          // Stop if velocity is too small
+          if (Math.abs(rotationVelocity.x) < 0.0001) rotationVelocity.x = 0;
+          if (Math.abs(rotationVelocity.y) < 0.0001) rotationVelocity.y = 0;
+        }
+      }
+      
       renderer.render(scene, camera); 
       
       // Update FPS counter
