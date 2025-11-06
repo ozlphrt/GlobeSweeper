@@ -12,7 +12,7 @@
 
   <style>
 
-    html, body { height: 100%; margin: 0; background: #304323; color: #1a1a1a; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+    html, body { height: 100%; margin: 0; background: #4f5059; color: #1a1a1a; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
 
     #app { position: fixed; inset: 0; }
 
@@ -555,7 +555,7 @@
 
         <div class="debug-control"><label>Scale</label><div class="control-wrapper"><input type="range" id="debugLabelScale" min="0.01" max="0.2" step="0.01" value="0.07" /></div><input type="number" id="debugLabelScaleValue" value="0.07" step="0.01" readonly /></div>
 
-        <div class="debug-control"><label>Color</label><div class="color-display" id="debugLabelColorDisplay" style="background: #b3b7c1; position: relative;"><input type="color" id="debugLabelColor" value="#b3b7c1" /></div><span class="color-hex" id="debugLabelColorHex">#b3b7c1</span></div>
+        <div class="debug-control"><label>Color</label><div class="color-display" id="debugLabelColorDisplay" style="background: #aeb5c4; position: relative;"><input type="color" id="debugLabelColor" value="#aeb5c4" /></div><span class="color-hex" id="debugLabelColorHex">#aeb5c4</span></div>
 
       </div>
 
@@ -983,7 +983,13 @@
       ctx.font = '700 72px system-ui, Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
 
       // All numbers use the same color (from debug panel or default)
-      ctx.fillStyle = colorOverride || '#b3b7c1';
+      // If no color provided, calculate lighter version of revealed tile color
+      let finalColor = colorOverride;
+      if (!finalColor) {
+        const revealedColor = document.getElementById('debugTileRevealed')?.value || '#4c5b7b';
+        finalColor = lightenColor(revealedColor, 0.55);
+      }
+      ctx.fillStyle = finalColor;
 
       ctx.shadowColor = 'rgba(0,0,0,0.5)'; ctx.shadowBlur = 8;
 
@@ -1011,6 +1017,28 @@
 
       return Math.max(0.06, Math.min(0.16, k));
 
+    }
+
+    // Lighten a hex color by a factor (0-1, where 1 = white)
+    function lightenColor(hex, factor = 0.55) {
+      // Remove # if present
+      hex = hex.replace('#', '');
+      
+      // Parse RGB
+      const r = parseInt(hex.substring(0, 2), 16);
+      const g = parseInt(hex.substring(2, 4), 16);
+      const b = parseInt(hex.substring(4, 6), 16);
+      
+      // Lighten each component
+      const lightR = Math.round(r + (255 - r) * factor);
+      const lightG = Math.round(g + (255 - g) * factor);
+      const lightB = Math.round(b + (255 - b) * factor);
+      
+      // Convert back to hex
+      return '#' + [lightR, lightG, lightB].map(x => {
+        const hex = x.toString(16);
+        return hex.length === 1 ? '0' + hex : hex;
+      }).join('');
     }
 
 
@@ -1096,7 +1124,7 @@
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); 
     renderer.setSize(innerWidth, innerHeight); 
     renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5)); // Reduced from 2 for better performance 
-    renderer.sortObjects = true; // Enable sorting for proper transparent rendering
+    renderer.sortObjects = false; // Disable sorting for better performance - only enable when needed for transparency
     renderer.setClearColor(0x4f5059, 1); // Set clear color to match background
     app.appendChild(renderer.domElement);
 
@@ -1157,107 +1185,22 @@
 
     const matMine = new THREE.MeshLambertMaterial({ color: 0xff4444, side: THREE.DoubleSide });
 
-    // Custom shader material for glassmorphism effect on empty tiles
-    // Using a working approach: MeshStandardMaterial with onBeforeCompile
-    const matEmpty = new THREE.MeshStandardMaterial({
+    // Simple glass material for empty tiles - no complex shaders for better performance
+    const matEmpty = new THREE.MeshLambertMaterial({
       color: 0x4c5b7b,
       transparent: true,
       opacity: 0.4,
       depthWrite: false,
       depthTest: true,
-      side: THREE.DoubleSide,
-      roughness: 0.1,
-      metalness: 0.0
+      side: THREE.DoubleSide
     });
-    
-    // Inject glassmorphism effect using onBeforeCompile
-    matEmpty.onBeforeCompile = function(shader) {
-      // Add varying declaration to vertex shader
-      shader.vertexShader = shader.vertexShader.replace(
-        '#include <common>',
-        `
-        #include <common>
-        varying vec3 vWorldPos;
-        `
-      );
-      
-      // Calculate and set world position in vertex shader
-      shader.vertexShader = shader.vertexShader.replace(
-        '#include <worldpos_vertex>',
-        `
-        #include <worldpos_vertex>
-        vec4 worldPos4 = modelMatrix * vec4(position, 1.0);
-        vWorldPos = worldPos4.xyz;
-        `
-      );
-      
-      // Add noise functions and glassmorphism to fragment shader
-      shader.fragmentShader = shader.fragmentShader.replace(
-        '#include <common>',
-        `
-        #include <common>
-        varying vec3 vWorldPos;
-        
-        float noise(vec3 p) {
-          return fract(sin(dot(p, vec3(12.9898, 78.233, 54.53))) * 43758.5453);
-        }
-        
-        float smoothNoise(vec3 p) {
-          vec3 i = floor(p);
-          vec3 f = fract(p);
-          f = f * f * (3.0 - 2.0 * f);
-          
-          float a = noise(i);
-          float b = noise(i + vec3(1.0, 0.0, 0.0));
-          float c = noise(i + vec3(0.0, 1.0, 0.0));
-          float d = noise(i + vec3(1.0, 1.0, 0.0));
-          float e = noise(i + vec3(0.0, 0.0, 1.0));
-          float f2 = noise(i + vec3(1.0, 0.0, 1.0));
-          float g = noise(i + vec3(0.0, 1.0, 1.0));
-          float h = noise(i + vec3(1.0, 1.0, 1.0));
-          
-          float ab = mix(a, b, f.x);
-          float cd = mix(c, d, f.x);
-          float ef = mix(e, f2, f.x);
-          float gh = mix(g, h, f.x);
-          
-          float abcd = mix(ab, cd, f.y);
-          float efgh = mix(ef, gh, f.y);
-          
-          return mix(abcd, efgh, f.z);
-        }
-        `
-      );
-      
-      // Apply glassmorphism effect after lighting is calculated
-      shader.fragmentShader = shader.fragmentShader.replace(
-        '#include <output_fragment>',
-        `
-        // Glassmorphism effect
-        vec3 pos = vWorldPos * 12.0;
-        float n = smoothNoise(pos);
-        float n2 = smoothNoise(pos * 2.0) * 0.5;
-        float n3 = smoothNoise(pos * 4.0) * 0.25;
-        float combinedNoise = (n + n2 + n3) / 1.75;
-        
-        // Fresnel effect
-        vec3 viewDir = normalize(cameraPosition - vWorldPos);
-        float fresnel = pow(1.0 - max(dot(vNormal, viewDir), 0.0), 1.5);
-        
-        // Apply glassmorphism distortion
-        float glassFactor = mix(0.7, 1.2, combinedNoise * 0.5 + fresnel * 0.3);
-        gl_FragColor.rgb *= glassFactor;
-        
-        #include <output_fragment>
-        `
-      );
-    };
 
 
 
     const state = { f: 15, polys: [], neighbors: [], tiles: [], firstClick: true, gameOver: false, safeRevealed: 0, totalMines: 0, flags: 0, lives: 3, won: false };
 
     let revealQueue = [];
+    let revealQueueSet = new Set(); // Track queued tiles for O(1) lookup instead of O(n) includes()
     let isRevealing = false;
     let isInitialReveal = false;
     let lifeLostInCurrentReveal = false;
@@ -1485,7 +1428,7 @@
 
         const tryGenerateBoard = () => {
           if (boardIsSolvable || attempts >= maxAttempts) {
-            continueBoardSetup();
+            continueBoardSetup(initialRevealPercent);
             return;
           }
 
@@ -1562,47 +1505,52 @@
               state.tiles.forEach((t, i) => { t.revealed = originalRevealed[i]; });
               
               if (!boardIsSolvable && attempts < maxAttempts) {
-                tryGenerateBoard();
+                // Use requestAnimationFrame for next attempt to avoid blocking
+                requestAnimationFrame(() => {
+                  tryGenerateBoard();
+                });
               } else {
-                continueBoardSetup();
+                continueBoardSetup(initialRevealPercent);
               }
-            }, 10);
-          }, 10);
-        };
-
-        const continueBoardSetup = () => {
-          // Hide loading overlay
-          const loadingOverlay = document.getElementById('loadingOverlay');
-          if (loadingOverlay) {
-            loadingOverlay.classList.remove('visible');
-          }
-
-          // Add initial tiles to reveal queue for one-by-one processing
-          const safeIndices = state.tiles.map((t, i) => i).filter(i => !state.tiles[i].mine && !state.tiles[i].isEmpty);
-          const revealCount = Math.max(1, Math.floor(safeIndices.length * initialRevealPercent / 100));
-          
-          // Shuffle safe indices for random initial reveal
-          for (let i = safeIndices.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [safeIndices[i], safeIndices[j]] = [safeIndices[j], safeIndices[i]];
-          }
-
-          // Add to reveal queue
-          revealQueue = [];
-          for (let i = 0; i < revealCount && i < safeIndices.length; i++) {
-            revealQueue.push(safeIndices[i]);
-          }
-
-          // Start revealing tiles one by one
-          isInitialReveal = true;
-          processRevealQueue();
-          
-          // Start timer when game begins
-          startTimer();
+            });
+          });
         };
 
         tryGenerateBoard();
-      }, 50);
+      }, 0);
+    }
+
+    function continueBoardSetup(initialRevealPercent) {
+      // Hide loading overlay
+      const loadingOverlay = document.getElementById('loadingOverlay');
+      if (loadingOverlay) {
+        loadingOverlay.classList.remove('visible');
+      }
+
+      // Add initial tiles to reveal queue for one-by-one processing
+      const safeIndices = state.tiles.map((t, i) => i).filter(i => !state.tiles[i].mine && !state.tiles[i].isEmpty);
+      const revealCount = Math.max(1, Math.floor(safeIndices.length * initialRevealPercent / 100));
+      
+      // Shuffle safe indices for random initial reveal
+      for (let i = safeIndices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [safeIndices[i], safeIndices[j]] = [safeIndices[j], safeIndices[i]];
+      }
+
+      // Add to reveal queue
+      revealQueue = [];
+      revealQueueSet.clear();
+      for (let i = 0; i < revealCount && i < safeIndices.length; i++) {
+        revealQueue.push(safeIndices[i]);
+        revealQueueSet.add(safeIndices[i]);
+      }
+
+      // Start revealing tiles one by one
+      isInitialReveal = true;
+      processRevealQueue();
+      
+      // Start timer when game begins
+      startTimer();
     }
 
 
@@ -1667,62 +1615,141 @@
       if (revealQueue.length === 0 || isRevealing) return;
 
       isRevealing = true;
-
-      function revealNext(){
-        if (revealQueue.length === 0 || state.gameOver){
-          isRevealing = false;
-          isInitialReveal = false;
-          // Don't auto-reveal if a mine was just hit (lifeLostInCurrentReveal is true)
-          if (!lifeLostInCurrentReveal) {
-            setTimeout(() => {
-              checkIfStuckAndHelp();
-            }, 150);
-          }
-          return;
-        }
-
-        const idx = revealQueue.shift();
-
-        if (idx === undefined){
-          isRevealing = false;
-          isInitialReveal = false;
-          // Don't auto-reveal if a mine was just hit
-          if (!lifeLostInCurrentReveal) {
-            setTimeout(() => {
-              checkIfStuckAndHelp();
-            }, 150);
-          }
-          return;
-        }
-
-        const t = state.tiles[idx];
-
-        if (!t.revealed && !t.flagged){
-          const success = revealSingle(idx);
-
-          // If a mine was hit, stop processing the queue
-          if (t.mine && !document.getElementById('debugImmortal')?.checked) {
-            isRevealing = false;
-            isInitialReveal = false;
-            revealQueue.length = 0; // Clear the queue
-            return;
-          }
-
-          if (success && t.count === 0){
-            for (const nb of state.neighbors[idx]){
-              if (!state.tiles[nb].revealed && !state.tiles[nb].flagged && !revealQueue.includes(nb)){
-                revealQueue.push(nb);
+      let soundPlayed = false; // Only play sound once per cascade
+      
+      // Initial reveal: process all tiles synchronously at once
+      if (isInitialReveal) {
+        while (revealQueue.length > 0 && !state.gameOver) {
+          const idx = revealQueue.shift();
+          if (idx === undefined) break;
+          
+          revealQueueSet.delete(idx);
+          
+          const t = state.tiles[idx];
+          if (!t.revealed && !t.flagged && !t.isEmpty) {
+            t.revealed = true;
+            
+            if (t.mine) {
+              t.mesh.material = matMine;
+              if (!document.getElementById('debugImmortal')?.checked) {
+                isRevealing = false;
+                isInitialReveal = false;
+                revealQueue.length = 0;
+                revealQueueSet.clear();
+                gameLost(idx);
+                return;
+              }
+            } else {
+              t.mesh.material = matRevealed;
+              state.safeRevealed++;
+            }
+            
+            if (t.count > 0) {
+              addLabel(idx, t.count);
+            }
+            
+            if (t.count === 0) {
+              for (const nb of state.neighbors[idx]) {
+                const neighbor = state.tiles[nb];
+                if (!neighbor.revealed && !neighbor.flagged && !neighbor.isEmpty && !neighbor.mine) {
+                  if (!revealQueueSet.has(nb)) {
+                    revealQueue.push(nb);
+                    revealQueueSet.add(nb);
+                  }
+                }
               }
             }
           }
         }
-
-        // Initial reveal should happen all at once (no delay)
-        if (isInitialReveal) {
-          revealNext();
-        } else {
-          setTimeout(revealNext, 8);
+        
+        // Batch expensive operations at the end
+        updateCounters();
+        checkWin();
+        
+        isRevealing = false;
+        isInitialReveal = false;
+        revealQueueSet.clear();
+        
+        if (!lifeLostInCurrentReveal) {
+          checkIfStuckAndHelp();
         }
+        return;
+      }
+      
+      // Normal cascade: process tiles one by one with 10ms delay between each
+      function revealNext(){
+        if (revealQueue.length === 0 || state.gameOver){
+          // Batch expensive operations at the end
+          updateCounters();
+          checkWin();
+          
+          isRevealing = false;
+          revealQueueSet.clear();
+          
+          // Don't auto-reveal if a mine was just hit
+          if (!lifeLostInCurrentReveal) {
+            checkIfStuckAndHelp();
+          }
+          return;
+        }
+
+        // Process ONE tile
+        const idx = revealQueue.shift();
+        if (idx === undefined) {
+          setTimeout(revealNext, 10);
+          return;
+        }
+        
+        // Remove from set
+        revealQueueSet.delete(idx);
+        
+        const t = state.tiles[idx];
+        if (!t.revealed && !t.flagged && !t.isEmpty) {
+          // Reveal this tile
+          t.revealed = true;
+          
+          // Update material
+          if (t.mine) {
+            t.mesh.material = matMine;
+            if (!document.getElementById('debugImmortal')?.checked) {
+              isRevealing = false;
+              revealQueue.length = 0;
+              revealQueueSet.clear();
+              gameLost(idx);
+              return;
+            }
+          } else {
+            t.mesh.material = matRevealed;
+            state.safeRevealed++; // Only count non-empty, non-mine tiles
+          }
+          
+          // Add label if needed (only for numbered tiles)
+          if (t.count > 0) {
+            addLabel(idx, t.count);
+          }
+          
+          // Play sound only once per cascade (not per tile)
+          if (!soundPlayed) {
+            playSound('reveal');
+            soundPlayed = true;
+          }
+          
+          // If this tile has count 0, add adjacent safe tiles to reveal queue
+          if (t.count === 0) {
+            for (const nb of state.neighbors[idx]) {
+              const neighbor = state.tiles[nb];
+              if (!neighbor.revealed && !neighbor.flagged && !neighbor.isEmpty && !neighbor.mine) {
+                if (!revealQueueSet.has(nb)) {
+                  revealQueue.push(nb);
+                  revealQueueSet.add(nb);
+                }
+              }
+            }
+          }
+        }
+        
+        // Process next tile after 10ms delay
+        setTimeout(revealNext, 10);
       }
 
       revealNext();
@@ -1740,9 +1767,13 @@
       if (!isRevealing && revealQueue.length === 0){
         lifeLostInCurrentReveal = false;
         revealQueue.push(i);
+        revealQueueSet.add(i);
         processRevealQueue();
       } else {
-        if (!revealQueue.includes(i)) revealQueue.push(i);
+        if (!revealQueueSet.has(i)) {
+          revealQueue.push(i);
+          revealQueueSet.add(i);
+        }
       }
     }
 
@@ -1752,7 +1783,14 @@
 
       const t = state.tiles[i]; if (t.label) return;
 
-      const s = makeNumberSprite(n, labelScale(state.f)); s.position.copy(t.center).multiplyScalar(1.015);
+      // Get label color, or calculate it from revealed tile color if not set
+      let labelColorHex = document.getElementById('debugLabelColor')?.value;
+      if (!labelColorHex) {
+        const revealedColor = document.getElementById('debugTileRevealed')?.value || '#4c5b7b';
+        labelColorHex = lightenColor(revealedColor, 0.55);
+      }
+
+      const s = makeNumberSprite(n, labelScale(state.f), labelColorHex); s.position.copy(t.center).multiplyScalar(1.015);
 
       tileGroup.add(s); t.label = s;
 
@@ -2060,6 +2098,7 @@
       
       // Reset reveal queue and state
       revealQueue = [];
+      revealQueueSet.clear();
       isRevealing = false;
       isInitialReveal = false;
       
@@ -2081,7 +2120,7 @@
     
     // Smooth rotation with momentum
     let rotationVelocity = { x: 0, y: 0 };
-    const rotationFriction = 0.96; // Friction for momentum decay (0.96 = 4% decay per frame - smoother stop)
+    const rotationFriction = 0.88; // Friction for momentum decay (0.88 = 12% decay per frame - faster stop)
     const rotationAcceleration = 0.08; // How quickly velocity builds up (0-1) - slower easing in
     const rotationSpeed = 0.0025; // Base rotation speed multiplier - less responsive
 
@@ -2228,7 +2267,8 @@
       if (e.button === 2 && dragState.button === 2) {
         rightClickHandled = true;
         toggleFlag(idx);
-        setTimeout(() => { rightClickHandled = false; }, 100);
+        // Clear flag immediately for faster response
+        setTimeout(() => { rightClickHandled = false; }, 50);
       } else if (e.button === 0 && dragState.button === 0) {
 
         const now = Date.now();
@@ -2247,14 +2287,16 @@
 
         } else {
 
+          // Reveal immediately for instant response
+          reveal(idx);
+
+          // Still track for double-click detection, but don't delay the reveal
           lastClickTime = now;
 
           lastClickTile = idx;
 
+          // Clear after a short delay to allow double-click detection
           lastClickTimeout = setTimeout(() => {
-
-            // Mines are already placed on game start, so just reveal the clicked tile
-            reveal(idx);
 
             lastClickTime = 0;
 
@@ -2443,8 +2485,11 @@
       if (!audioContext) {
         try {
           audioContext = new (window.AudioContext || window.webkitAudioContext)();
-          // Pre-create all click sounds
-          createAllClickSounds();
+          // Pre-create all click sounds asynchronously to avoid blocking initialization
+          // Use setTimeout to defer to next event loop tick for faster response
+          setTimeout(() => {
+            createAllClickSounds();
+          }, 0);
         } catch (e) {
           console.warn('Web Audio API not supported');
         }
@@ -3344,7 +3389,12 @@
 
             if (t.count > 0 && !t.isEmpty) {
 
-              const labelColorHex = document.getElementById('debugLabelColor')?.value || '#b3b7c1';
+              // Get label color, or calculate it from revealed tile color if not set
+              let labelColorHex = document.getElementById('debugLabelColor')?.value;
+              if (!labelColorHex) {
+                const revealedColor = document.getElementById('debugTileRevealed')?.value || '#4c5b7b';
+                labelColorHex = lightenColor(revealedColor, 0.55);
+              }
 
               const s = makeNumberSprite(t.count, labelScale(state.f), labelColorHex);
 
@@ -3509,6 +3559,36 @@
 
       state.tiles.forEach(t => { if (t.revealed && !t.mine) t.mesh.material.color.copy(matRevealed.color); });
 
+      // Automatically update label color to be a lighter tone of revealed tile color
+      const lighterColor = lightenColor(tileRevealedInput.value, 0.55);
+      if (labelColorInput) {
+        labelColorInput.value = lighterColor;
+        updateColorDisplay(labelColorInput, labelColorDisplay, labelColorHex);
+        // Update all existing labels
+        state.tiles.forEach(t => {
+          if (t.label && t.count > 0 && !t.isEmpty) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 128; canvas.height = 128;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = 'rgba(0,0,0,0)';
+            ctx.fillRect(0,0,128,128);
+            ctx.font = '700 72px system-ui, Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = lighterColor;
+            ctx.shadowColor = 'rgba(0,0,0,0.5)';
+            ctx.shadowBlur = 8;
+            ctx.fillText(String(t.count), 64, 64);
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.anisotropy = 4;
+            tex.needsUpdate = true;
+            t.label.material.map.dispose();
+            t.label.material.map = tex;
+            t.label.material.needsUpdate = true;
+          }
+        });
+      }
+
     });
 
     const tileFlagInput = document.getElementById('debugTileFlag');
@@ -3620,6 +3700,13 @@
     const labelColorDisplay = document.getElementById('debugLabelColorDisplay');
 
     const labelColorHex = document.getElementById('debugLabelColorHex');
+
+    // Initialize label color based on revealed tile color on page load
+    if (tileRevealedInput && labelColorInput) {
+      const initialLighterColor = lightenColor(tileRevealedInput.value, 0.55);
+      labelColorInput.value = initialLighterColor;
+      updateColorDisplay(labelColorInput, labelColorDisplay, labelColorHex);
+    }
 
     labelColorDisplay.addEventListener('click', () => labelColorInput.click());
 
@@ -4075,6 +4162,9 @@
     }, 0);
 
     addEventListener('resize', ()=>{ camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); requestAnimationFrame(alignTimerWidth); });
+    
+    // Track camera zoom for controls update optimization
+    let lastCameraZoom = camera.zoom;
 
     const uiElement = document.querySelector('.ui');
 
@@ -4095,11 +4185,12 @@
     const fpsCounter = document.getElementById('fpsCounter');
 
     renderer.setAnimationLoop((time)=>{
-      // Update camera position uniform for glassmorphism shader
-      if (matEmpty && matEmpty.uniforms && matEmpty.uniforms.cameraPosition) {
-        matEmpty.uniforms.cameraPosition.value.copy(camera.position);
+      // Only update controls if camera zoom changed (for damping)
+      // Since rotation is disabled, controls.update() is mainly for zoom damping
+      if (Math.abs(camera.zoom - lastCameraZoom) > 0.001) {
+        controls.update();
+        lastCameraZoom = camera.zoom;
       }
-      controls.update();
       
       // Check if mouse button is held but mouse hasn't moved recently (no mousemove events)
       // If button is held but no movement detected in last 50ms, treat as released
@@ -4123,6 +4214,7 @@
         // Apply rotation based on current velocity
         if (hasVelocity && shouldRotate) {
           // Get camera's local axes in world space (only when actually rotating)
+          // Note: updateMatrixWorld is expensive but necessary for correct rotation
           camera.updateMatrixWorld();
           const right = new THREE.Vector3();
           const up = new THREE.Vector3();
