@@ -151,7 +151,7 @@
     .ui.compact .progress-value { opacity: 0; visibility: hidden; max-height: 0; overflow: hidden; }
 
     .ui.compact .controls-section { opacity: 0; visibility: hidden; max-height: 0; overflow: hidden; pointer-events: none; }
-    
+
     .ui.compact .instructions-section { opacity: 0; visibility: hidden; max-height: 0; overflow: hidden; pointer-events: none; }
 
     .ui.compact .progress-section { margin-bottom: 8px; }
@@ -469,10 +469,10 @@
         grid-template-columns: 1fr;
         gap: 12px;
         text-align: center;
-      }
-      
-      .game-overlay-stats .stat-row {
-        align-items: center;
+    }
+
+    .game-overlay-stats .stat-row {
+      align-items: center;
       }
       
       .game-overlay-stats .stat-row[style*="text-align: right"] {
@@ -612,6 +612,10 @@
           <span class="stat-label">TILES REVEALED</span>
           <span class="stat-value revealed" id="statRevealed">0/0</span>
         </div>
+        <div class="stat-row">
+          <span class="stat-label">TIME</span>
+          <span class="stat-value" id="statTimer">00:00</span>
+        </div>
       </div>
       <button class="game-overlay-button" id="restartButton">Restart</button>
     </div>
@@ -690,7 +694,7 @@
       <button class="control-btn" id="globeBtn" title="Globe">🌐</button>
 
     </div>
-    
+
     <div class="instructions-section">
       <div class="instructions-title">How to Play</div>
       <ul class="instructions-list">
@@ -722,25 +726,7 @@
 
         <div class="debug-control"><label>Initial Reveal %</label><div class="control-wrapper"><input type="range" id="debugInitialReveal" min="0" max="100" step="1" value="3" /></div><input type="number" id="debugInitialRevealValue" value="3" readonly /></div>
 
-        <div class="debug-control"><label>Glass</label><div class="control-wrapper"><input type="range" id="debugGlass" min="0" max="1" step="0.01" value="0" /></div><input type="number" id="debugGlassValue" value="0" step="0.01" readonly /></div>
-
-        <div class="debug-control"><label>Glass Tint</label><div class="color-display" id="debugGlassTintDisplay" style="background: #5a7aff; position: relative;"><input type="color" id="debugGlassTint" value="#5a7aff" /></div><span class="color-hex" id="debugGlassTintHex">#5a7aff</span></div>
-
         <div class="debug-control"><label>Immortal Mode</label><div class="control-wrapper"></div><input type="checkbox" id="debugImmortal" /></div>
-
-      </div>
-
-    </div>
-
-    <div class="debug-section collapsed">
-
-      <div class="debug-section-header collapsed"><span class="triangle"></span>Wireframe Colors</div>
-
-      <div class="debug-section-content">
-
-        <div class="debug-control"><label>Hex Color</label><div class="color-display" id="debugWireHexDisplay" style="background: #0f0f10; position: relative;"><input type="color" id="debugWireHex" value="#0f0f10" /></div><span class="color-hex" id="debugWireHexHex">#0f0f10</span></div>
-
-        <div class="debug-control"><label>Pent Color</label><div class="color-display" id="debugWirePentDisplay" style="background: #1e2129; position: relative;"><input type="color" id="debugWirePent" value="#1e2129" /></div><span class="color-hex" id="debugWirePentHex">#1e2129</span></div>
 
       </div>
 
@@ -759,6 +745,14 @@
         <div class="debug-control"><label>Flag</label><div class="color-display" id="debugTileFlagDisplay" style="background: #cc5555; position: relative;"><input type="color" id="debugTileFlag" value="#cc5555" /></div><span class="color-hex" id="debugTileFlagHex">#cc5555</span></div>
 
         <div class="debug-control"><label>Mine</label><div class="color-display" id="debugTileMineDisplay" style="background: #ff4444; position: relative;"><input type="color" id="debugTileMine" value="#ff4444" /></div><span class="color-hex" id="debugTileMineHex">#ff4444</span></div>
+
+        <div class="debug-control"><label>Wireframe</label><div class="color-display" id="debugWireColorDisplay" style="background: #0f0f10; position: relative;"><input type="color" id="debugWireColor" value="#0f0f10" /></div><span class="color-hex" id="debugWireColorHex">#0f0f10</span></div>
+
+        <div class="debug-control"><label>Background</label><div class="color-display" id="debugCamBgDisplay" style="background: #242528; position: relative;"><input type="color" id="debugCamBg" value="#242528" /></div><span class="color-hex" id="debugCamBgHex">#242528</span></div>
+
+        <div class="debug-control"><label>Glass</label><div class="control-wrapper"><input type="range" id="debugGlass" min="0" max="1" step="0.01" value="0" /></div><input type="number" id="debugGlassValue" value="0" step="0.01" readonly /></div>
+
+        <div class="debug-control"><label>Glass Tint</label><div class="color-display" id="debugGlassTintDisplay" style="background: #5a7aff; position: relative;"><input type="color" id="debugGlassTint" value="#5a7aff" /></div><span class="color-hex" id="debugGlassTintHex">#5a7aff</span></div>
 
       </div>
 
@@ -851,74 +845,35 @@
       <div class="debug-section-header collapsed"><span class="triangle"></span>Global Presets</div>
       <div class="debug-section-content">
         <div class="debug-control"><label>Preset</label><div class="control-wrapper"><select id="debugGlobalPreset">
-          <option value="0">0. Default</option>
-          <option value="1">1. Lighter</option>
-          <option value="2">2. More Glass</option>
-          <option value="3">3. Closer Light</option>
-          <option value="4">4. Balanced</option>
-          <option value="5">5. Warm Smooth</option>
-          <option value="6">6. Warm Sand</option>
-          <option value="7">7. Warm Smooth Glass</option>
-          <option value="8">8. Warm Sand Glass</option>
-          <option value="9">9. Warm Terracotta Glass</option>
-          <option value="10">10. Warm Sand Glossy</option>
-          <option value="11">11. Chocolate</option>
-          <option value="12">12. Modern Monochrome</option>
-          <option value="13">13. Khaki</option>
-        </select></div></div>
-      </div>
-    </div>
-
-    <div class="debug-section collapsed">
-      <div class="debug-section-header collapsed"><span class="triangle"></span>Color Presets</div>
-      <div class="debug-section-content">
-        <div class="debug-control"><label>Preset</label><div class="control-wrapper"><select id="debugColorPreset">
-          <option value="1">1. Ocean</option>
-          <option value="2">2. Forest</option>
-          <option value="3">3. Fire</option>
-          <option value="4">4. Sunset</option>
-          <option value="5">5. Moonlight</option>
-          <option value="6">6. Chaos</option>
-          <option value="7">7. Amber</option>
-          <option value="8">8. Desert</option>
-          <option value="9">9. Arctic</option>
-          <option value="10">10. Aurora</option>
-        </select></div></div>
-      </div>
-    </div>
-
-    <div class="debug-section collapsed">
-      <div class="debug-section-header collapsed"><span class="triangle"></span>Light Presets</div>
-      <div class="debug-section-content">
-        <div class="debug-control"><label>Preset</label><div class="control-wrapper"><select id="debugLightPreset">
-          <option value="0">0. Current Default</option>
-          <option value="1">1. Soft Ambient</option>
-          <option value="2">2. Dramatic Shadows</option>
-          <option value="3">3. Studio Lighting</option>
-          <option value="4">4. High Contrast</option>
-          <option value="5">5. Warm Sunset</option>
-          <option value="6">6. Cool Moonlight</option>
-          <option value="7">7. Natural Overcast</option>
-          <option value="8">8. Twilight</option>
-          <option value="9">9. Dim Warm</option>
-        </select></div></div>
-      </div>
-    </div>
-
-    <div class="debug-section collapsed">
-      <div class="debug-section-header collapsed"><span class="triangle"></span>Material Presets</div>
-      <div class="debug-section-content">
-        <div class="debug-control"><label>Preset</label><div class="control-wrapper"><select id="debugMaterialPreset">
-          <option value="1">1. Matte (Rough)</option>
-          <option value="2">2. Smooth</option>
-          <option value="3">3. Glossy</option>
-          <option value="4">4. Shiny</option>
-          <option value="5">5. Velvet</option>
-          <option value="6">6. Semi-Metallic</option>
-          <option value="7">7. Matte Green</option>
-          <option value="8">8. Shiny Purple</option>
-          <option value="9">9. Rough Orange</option>
-          <option value="10">10. Ceramic</option>
+          <option value="0">0. Original</option>
+          <option value="1">1. Standard</option>
+          <option value="2">2. Galatasaray</option>
+          <option value="3">3. Fenerbahçe</option>
+          <option value="4">4. Beşiktaş</option>
+          <option value="5">5. Lakers Showtime</option>
+          <option value="6">6. Boston Celtics</option>
+          <option value="7">7. Golden State Warriors</option>
+          <option value="8">8. Chicago Bulls</option>
+          <option value="9">9. Miami Heat</option>
+          <option value="10">10. New York Knicks</option>
+          <option value="11">11. Dallas Mavericks</option>
+          <option value="12">12. Philadelphia 76ers</option>
+          <option value="13">13. Phoenix Suns</option>
+          <option value="14">14. Milwaukee Bucks</option>
+          <option value="15">15. Trabzonspor</option>
+          <option value="16">16. Warm Smooth</option>
+          <option value="17">17. Warm Sand</option>
+          <option value="18">18. Warm Smooth Glass</option>
+          <option value="19">19. Warm Sand Glass</option>
+          <option value="20">20. Warm Terracotta Glass</option>
+          <option value="21">21. Warm Sand Glossy</option>
+          <option value="22">22. Chocolate</option>
+          <option value="23">23. Modern Monochrome</option>
+          <option value="24">24. Khaki</option>
+          <option value="25">25. Lighter</option>
+          <option value="26">26. More Glass</option>
+          <option value="27">27. Closer Light</option>
+          <option value="28">28. Balanced</option>
         </select></div></div>
       </div>
     </div>
@@ -928,8 +883,6 @@
       <div class="debug-section-header collapsed"><span class="triangle"></span>Camera</div>
 
       <div class="debug-section-content">
-
-        <div class="debug-control"><label>Background</label><div class="color-display" id="debugCamBgDisplay" style="background: #242528; position: relative;"><input type="color" id="debugCamBg" value="#242528" /></div><span class="color-hex" id="debugCamBgHex">#242528</span></div>
 
         <div class="debug-control"><label>FOV</label><div class="control-wrapper"><input type="range" id="debugCamFOV" min="10" max="120" step="1" value="32" /></div><input type="number" id="debugCamFOVValue" value="32" readonly /></div>
 
@@ -1947,7 +1900,7 @@
             if (state.neighbors[nb] && state.neighbors[nb].includes(i)) {
               // Use Set for O(1) lookup instead of O(n) includes()
               if (!revealQueueSet.has(nb)) {
-                revealQueue.push(nb);
+              revealQueue.push(nb);
                 revealQueueSet.add(nb);
               }
             }
@@ -2007,15 +1960,15 @@
                   // Verify this is a valid neighbor by checking reverse adjacency
                   // A tile should only be added if it's directly adjacent (shares an edge)
                   if (state.neighbors[nb] && state.neighbors[nb].includes(idx)) {
-                    if (!revealQueueSet.has(nb)) {
-                      revealQueue.push(nb);
-                      revealQueueSet.add(nb);
-                    }
+                  if (!revealQueueSet.has(nb)) {
+                    revealQueue.push(nb);
+                    revealQueueSet.add(nb);
                   }
                 }
               }
             }
           }
+        }
         }
         
         // Batch expensive operations at the end
@@ -2104,9 +2057,9 @@
                   // Verify this is a valid neighbor by checking reverse adjacency
                   // A tile should only be added if it's directly adjacent (shares an edge)
                   if (state.neighbors[nb] && state.neighbors[nb].includes(idx)) {
-                    if (!revealQueueSet.has(nb)) {
-                      revealQueue.push(nb);
-                      revealQueueSet.add(nb);
+                  if (!revealQueueSet.has(nb)) {
+                    revealQueue.push(nb);
+                    revealQueueSet.add(nb);
                     }
                   }
                 }
@@ -2192,7 +2145,7 @@
       const t = state.tiles[i]; 
       if (t.revealed || state.gameOver) return; 
       t.flagged = !t.flagged; 
-      t.mesh.material = t.flagged ? matFlag : matHidden;
+      t.mesh.material = t.flagged ? matFlag : matHidden; 
       // Reset scale to normal when flag state changes
       t.mesh.scale.set(1.0, 1.0, 1.0);
       state.flags += t.flagged ? 1 : -1; 
@@ -2242,6 +2195,7 @@
         const statExploration = document.getElementById('statExploration');
         const statFlags = document.getElementById('statFlags');
         const statRevealed = document.getElementById('statRevealed');
+        const gameOverTimer = document.getElementById('statTimer');
         
         if (gameOverOverlay) {
           if (gameOverTitle) {
@@ -2275,6 +2229,10 @@
             statRevealed.textContent = `${nonEmptySafeRevealed}/${totalSafe}`;
             statRevealed.className = 'stat-value revealed';
           }
+          if (gameOverTimer) {
+            gameOverTimer.textContent = document.getElementById('timerValue')?.textContent || '00:00';
+            gameOverTimer.className = 'stat-value';
+          }
           
           gameOverOverlay.classList.add('visible');
         }
@@ -2299,6 +2257,7 @@
         const statExploration = document.getElementById('statExploration');
         const statFlags = document.getElementById('statFlags');
         const statRevealed = document.getElementById('statRevealed');
+        const gameOverTimer = document.getElementById('statTimer');
         
         if (gameOverOverlay) {
           if (gameOverTitle) {
@@ -2331,6 +2290,10 @@
           if (statRevealed) {
             statRevealed.textContent = `${nonEmptySafeRevealed}/${totalSafe}`;
             statRevealed.className = 'stat-value revealed';
+          }
+          if (gameOverTimer) {
+            gameOverTimer.textContent = document.getElementById('timerValue')?.textContent || '00:00';
+            gameOverTimer.className = 'stat-value';
           }
           
           gameOverOverlay.classList.add('visible');
@@ -3499,8 +3462,9 @@
             'initialReveal': 'debugInitialReveal',
             'glass': 'debugGlass',
             'glassTint': 'debugGlassTint',
-            'wireHex': 'debugWireHex',
-            'wirePent': 'debugWirePent',
+            'wireHex': 'debugWireColor',
+            'wirePent': 'debugWireColor',
+            'wireColor': 'debugWireColor',
             'tileHidden': 'debugTileHidden',
             'tileRevealed': 'debugTileRevealed',
             'tileFlag': 'debugTileFlag',
@@ -3881,38 +3845,21 @@
       });
     });
 
-    const wireHexInput = document.getElementById('debugWireHex');
+    const wireColorInput = document.getElementById('debugWireColor');
 
-    const wireHexDisplay = document.getElementById('debugWireHexDisplay');
+    const wireColorDisplay = document.getElementById('debugWireColorDisplay');
 
-    const wireHexHex = document.getElementById('debugWireHexHex');
+    const wireColorHex = document.getElementById('debugWireColorHex');
 
-    wireHexDisplay.addEventListener('click', () => wireHexInput.click());
+    wireColorDisplay.addEventListener('click', () => wireColorInput.click());
 
-    wireHexInput.addEventListener('input', (e) => {
+    wireColorInput.addEventListener('input', () => {
 
-      updateColorDisplay(wireHexInput, wireHexDisplay, wireHexHex);
+      updateColorDisplay(wireColorInput, wireColorDisplay, wireColorHex);
 
-      const color = parseInt(wireHexInput.value.substring(1), 16);
+      const color = parseInt(wireColorInput.value.substring(1), 16);
 
       if (wireHexMaterial) wireHexMaterial.color.setHex(color);
-
-    });
-
-    const wirePentInput = document.getElementById('debugWirePent');
-
-    const wirePentDisplay = document.getElementById('debugWirePentDisplay');
-
-    const wirePentHex = document.getElementById('debugWirePentHex');
-
-    wirePentDisplay.addEventListener('click', () => wirePentInput.click());
-
-    wirePentInput.addEventListener('input', (e) => {
-
-      updateColorDisplay(wirePentInput, wirePentDisplay, wirePentHex);
-
-      const color = parseInt(wirePentInput.value.substring(1), 16);
-
       if (wirePentMaterial) wirePentMaterial.color.setHex(color);
 
     });
@@ -4667,24 +4614,213 @@
     // ===== Presets =====
     
     // Global Presets (20 presets) - Based on user preferences
+    const debugControlMap = {
+      freq: 'debugFreq',
+      mineRatio: 'debugMineRatio',
+      emptyRatio: 'debugEmptyRatio',
+      initialReveal: 'debugInitialReveal',
+      glass: 'debugGlass',
+      glassTint: 'debugGlassTint',
+      labelOffset: 'debugLabelOffset',
+      labelRot: 'debugLabelRot',
+      labelRotX: 'debugLabelRotX',
+      labelRotY: 'debugLabelRotY',
+      labelRotZ: 'debugLabelRotZ',
+      labelScale: 'debugLabelScale',
+      hemiIntensity: 'debugHemiIntensity',
+      dirIntensity: 'debugDirIntensity',
+      dirX: 'debugDirX',
+      dirY: 'debugDirY',
+      dirZ: 'debugDirZ',
+      dirDistance: 'debugDirDistance',
+      dirDecay: 'debugDirDecay',
+      dirShadowMapSize: 'debugDirShadowMapSize',
+      dirShadowRadius: 'debugDirShadowRadius',
+      centerLightIntensity: 'debugCenterLightIntensity',
+      centerLightDistance: 'debugCenterLightDistance',
+      centerLightDecay: 'debugCenterLightDecay',
+      clickSound: 'debugClickSound',
+      gameOverSound: 'debugGameOverSound',
+      camFOV: 'debugCamFOV',
+      camX: 'debugCamX',
+      camY: 'debugCamY',
+      camZ: 'debugCamZ',
+      camNear: 'debugCamNear',
+      camFar: 'debugCamFar',
+      immortal: 'debugImmortal',
+      camFog: 'debugCamFog'
+    };
+
+    function setDebugControlValue(controlId, value) {
+      const el = document.getElementById(controlId);
+      if (!el) return;
+      if (el.type === 'checkbox') {
+        el.checked = Boolean(value);
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+        return;
+      }
+      el.value = value;
+      if (el.type === 'range') {
+        updateSliderFill(el);
+      }
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    function applyDebugOverrides(overrides) {
+      if (!overrides) return;
+      Object.entries(overrides).forEach(([key, value]) => {
+        const controlId = debugControlMap[key];
+        if (!controlId) return;
+        setDebugControlValue(controlId, value);
+
+        switch (key) {
+          case 'tileHidden':
+            if (tileHiddenInput) {
+              tileHiddenInput.value = value;
+              updateColorDisplay(tileHiddenInput, tileHiddenDisplay, tileHiddenHex);
+              matHidden.color.setHex(parseInt(value.substring(1), 16));
+              state.tiles.forEach(t => { if (!t.revealed && !t.flagged) t.mesh.material.color.copy(matHidden.color); });
+            }
+            break;
+          case 'tileRevealed':
+            if (tileRevealedInput) {
+              tileRevealedInput.value = value;
+              updateColorDisplay(tileRevealedInput, tileRevealedDisplay, tileRevealedHex);
+              matRevealed.color.setHex(parseInt(value.substring(1), 16));
+              state.tiles.forEach(t => { if (t.revealed && !t.mine) t.mesh.material.color.copy(matRevealed.color); });
+            }
+            break;
+          case 'tileFlag':
+            if (tileFlagInput) {
+              tileFlagInput.value = value;
+              updateColorDisplay(tileFlagInput, tileFlagDisplay, tileFlagHex);
+              matFlag.color.setHex(parseInt(value.substring(1), 16));
+              state.tiles.forEach(t => { if (t.flagged) t.mesh.material.color.copy(matFlag.color); });
+            }
+            break;
+          case 'tileMine':
+            if (tileMineInput) {
+              tileMineInput.value = value;
+              updateColorDisplay(tileMineInput, tileMineDisplay, tileMineHex);
+              matMine.color.setHex(parseInt(value.substring(1), 16));
+              state.tiles.forEach(t => { if (t.mine && t.revealed) t.mesh.material.color.copy(matMine.color); });
+            }
+            break;
+          case 'labelColor':
+            if (labelColorInput) {
+              labelColorInput.value = value;
+              updateColorDisplay(labelColorInput, labelColorDisplay, labelColorHex);
+              state.tiles.forEach(t => {
+                if (t.label && t.count > 0 && !t.isEmpty) {
+                  const canvas = document.createElement('canvas');
+                  canvas.width = 128; canvas.height = 128;
+                  const ctx = canvas.getContext('2d');
+                  ctx.fillStyle = 'rgba(0,0,0,0)';
+                  ctx.fillRect(0,0,128,128);
+                  ctx.font = '700 72px system-ui, Arial';
+                  ctx.textAlign = 'center';
+                  ctx.textBaseline = 'middle';
+                  ctx.fillStyle = value;
+                  ctx.shadowColor = 'rgba(0,0,0,0.5)';
+                  ctx.shadowBlur = 8;
+                  ctx.fillText(String(t.count), 64, 64);
+                  const tex = new THREE.CanvasTexture(canvas);
+                  tex.anisotropy = 4;
+                  tex.needsUpdate = true;
+                  t.label.material.map.dispose();
+                  t.label.material.map = tex;
+                  t.label.material.needsUpdate = true;
+                }
+              });
+            }
+            break;
+          case 'wireColor':
+          case 'wireHex':
+          case 'wirePent':
+            if (wireColorInput) {
+              wireColorInput.value = value;
+              updateColorDisplay(wireColorInput, wireColorDisplay, wireColorHex);
+              const color = parseInt(value.substring(1), 16);
+              if (wireHexMaterial) wireHexMaterial.color.setHex(color);
+              if (wirePentMaterial) wirePentMaterial.color.setHex(color);
+            }
+            break;
+          case 'hemiSky':
+            if (hemiSkyInput) {
+              hemiSkyInput.value = value;
+              updateColorDisplay(hemiSkyInput, hemiSkyDisplay, hemiSkyHex);
+              hemi.color.setHex(parseInt(value.substring(1), 16));
+            }
+            break;
+          case 'hemiGround':
+            if (hemiGroundInput) {
+              hemiGroundInput.value = value;
+              updateColorDisplay(hemiGroundInput, hemiGroundDisplay, hemiGroundHex);
+              hemi.groundColor.setHex(parseInt(value.substring(1), 16));
+            }
+            break;
+          case 'dirColor':
+            if (dirColorInput) {
+              dirColorInput.value = value;
+              updateColorDisplay(dirColorInput, dirColorDisplay, dirColorHex);
+              dir.color.setHex(parseInt(value.substring(1), 16));
+            }
+            break;
+          case 'centerLightColor':
+            if (centerLightColorInput) {
+              centerLightColorInput.value = value;
+              updateColorDisplay(centerLightColorInput, centerLightColorDisplay, centerLightColorHex);
+              centerLight.color.setHex(parseInt(value.substring(1), 16));
+            }
+            break;
+          case 'camBg':
+            if (camBgInput) {
+              camBgInput.value = value;
+              updateColorDisplay(camBgInput, camBgDisplay, camBgHex);
+              const color = parseInt(value.substring(1), 16);
+              scene.background.setHex(color);
+              renderer.setClearColor(color, 1);
+            }
+            break;
+          default:
+            break;
+        }
+      });
+    }
+
     const globalPresets = {
-      0: { name: 'Default', color: 0, light: 0, material: 0 }, // Original default settings - NO CHANGES
-      1: { name: 'Lighter', color: 1, light: 0, material: 0 }, // Brighter tiles
-      2: { name: 'More Glass', color: 0, light: 0, material: 3 }, // Default colors/lighting, more transparent
-      3: { name: 'Closer Light', color: 0, light: 3, material: 8 }, // Default colors, closer light, changed center color
-      4: { name: 'Balanced', color: 4, light: 0, material: 0 }, // Warm brown tiles (changed from brown tint)
-      5: { name: 'Warm Smooth', color: 6, light: 4, material: 2 }, // Warm beige tiles, warm beige lighting, smooth
-      6: { name: 'Warm Sand', color: 8, light: 6, material: 2 }, // Warm sand tiles, warm sand lighting, smooth
-      7: { name: 'Warm Smooth Glass', color: 6, light: 4, material: 3 }, // Warm beige with more glass
-      8: { name: 'Warm Sand Glass', color: 8, light: 6, material: 3 }, // Warm sand with more glass
-      9: { name: 'Warm Terracotta Glass', color: 9, light: 8, material: 3 }, // Warm terracotta with more glass
-      10: { name: 'Warm Sand Glossy', color: 8, light: 6, material: 5 }, // Warm sand with glossy finish
-      11: { name: 'Chocolate', color: 40, light: 39, material: 2 }, // Chocolate tiles with chocolate lighting, smooth
-      12: { name: 'Modern Monochrome', color: 12, light: 11, material: 12 }, // Charcoal tiles with silver lighting
-      13: { name: 'Khaki', color: 49, light: 48, material: 28 } // Khaki tiles with khaki lighting, khaki glass
+      0: { name: 'Original', color: 0, light: 0, material: 0 },
+      1: { name: 'Standard', color: 65, light: 64, material: 2, debug: { glass: 0.09, glassTint: '#4a4e4f', labelScale: 0.06, dirIntensity: 0.5, dirX: 2.4, dirY: 1.8, dirZ: -1.0, dirDistance: 22, dirDecay: 0.9, dirShadowMapSize: 2560, dirShadowRadius: 7, centerLightIntensity: 0.3, centerLightDistance: 20, centerLightDecay: 2, camFOV: 31, camX: 2.9, camY: 0.6, camZ: 1.3, camFar: 704, camFog: true } },
+      2: { name: 'Galatasaray', color: 61, light: 60, material: 3, debug: { glass: 0.2, glassTint: '#fb6423', dirIntensity: 0.9, dirX: 2.5, dirY: 2.6, dirZ: 2.5, dirDistance: 22, dirDecay: 2, dirShadowMapSize: 2304, dirShadowRadius: 4.5, centerLightIntensity: 3, centerLightDistance: 1, centerLightDecay: 0.1, camFar: 704, camFog: true } },
+      3: { name: 'Fenerbahçe', color: 62, light: 61, material: 5, debug: { glass: 0.53, glassTint: '#ecba2a', dirIntensity: 0.9, dirX: 2.6, dirY: 1.9, dirZ: -1.3, dirDistance: 24, dirDecay: 2, dirShadowMapSize: 2304, dirShadowRadius: 4.5, centerLightIntensity: 0.9, centerLightDistance: 20, centerLightDecay: 3, camFOV: 31, camX: 3.0, camY: 0.6, camZ: 1.3, camFar: 704, camFog: true } },
+      4: { name: 'Beşiktaş', color: 63, light: 62, material: 9, debug: { glass: 0.27, glassTint: '#8f8f8f' } },
+      5: { name: 'Lakers Showtime', color: 51, light: 50, material: 3, debug: { glass: 0.33, glassTint: '#583092', dirIntensity: 1.0, dirX: 3.2, dirY: 2.5, dirZ: -1.7, dirDistance: 22, dirDecay: 2, dirShadowMapSize: 2304, dirShadowRadius: 4.5, centerLightIntensity: 0.9, centerLightDistance: 14.5, centerLightDecay: 2, camFOV: 31, camX: 3.0, camY: 0.6, camZ: 1.3, camFar: 704, camFog: true } },
+      6: { name: 'Boston Celtics', color: 52, light: 51, material: 2, debug: { glass: 0.46, glassTint: '#207e44', camFOV: 31, camX: 3.0, camY: 0.6, camZ: 1.3, camFar: 704, camFog: true } },
+      7: { name: 'Golden State Warriors', color: 53, light: 52, material: 5, debug: { glass: 0.36, glassTint: '#1d408c', dirIntensity: 0.9, dirX: 2.6, dirY: 1.9, dirZ: -1.3, dirDistance: 24, dirDecay: 2, dirShadowMapSize: 2304, dirShadowRadius: 4.5, centerLightIntensity: 2.3, centerLightDistance: 8.5, centerLightDecay: 0, camFOV: 31, camX: 3.0, camY: 0.6, camZ: 1.3, camFar: 704, camFog: true } },
+      8: { name: 'Chicago Bulls', color: 54, light: 53, material: 1, debug: { glass: 0.53, glassTint: '#553434', dirIntensity: 1.5, dirX: 2.5, dirY: 1.7, dirZ: -1.0, dirDistance: 22, dirDecay: 2, dirShadowMapSize: 2304, dirShadowRadius: 4.5, centerLightIntensity: 0, centerLightDistance: 8.5, centerLightDecay: 1.3, camFOV: 31, camX: 3.2, camY: 0.6, camZ: 1.4, camFar: 704, camFog: true } },
+      9: { name: 'Miami Heat', color: 55, light: 54, material: 3, debug: { glass: 0.19, glassTint: '#c37e46', dirIntensity: 1.1, dirX: 2.4, dirY: 1.5, dirZ: -0.9, dirDistance: 100, dirDecay: 2.3, dirShadowMapSize: 2304, dirShadowRadius: 10.5, centerLightIntensity: 1.6, centerLightDistance: 11, centerLightDecay: 0.8, camFOV: 31, camX: 3.2, camY: 0.6, camZ: 1.4, camFar: 704, camFog: true } },
+      10: { name: 'New York Knicks', color: 56, light: 55, material: 8, debug: { glass: 0.46, glassTint: '#ffffff', camFOV: 31, camX: 3.2, camY: 0.6, camZ: 1.4, camFar: 704, camFog: true } },
+      11: { name: 'Dallas Mavericks', color: 57, light: 56, material: 2, debug: { glass: 0.45, glassTint: '#5d7bbb', camFOV: 31, camX: 3.2, camY: 0.6, camZ: 1.4, camFar: 704, camFog: true } },
+      12: { name: 'Philadelphia 76ers', color: 58, light: 57, material: 5, debug: { glass: 0.15, glassTint: '#ca4969', dirIntensity: 1.1, dirX: 3.2, dirY: 5.4, dirZ: -2.6, dirDistance: 24, dirDecay: 2, dirShadowMapSize: 2304, dirShadowRadius: 4.5, centerLightIntensity: 1.0, centerLightDistance: 20, centerLightDecay: 3, camFar: 704, camFog: true, camX: 3.2, camY: 0.6, camZ: 1.4 } },
+      13: { name: 'Phoenix Suns', color: 59, light: 58, material: 3, debug: { glass: 0.1, glassTint: '#4c5b7b', dirIntensity: 0.9, dirX: 2.5, dirY: 1.7, dirZ: -1.2, dirDistance: 22, dirDecay: 2, dirShadowMapSize: 2304, dirShadowRadius: 4.5, centerLightIntensity: 0.8, centerLightDistance: 6, centerLightDecay: 2, camFar: 704, camFog: true, camX: 3.2, camY: 0.6, camZ: 1.4 } },
+      14: { name: 'Milwaukee Bucks', color: 60, light: 59, material: 2, debug: { glass: 0.29, glassTint: '#cdb99d', dirIntensity: 1.3, dirX: 2.2, dirY: 2.0, dirZ: -1.3, dirDistance: 24, dirDecay: 2, dirShadowMapSize: 2304, dirShadowRadius: 4.5, centerLightIntensity: 1.9, centerLightDistance: 3, centerLightDecay: 2, camFar: 704, camFog: true } },
+      15: { name: 'Trabzonspor', color: 64, light: 63, material: 3, debug: { glass: 0.44, glassTint: '#4c5b7b' } },
+      16: { name: 'Warm Smooth', color: 6, light: 4, material: 2 },
+      17: { name: 'Warm Sand', color: 8, light: 6, material: 2 },
+      18: { name: 'Warm Smooth Glass', color: 6, light: 4, material: 3 },
+      19: { name: 'Warm Sand Glass', color: 8, light: 6, material: 3 },
+      20: { name: 'Warm Terracotta Glass', color: 9, light: 8, material: 3 },
+      21: { name: 'Warm Sand Glossy', color: 8, light: 6, material: 5 },
+      22: { name: 'Chocolate', color: 40, light: 39, material: 2 },
+      23: { name: 'Modern Monochrome', color: 12, light: 11, material: 12 },
+      24: { name: 'Khaki', color: 49, light: 48, material: 28 },
+      25: { name: 'Lighter', color: 1, light: 0, material: 0 },
+      26: { name: 'More Glass', color: 0, light: 0, material: 3 },
+      27: { name: 'Closer Light', color: 0, light: 3, material: 8 },
+      28: { name: 'Balanced', color: 4, light: 0, material: 0 }
     };
     
-    let currentGlobalPreset = 0; // Start with Default preset
+    let currentGlobalPreset = 1; // Start with Standard preset
     
     // Apply Global Preset
     function applyGlobalPreset(presetNum) {
@@ -4706,6 +4842,10 @@
         applyMaterialPreset(preset.material);
       }
       
+      if (preset.debug) {
+        applyDebugOverrides(preset.debug);
+      }
+      
       // Update display
       const presetDisplay = document.getElementById('presetDisplay');
       if (presetDisplay) {
@@ -4722,7 +4862,8 @@
     
     // Cycle to next global preset
     function cycleGlobalPreset() {
-      currentGlobalPreset = (currentGlobalPreset + 1) % 14; // 0-13 (14 presets including Default)
+      const totalGlobalPresets = Object.keys(globalPresets).length;
+      currentGlobalPreset = (currentGlobalPreset + 1) % totalGlobalPresets;
       applyGlobalPreset(currentGlobalPreset);
     }
     
@@ -4982,6 +5123,81 @@
         tileHidden: '#2d0f0f', tileRevealed: '#4d1f1f', tileFlag: '#cc5555', tileMine: '#ff4444',
         labelColor: '#8a5a5a', wireHex: '#120505', wirePent: '#220f0f', camBg: '#220f0f',
         centerLightColor: '#dc143c'
+      },
+      51: { // Lakers Showtime
+        tileHidden: '#fdb927', tileRevealed: '#6539ac', tileFlag: '#e1ded5', tileMine: '#431d0e',
+        labelColor: '#aca68b', wireHex: '#1a0f33', wirePent: '#1a0f33', camBg: '#301b50',
+        centerLightColor: '#ffcd2e'
+      },
+      52: { // Boston Celtics
+        tileHidden: '#b8a632', tileRevealed: '#12813c', tileFlag: '#d5ddc6', tileMine: '#ff8800',
+        labelColor: '#9abe97', wireHex: '#072716', wirePent: '#072716', camBg: '#0b3b23',
+        centerLightColor: '#00b140'
+      },
+      53: { // Golden State Warriors
+        tileHidden: '#ffc72c', tileRevealed: '#1d428a', tileFlag: '#ffffff', tileMine: '#d70909',
+        labelColor: '#798bb4', wireHex: '#0a1c3b', wirePent: '#0a1c3b', camBg: '#1a2c47',
+        centerLightColor: '#504aa5'
+      },
+      54: { // Chicago Bulls
+        tileHidden: '#271616', tileRevealed: '#3d0a0a', tileFlag: '#ab7381', tileMine: '#ff002f',
+        labelColor: '#c87e7e', wireHex: '#120607', wirePent: '#120607', camBg: '#3d0a0a',
+        centerLightColor: '#ce1141'
+      },
+      55: { // Miami Heat
+        tileHidden: '#dfced0', tileRevealed: '#791b2e', tileFlag: '#98002e', tileMine: '#f9a01b',
+        labelColor: '#d0959c', wireHex: '#0b0305', wirePent: '#0b0305', camBg: '#481416',
+        centerLightColor: '#8e5506'
+      },
+      56: { // New York Knicks
+        tileHidden: '#d6dbe0', tileRevealed: '#0f3b6d', tileFlag: '#f58426', tileMine: '#ff6b1a',
+        labelColor: '#8794ab', wireHex: '#081a33', wirePent: '#081a33', camBg: '#926f4f',
+        centerLightColor: '#f56200'
+      },
+      57: { // Dallas Mavericks
+        tileHidden: '#0c1f3f', tileRevealed: '#123f66', tileFlag: '#c4ced4', tileMine: '#18a8e0',
+        labelColor: '#537c8d', wireHex: '#08152a', wirePent: '#08152a', camBg: '#587e97',
+        centerLightColor: '#36a9e1'
+      },
+      58: { // Philadelphia 76ers
+        tileHidden: '#c7cedb', tileRevealed: '#0b3e91', tileFlag: '#000000', tileMine: '#ffffff',
+        labelColor: '#7896ce', wireHex: '#081a33', wirePent: '#081a33', camBg: '#8d94a0',
+        centerLightColor: '#ed174c'
+      },
+      59: { // Phoenix Suns
+        tileHidden: '#974620', tileRevealed: '#341177', tileFlag: '#e56020', tileMine: '#f9b041',
+        labelColor: '#f3d5f8', wireHex: '#120b2a', wirePent: '#120b2a', camBg: '#3a173b',
+        centerLightColor: '#e56020'
+      },
+      60: { // Milwaukee Bucks
+        tileHidden: '#153d27', tileRevealed: '#186d3f', tileFlag: '#eee1c6', tileMine: '#0077c0',
+        labelColor: '#d8f0e3', wireHex: '#081612', wirePent: '#081612', camBg: '#cdb99d',
+        centerLightColor: '#c8a97e'
+      },
+      61: { // Galatasaray
+        tileHidden: '#fbbf24', tileRevealed: '#7f1d1d', tileFlag: '#204ccf', tileMine: '#14db06',
+        labelColor: '#dd8264', wireHex: '#240808', wirePent: '#240808', camBg: '#4e0909',
+        centerLightColor: '#0400ff'
+      },
+      62: { // Fenerbahçe
+        tileHidden: '#ffc72c', tileRevealed: '#1d428a', tileFlag: '#ffffff', tileMine: '#d70909',
+        labelColor: '#a28e57', wireHex: '#0a1c3b', wirePent: '#0a1c3b', camBg: '#786f36',
+        centerLightColor: '#b38e1f'
+      },
+      63: { // Beşiktaş
+        tileHidden: '#545454', tileRevealed: '#f2f2f3', tileFlag: '#e10a17', tileMine: '#ffffff',
+        labelColor: '#000000', wireHex: '#090909', wirePent: '#151515', camBg: '#928787',
+        centerLightColor: '#665c5d'
+      },
+      64: { // Trabzonspor
+        tileHidden: '#535eb2', tileRevealed: '#914060', tileFlag: '#1b5eaa', tileMine: '#7c162c',
+        labelColor: '#93767f', wireHex: '#1a0812', wirePent: '#2b1120', camBg: '#391e2e',
+        centerLightColor: '#8e98a4'
+      },
+      65: { // Standard
+        tileHidden: '#2b8b97', tileRevealed: '#f2f2f3', tileFlag: '#d34a53', tileMine: '#ffffff',
+        labelColor: '#1a1a1a', wireHex: '#090909', wirePent: '#090909', camBg: '#928787',
+        centerLightColor: '#665c5d'
       }
     };
 
@@ -5236,6 +5452,81 @@
         hemiSky: '#ffe8e8', hemiGround: '#ffd0d0', hemiIntensity: 0.6,
         dirColor: '#dc143c', dirIntensity: 0.8, dirX: 2.8, dirY: 1.8, dirZ: -1.2, dirDistance: 20, dirDecay: 2,
         centerColor: '#dc143c', centerIntensity: 1.5, centerDistance: 5, centerDecay: 2
+      },
+      50: { // Lakers Showtime
+        hemiSky: '#fbeec6', hemiGround: '#5b2ca5', hemiIntensity: 0.5,
+        dirColor: '#ffffff', dirIntensity: 1.0, dirX: 3.2, dirY: 2.5, dirZ: -1.7, dirDistance: 22, dirDecay: 2,
+        centerColor: '#ffcd2e', centerIntensity: 0.9, centerDistance: 14.5, centerDecay: 2
+      },
+      51: { // Boston Celtics
+        hemiSky: '#d9f7df', hemiGround: '#2f794d', hemiIntensity: 0.6,
+        dirColor: '#ffffff', dirIntensity: 0.8, dirX: 2.2, dirY: 2.0, dirZ: -1.2, dirDistance: 24, dirDecay: 2,
+        centerColor: '#00b140', centerIntensity: 0.9, centerDistance: 6, centerDecay: 2
+      },
+      52: { // Golden State Warriors
+        hemiSky: '#f4f0d9', hemiGround: '#0b1b35', hemiIntensity: 0.6,
+        dirColor: '#ffffff', dirIntensity: 0.9, dirX: 2.6, dirY: 1.9, dirZ: -1.3, dirDistance: 24, dirDecay: 2,
+        centerColor: '#504aa5', centerIntensity: 2.3, centerDistance: 8.5, centerDecay: 0
+      },
+      53: { // Chicago Bulls
+        hemiSky: '#f4d4d8', hemiGround: '#786d6e', hemiIntensity: 1.5,
+        dirColor: '#e3d9db', dirIntensity: 1.5, dirX: 2.5, dirY: 1.7, dirZ: -1.0, dirDistance: 22, dirDecay: 2,
+        centerColor: '#ce1141', centerIntensity: 0.0, centerDistance: 8.5, centerDecay: 1.3
+      },
+      54: { // Miami Heat
+        hemiSky: '#ffe3d7', hemiGround: '#7d212f', hemiIntensity: 0.6,
+        dirColor: '#d2c7b7', dirIntensity: 1.1, dirX: 2.4, dirY: 1.5, dirZ: -0.9, dirDistance: 100, dirDecay: 2.3,
+        centerColor: '#8e5506', centerIntensity: 1.6, centerDistance: 11, centerDecay: 0.8
+      },
+      55: { // New York Knicks
+        hemiSky: '#e6f0ff', hemiGround: '#0f3b6d', hemiIntensity: 0.8,
+        dirColor: '#f1eae5', dirIntensity: 0.8, dirX: 2.6, dirY: 1.8, dirZ: -1.1, dirDistance: 24, dirDecay: 2,
+        centerColor: '#f56200', centerIntensity: 0.2, centerDistance: 20, centerDecay: 0
+      },
+      56: { // Dallas Mavericks
+        hemiSky: '#e1f0ff', hemiGround: '#0a182c', hemiIntensity: 0.6,
+        dirColor: '#36a9e1', dirIntensity: 0.8, dirX: 2.3, dirY: 1.7, dirZ: -1.2, dirDistance: 24, dirDecay: 2,
+        centerColor: '#36a9e1', centerIntensity: 1.1, centerDistance: 6, centerDecay: 2
+      },
+      57: { // Philadelphia 76ers
+        hemiSky: '#e8f0ff', hemiGround: '#101a3a', hemiIntensity: 0.9,
+        dirColor: '#7d4a55', dirIntensity: 1.1, dirX: 3.2, dirY: 5.4, dirZ: -2.6, dirDistance: 24, dirDecay: 2,
+        centerColor: '#ed174c', centerIntensity: 1.0, centerDistance: 20, centerDecay: 3
+      },
+      58: { // Phoenix Suns
+        hemiSky: '#ffe6d1', hemiGround: '#1a1036', hemiIntensity: 0.9,
+        dirColor: '#e56020', dirIntensity: 0.9, dirX: 2.5, dirY: 1.7, dirZ: -1.2, dirDistance: 22, dirDecay: 2,
+        centerColor: '#e56020', centerIntensity: 0.8, centerDistance: 6, centerDecay: 2
+      },
+      59: { // Milwaukee Bucks
+        hemiSky: '#e0f2e6', hemiGround: '#0b2316', hemiIntensity: 0.6,
+        dirColor: '#c8a97e', dirIntensity: 1.3, dirX: 2.2, dirY: 2.0, dirZ: -1.3, dirDistance: 24, dirDecay: 2,
+        centerColor: '#c8a97e', centerIntensity: 1.9, centerDistance: 3, centerDecay: 2
+      },
+      60: { // Galatasaray
+        hemiSky: '#ffe8c7', hemiGround: '#2a0a0a', hemiIntensity: 0.6,
+        dirColor: '#ffffff', dirIntensity: 0.9, dirX: 2.5, dirY: 2.6, dirZ: 2.5, dirDistance: 22, dirDecay: 2,
+        centerColor: '#0400ff', centerIntensity: 3.0, centerDistance: 1, centerDecay: 0.1
+      },
+      61: { // Fenerbahçe
+        hemiSky: '#f2f6ff', hemiGround: '#091736', hemiIntensity: 0.6,
+        dirColor: '#ffffff', dirIntensity: 0.7, dirX: 2.7, dirY: 2.2, dirZ: -2.4, dirDistance: 100, dirDecay: 2,
+        centerColor: '#ffdd00', centerIntensity: 1.0, centerDistance: 8.5, centerDecay: 0.8
+      },
+      62: { // Beşiktaş
+        hemiSky: '#f0f0f0', hemiGround: '#060606', hemiIntensity: 0.6,
+        dirColor: '#e2d5d6', dirIntensity: 0.8, dirX: 2.4, dirY: 1.8, dirZ: -1.0, dirDistance: 22, dirDecay: 2,
+        centerColor: '#665c5d', centerIntensity: 0.3, centerDistance: 20, centerDecay: 2
+      },
+      63: { // Trabzonspor
+        hemiSky: '#f6d9e6', hemiGround: '#1a0a14', hemiIntensity: 0.6,
+        dirColor: '#1b5eaa', dirIntensity: 0.8, dirX: 2.3, dirY: 1.7, dirZ: -1.1, dirDistance: 22, dirDecay: 2,
+        centerColor: '#8e98a4', centerIntensity: 1.5, centerDistance: 6, centerDecay: 2
+      },
+      64: { // Standard
+        hemiSky: '#ffffff', hemiGround: '#8b9fa2', hemiIntensity: 0.7,
+        dirColor: '#b4c0cf', dirIntensity: 0.5, dirX: 2.4, dirY: 1.8, dirZ: -1.0, dirDistance: 22, dirDecay: 0.9,
+        centerColor: '#665c5d', centerIntensity: 0.3, centerDistance: 20, centerDecay: 2
       }
     };
 
@@ -5350,16 +5641,12 @@
         });
       }
       // Apply wireframe colors
-      if (wireHexInput && preset.wireHex) {
-        wireHexInput.value = preset.wireHex;
-        updateColorDisplay(wireHexInput, wireHexDisplay, wireHexHex);
-        const color = parseInt(preset.wireHex.substring(1), 16);
+      const presetWireColor = preset.wireHex || preset.wirePent;
+      if (wireColorInput && presetWireColor) {
+        wireColorInput.value = presetWireColor;
+        updateColorDisplay(wireColorInput, wireColorDisplay, wireColorHex);
+        const color = parseInt(presetWireColor.substring(1), 16);
         if (wireHexMaterial) wireHexMaterial.color.setHex(color);
-      }
-      if (wirePentInput && preset.wirePent) {
-        wirePentInput.value = preset.wirePent;
-        updateColorDisplay(wirePentInput, wirePentDisplay, wirePentHex);
-        const color = parseInt(preset.wirePent.substring(1), 16);
         if (wirePentMaterial) wirePentMaterial.color.setHex(color);
       }
       // Apply background color
@@ -5550,36 +5837,12 @@
 
     // Event listeners for preset selects - apply immediately on change
     const globalPresetSelect = document.getElementById('debugGlobalPreset');
-    const colorPresetSelect = document.getElementById('debugColorPreset');
-    const lightPresetSelect = document.getElementById('debugLightPreset');
-    const materialPresetSelect = document.getElementById('debugMaterialPreset');
 
     if (globalPresetSelect) {
       globalPresetSelect.addEventListener('change', () => {
         const presetNum = parseInt(globalPresetSelect.value || '0');
         applyGlobalPreset(presetNum);
         currentGlobalPreset = presetNum;
-      });
-    }
-
-    if (colorPresetSelect) {
-      colorPresetSelect.addEventListener('change', () => {
-        const presetNum = parseInt(colorPresetSelect.value || '1');
-        applyColorPreset(presetNum);
-      });
-    }
-
-    if (lightPresetSelect) {
-      lightPresetSelect.addEventListener('change', () => {
-        const presetNum = parseInt(lightPresetSelect.value || '1');
-        applyLightPreset(presetNum);
-      });
-    }
-
-    if (materialPresetSelect) {
-      materialPresetSelect.addEventListener('change', () => {
-        const presetNum = parseInt(materialPresetSelect.value || '1');
-        applyMaterialPreset(presetNum);
       });
     }
     
@@ -5608,7 +5871,7 @@
     }
     
     // Initialize with default preset (original settings)
-    applyGlobalPreset(0);
+    applyGlobalPreset(1);
 
     // Register Service Worker for PWA
     if ('serviceWorker' in navigator) {
